@@ -1,5 +1,5 @@
-import { LandingMap } from '../components/LandingMap'
+import { redirect } from 'next/navigation'
 
-export default function HomePage() {
-  return <LandingMap />
+export default function RootPage() {
+  redirect('/dashboard')
 }

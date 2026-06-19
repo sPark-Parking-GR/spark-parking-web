@@ -1,42 +1,46 @@
+import { getSession } from './session'
+import type { SessionData } from './session'
+import type { IronSession } from 'iron-session'
+import type { AuthResult } from '@spark/types'
+import type { OpeningHours } from '@spark/types'
+
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
-export interface FacilitySearchResult {
+const EXPIRY_SKEW_MS = 30_000
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
+export class AuthRequiredError extends Error {
+  constructor(message = 'Authentication required') {
+    super(message)
+    this.name = 'AuthRequiredError'
+  }
+}
+
+export interface AdminFacilityListItem {
   id: string
   name: string
   address: string
-  lat: number
-  lng: number
-  distanceMeters: number
-  available: boolean
-  remainingSlots: number
-  priceCents: number | null
-  currency: string
-  isPromoted: boolean
-  thumbnailUrl: string | null
+  totalCapacity: number
+  onlineQuota: number
+  isActive: boolean
+  isVerified: boolean
+  operatorId: string
+  createdAt: string
+  updatedAt: string
 }
 
-export interface QuoteLineItem {
-  label: string
-  durationMinutes: number
-  unitPriceCents: number
-  quantity: number
-  subtotalCents: number
-}
-
-export interface PriceQuote {
-  facilityId: string
-  startsAt: string
-  endsAt: string
-  durationMinutes: number
-  vehicleType: string
-  lineItems: QuoteLineItem[]
-  totalCents: number
-  currency: string
-  expiresAt: string
-}
-
-export interface FacilityDetail {
+export interface AdminFacility {
   id: string
+  operatorId: string
   name: string
   address: string
   lat: number
@@ -45,128 +49,192 @@ export interface FacilityDetail {
   onlineQuota: number
   vehicleTypes: string[]
   heightRestrictionCm: number | null
+  openingHours: OpeningHours
   amenities: string[]
   cancellationPolicy: string
-  images: Array<{ id: string; url: string; altText: string | null }>
-  tariffPlans: Array<{
-    id: string
-    name: string
-    rules: Array<{ id: string; type: string; priceCents: number; currency: string; vehicleTypes: string[] }>
-  }>
-  rating: { average: number | null; count: number }
+  isActive: boolean
+  isVerified: boolean
+  rank: number
+  createdAt: string
+  updatedAt: string
 }
 
-export interface CreateBookingResponse {
-  bookingId: string
-  accessCode: string
-  expiresAt: string
-  amountCents: number
-  currency: string
-  clientSecret?: string
-  alreadyExisted: boolean
+export interface FacilityListResponse {
+  items: AdminFacilityListItem[]
+  total: number
+  skip: number
+  take: number
 }
 
-export interface ConfirmedBooking {
-  bookingId: string
-  accessCode: string
-  status: string
-  startsAt: string
-  endsAt: string
-  finalPriceCents: number
-  currency: string
-}
-
-export interface BookingDetail {
-  id: string
-  accessCode: string
-  status: string
-  startsAt: string
-  endsAt: string
-  vehiclePlate: string
-  vehicleType: string
-  quotedPriceCents: number
-  finalPriceCents: number | null
-  currency: string
-  facility: { id: string; name: string; address: string }
-  statusHistory: Array<{ status: string; changedAt: string }>
-}
-
-export interface SearchParams {
+export interface CreateFacilityInput {
+  name: string
+  address: string
   lat: number
   lng: number
-  radiusMeters?: number
-  startsAt: string
-  endsAt: string
-  vehicleType?: string
+  totalCapacity: number
+  onlineQuota: number
+  vehicleTypes: string[]
+  heightRestrictionCm?: number | null
+  openingHours: OpeningHours
+  amenities?: string[]
+  cancellationPolicy?: string
+  operatorId?: string
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const headers: Record<string, string> = { ...(init?.headers as Record<string, string>) }
-  if (init?.body) headers['Content-Type'] = 'application/json'
+export interface UpdateFacilityInput {
+  name?: string
+  address?: string
+  lat?: number
+  lng?: number
+  totalCapacity?: number
+  onlineQuota?: number
+  vehicleTypes?: string[]
+  heightRestrictionCm?: number | null
+  openingHours?: OpeningHours
+  amenities?: string[]
+  cancellationPolicy?: string
+  isActive?: boolean
+}
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...init,
-    headers,
+function toSessionData(result: AuthResult): SessionData {
+  return {
+    accessToken: result.session.accessToken,
+    refreshToken: result.session.refreshToken,
+    expiresAt: result.session.expiresAt,
+    user: result.session.user,
+  }
+}
+
+async function callRefresh(refreshToken: string): Promise<SessionData> {
+  const response = await fetch(`${BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
     cache: 'no-store',
   })
+  if (!response.ok) {
+    throw new AuthRequiredError('Session refresh failed')
+  }
+  const result = (await response.json()) as AuthResult
+  return toSessionData(result)
+}
+
+// WHY: iron-session can only persist a cookie when a writable cookie store is
+// available (Server Actions / Route Handlers). During plain Server Component
+// render the cookie is read-only and session.save() throws, so when persistence
+// fails we fall back to an in-memory refresh for the lifetime of the request.
+async function refreshSession(session: IronSession<SessionData>): Promise<SessionData> {
+  const refreshed = await callRefresh(session.refreshToken)
+  session.accessToken = refreshed.accessToken
+  session.refreshToken = refreshed.refreshToken
+  session.expiresAt = refreshed.expiresAt
+  session.user = refreshed.user
+  try {
+    await session.save()
+  } catch {
+    // read-only render context: keep refreshed token in memory for this request only
+  }
+  return refreshed
+}
+
+function isExpired(expiresAt: number): boolean {
+  return Date.now() >= expiresAt - EXPIRY_SKEW_MS
+}
+
+async function authFetch(path: string, init: RequestInit, accessToken: string): Promise<Response> {
+  const headers = new Headers(init.headers)
+  headers.set('Authorization', `Bearer ${accessToken}`)
+  if (init.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
+  return fetch(`${BASE_URL}${path}`, { ...init, headers, cache: 'no-store' })
+}
+
+export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const session = await getSession()
+  if (!session.accessToken) {
+    throw new AuthRequiredError()
+  }
+
+  let accessToken = session.accessToken
+  if (isExpired(session.expiresAt)) {
+    try {
+      accessToken = (await refreshSession(session)).accessToken
+    } catch {
+      try {
+        session.destroy()
+      } catch {
+        // read-only context: cookie cannot be cleared here, middleware will catch it
+      }
+      throw new AuthRequiredError()
+    }
+  }
+
+  let response = await authFetch(path, init, accessToken)
+
+  if (response.status === 401) {
+    try {
+      accessToken = (await refreshSession(session)).accessToken
+    } catch {
+      try {
+        session.destroy()
+      } catch {
+        // read-only context
+      }
+      throw new AuthRequiredError()
+    }
+    response = await authFetch(path, init, accessToken)
+  }
 
   if (!response.ok) {
     const body = (await response.json().catch(() => ({}))) as { message?: string }
-    throw new Error(body.message ?? `Request failed: ${response.status}`)
+    throw new ApiError(body.message ?? `Request failed: ${response.status}`, response.status)
+  }
+
+  if (response.status === 204) {
+    return undefined as T
   }
 
   return response.json() as Promise<T>
 }
 
-export function searchFacilities(params: SearchParams): Promise<FacilitySearchResult[]> {
-  const query = new URLSearchParams({
-    lat: String(params.lat),
-    lng: String(params.lng),
-    radiusMeters: String(params.radiusMeters ?? 3000),
-    startsAt: params.startsAt,
-    endsAt: params.endsAt,
-    ...(params.vehicleType ? { vehicleType: params.vehicleType } : {}),
-  })
-  return request<FacilitySearchResult[]>(`/facilities/search?${query.toString()}`)
+export function listFacilities(params: {
+  skip?: number
+  take?: number
+  q?: string
+  isActive?: boolean
+  isVerified?: boolean
+  operatorId?: string
+}): Promise<FacilityListResponse> {
+  const query = new URLSearchParams()
+  if (params.skip !== undefined) query.set('skip', String(params.skip))
+  if (params.take !== undefined) query.set('take', String(params.take))
+  if (params.q) query.set('q', params.q)
+  if (params.isActive !== undefined) query.set('isActive', String(params.isActive))
+  if (params.isVerified !== undefined) query.set('isVerified', String(params.isVerified))
+  if (params.operatorId) query.set('operatorId', params.operatorId)
+  const qs = query.toString()
+  return apiFetch<FacilityListResponse>(`/facilities${qs ? `?${qs}` : ''}`)
 }
 
-export function getFacility(id: string): Promise<FacilityDetail> {
-  return request<FacilityDetail>(`/facilities/${id}`)
+export function getFacilityForEdit(id: string): Promise<AdminFacility> {
+  return apiFetch<AdminFacility>(`/facilities/${id}/manage`)
 }
 
-export function getQuote(
-  id: string,
-  startsAt: string,
-  endsAt: string,
-  vehicleType: string,
-): Promise<PriceQuote> {
-  const query = new URLSearchParams({ startsAt, endsAt, vehicleType })
-  return request<PriceQuote>(`/facilities/${id}/quote?${query.toString()}`)
-}
-
-export function createBooking(
-  body: {
-    facilityId: string
-    startsAt: string
-    endsAt: string
-    vehicleType: string
-    vehiclePlate: string
-    guestEmail: string
-    guestPhone?: string
-  },
-  idempotencyKey: string,
-): Promise<CreateBookingResponse> {
-  return request<CreateBookingResponse>('/bookings', {
+export function createFacility(input: CreateFacilityInput): Promise<AdminFacility> {
+  return apiFetch<AdminFacility>('/facilities', {
     method: 'POST',
-    headers: { 'Idempotency-Key': idempotencyKey },
-    body: JSON.stringify({ ...body, sourceChannel: 'WEB' }),
+    body: JSON.stringify(input),
   })
 }
 
-export function confirmBooking(id: string): Promise<ConfirmedBooking> {
-  return request<ConfirmedBooking>(`/bookings/${id}/confirm`, { method: 'POST' })
+export function updateFacility(id: string, input: UpdateFacilityInput): Promise<AdminFacility> {
+  return apiFetch<AdminFacility>(`/facilities/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  })
 }
 
-export function getBooking(id: string): Promise<BookingDetail> {
-  return request<BookingDetail>(`/bookings/${id}`)
+export function deleteFacility(id: string): Promise<void> {
+  return apiFetch<void>(`/facilities/${id}`, { method: 'DELETE' })
 }
