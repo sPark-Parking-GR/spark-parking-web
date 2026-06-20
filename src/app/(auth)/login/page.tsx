@@ -1,4 +1,5 @@
 import { LoginForm } from '@/components/LoginForm'
+import { SparkLogo } from '@/components/SparkLogo'
 
 interface LoginPageProps {
   searchParams: Promise<{ from?: string; error?: string }>
@@ -10,8 +11,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <section className="auth-card" aria-labelledby="login-title">
       <header className="auth-card__head">
-        <span className="brand">sPark</span>
-        <span className="brand__tag">Admin</span>
+        <SparkLogo label="Admin" markSize={30} gradientId="spark-login-grad" />
       </header>
 
       <h1 id="login-title" className="h-heading auth-card__title">
