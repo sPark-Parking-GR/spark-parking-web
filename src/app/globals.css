@@ -337,6 +337,47 @@ a {
   margin-bottom: var(--space-lg);
 }
 
+.auth-stack {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.auth-stack .auth-card {
+  margin: 0;
+}
+
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.auth-brand__lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.auth-brand__title {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
+.auth-brand__tagline {
+  font-family: var(--font-display, 'Poppins', system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-on-ink-muted);
+}
+
 .auth-card__title {
   margin-bottom: var(--space-lg);
 }
