@@ -1,11 +1,12 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { facilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
 import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actions'
 import type { FacilityActionResult } from '@/lib/facility-actions'
 import type { AdminFacility } from '@/lib/api'
+import { FacilityLocationPicker } from '@/components/FacilityLocationPicker'
 
 interface Props {
   mode: 'create' | 'edit'
@@ -50,6 +51,15 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
 
   const [state, formAction, isPending] = useActionState(boundAction, INITIAL_STATE)
 
+  const [lat, setLat] = useState<number | null>(facility?.lat ?? null)
+  const [lng, setLng] = useState<number | null>(facility?.lng ?? null)
+
+  const parseCoord = (value: string): number | null => {
+    if (value.trim() === '') return null
+    const n = Number(value)
+    return Number.isFinite(n) ? n : null
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     const fd = new FormData(e.currentTarget)
     const raw = {
@@ -78,7 +88,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
   const is24h = facility?.openingHours.is24h ?? false
 
   return (
-    <div className="card facility-form-card">
+    <div className="facility-form-layout">
+      <div className="card facility-form-card">
       {state && !state.ok ? (
         <p className="auth-alert" role="alert">
           {state.error}
@@ -124,7 +135,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
               type="number"
               name="lat"
               step="any"
-              defaultValue={facility?.lat ?? ''}
+              value={lat ?? ''}
+              onChange={(e) => setLat(parseCoord(e.target.value))}
               required
               disabled={isPending}
             />
@@ -136,7 +148,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
               type="number"
               name="lng"
               step="any"
-              defaultValue={facility?.lng ?? ''}
+              value={lng ?? ''}
+              onChange={(e) => setLng(parseCoord(e.target.value))}
               required
               disabled={isPending}
             />
@@ -301,6 +314,21 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
           <SubmitButton mode={mode} />
         </div>
       </form>
+      </div>
+
+      <aside className="facility-map-panel">
+        <FacilityLocationPicker
+          lat={lat}
+          lng={lng}
+          onChange={(nextLat, nextLng) => {
+            setLat(nextLat)
+            setLng(nextLng)
+          }}
+        />
+        <p className="facility-map__hint">
+          Click the map or drag the pin to set the location. The coordinates update automatically.
+        </p>
+      </aside>
     </div>
   )
 }

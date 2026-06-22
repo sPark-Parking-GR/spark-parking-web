@@ -3,15 +3,18 @@ import type { NextConfig } from 'next'
 const isProd = process.env.NODE_ENV === 'production'
 
 // BFF dashboard: the browser only talks to this Next origin, so connect-src stays
-// 'self'. 'unsafe-inline'/'unsafe-eval' (dev only) cover Next's hydration bootstrap;
-// scripts are otherwise same-origin. frame-ancestors 'none' blocks clickjacking.
+// 'self' apart from the Google Maps JS API, which the facility location picker loads
+// client-side (script + tile/metadata fetches + Roboto webfont).
+// 'unsafe-inline'/'unsafe-eval' (dev only) cover Next's hydration bootstrap;
+// 'wasm-unsafe-eval' lets the Maps vector renderer compile its WASM in prod.
+// frame-ancestors 'none' blocks clickjacking.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"}`,
-  "style-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline' https://maps.googleapis.com ${isProd ? "'wasm-unsafe-eval'" : "'unsafe-eval'"}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https:",
-  "font-src 'self'",
-  "connect-src 'self'",
+  "font-src 'self' https://fonts.gstatic.com",
+  "connect-src 'self' https://maps.googleapis.com https://maps.gstatic.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
