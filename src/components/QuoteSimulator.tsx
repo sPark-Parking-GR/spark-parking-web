@@ -1,6 +1,7 @@
 'use client'
 
 import { formatCents } from '@/lib/tariff-schema'
+import { DateTimePicker } from '@/components/pickers/DateTimePicker'
 import type { SimulateResult } from '@/lib/tariff-api'
 import type { VehicleType } from '@spark/types'
 
@@ -39,25 +40,25 @@ export function QuoteSimulator({
         {pending ? <span className="simulator__pending">updating…</span> : null}
       </div>
 
-      <div className="field-grid">
-        <label className="field">
+      <div className="simulator__dates">
+        <div className="field">
           <span className="field__label">Starts at</span>
-          <input
-            className="input"
-            type="datetime-local"
+          <DateTimePicker
+            mode="datetime"
             value={startsAt}
-            onChange={(e) => onChange({ startsAt: e.target.value })}
+            onChange={(v) => onChange({ startsAt: v })}
+            ariaLabel="Quote start"
           />
-        </label>
-        <label className="field">
+        </div>
+        <div className="field">
           <span className="field__label">Ends at</span>
-          <input
-            className="input"
-            type="datetime-local"
+          <DateTimePicker
+            mode="datetime"
             value={endsAt}
-            onChange={(e) => onChange({ endsAt: e.target.value })}
+            onChange={(v) => onChange({ endsAt: v })}
+            ariaLabel="Quote end"
           />
-        </label>
+        </div>
       </div>
 
       <label className="field">

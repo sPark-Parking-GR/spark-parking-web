@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useFormStatus } from 'react-dom'
+import { AlertCircle, AlertTriangle } from 'lucide-react'
 import { saveTariffPlanAction } from '@/lib/tariff-actions'
 import { simulateTariffAction } from '@/lib/tariff-actions'
 import { tariffDraftSchema, buildRateGrid } from '@/lib/tariff-schema'
@@ -165,19 +166,23 @@ export function TariffEditor({ mode, facilityId, planId, plan }: Props) {
 
       <div className="tariff-editor__left">
         {state && !state.ok ? (
-          <p className="auth-alert" role="alert">
+          <p className="form-banner form-banner--error" role="alert">
+            <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
             {state.error}
           </p>
         ) : null}
 
         {!clientValidation.ok ? (
-          <div className="editor-warning editor-warning--block" role="status">
-            <strong>Fix before saving:</strong>
-            <ul>
-              {Array.from(new Set(clientValidation.issues)).map((msg) => (
-                <li key={msg}>{msg}</li>
-              ))}
-            </ul>
+          <div className="form-banner form-banner--warning" role="status">
+            <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
+            <div className="form-banner__body">
+              <strong>Fix before saving</strong>
+              <ul>
+                {Array.from(new Set(clientValidation.issues)).map((msg) => (
+                  <li key={msg}>{msg}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         ) : null}
 

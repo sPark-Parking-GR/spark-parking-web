@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { Sidebar } from '@/components/Sidebar'
 import { TopBar } from '@/components/TopBar'
+import { TooltipLayer } from '@/components/TooltipLayer'
+import { NumberWheelGuard } from '@/components/NumberWheelGuard'
 import { getSession, isAuthenticated, isDashboardRole } from '@/lib/session'
 import { navForRole } from '@/lib/nav'
 
@@ -21,6 +23,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         <TopBar user={session.user} />
         <main className="dashboard-content">{children}</main>
       </div>
+      <TooltipLayer />
+      <NumberWheelGuard />
     </div>
   )
 }

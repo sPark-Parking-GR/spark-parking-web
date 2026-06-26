@@ -2,11 +2,17 @@
 
 import { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
+import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { facilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
 import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actions'
 import type { FacilityActionResult } from '@/lib/facility-actions'
 import type { AdminFacility } from '@/lib/api'
 import { FacilityLocationPicker } from '@/components/FacilityLocationPicker'
+import { MultiSelectControl } from '@/components/MultiSelectControl'
+import { VEHICLE_ICON } from '@/components/vehicle-icons'
+import { DateTimePicker } from '@/components/pickers/DateTimePicker'
+
+const VEHICLE_OPTIONS = VEHICLE_TYPE_OPTIONS.map((o) => ({ ...o, icon: VEHICLE_ICON[o.value] }))
 
 interface Props {
   mode: 'create' | 'edit'
@@ -51,8 +57,15 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
 
   const [state, formAction, isPending] = useActionState(boundAction, INITIAL_STATE)
 
+  const [hasSubmitted, setHasSubmitted] = useState(false)
   const [lat, setLat] = useState<number | null>(facility?.lat ?? null)
   const [lng, setLng] = useState<number | null>(facility?.lng ?? null)
+  const [vehicleTypes, setVehicleTypes] = useState<string[]>(
+    () => facility?.vehicleTypes ?? ['car'],
+  )
+  const [is24h, setIs24h] = useState(() => facility?.openingHours.is24h ?? false)
+  const [openTime, setOpenTime] = useState(() => prefillOpenTime(facility))
+  const [closeTime, setCloseTime] = useState(() => prefillCloseTime(facility))
 
   const parseCoord = (value: string): number | null => {
     if (value.trim() === '') return null
@@ -82,126 +95,141 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
     const result = facilityFormSchema.safeParse(raw)
     if (!result.success) {
       e.preventDefault()
+      return
     }
+    setHasSubmitted(true)
   }
 
-  const is24h = facility?.openingHours.is24h ?? false
+  const showVisibilitySection =
+    mode === 'edit' || (mode === 'create' && isPlatformAdmin)
 
   return (
     <div className="facility-form-layout">
-      <div className="card facility-form-card">
-      {state && !state.ok ? (
-        <p className="auth-alert" role="alert">
-          {state.error}
-        </p>
-      ) : null}
-      {state && state.ok && mode === 'edit' && !isPending ? (
-        <p className="form-success" role="status">
-          Changes saved.
-        </p>
-      ) : null}
+      <form action={formAction} onSubmit={handleSubmit} noValidate className="facility-form-card">
+        {state && !state.ok ? (
+          <p className="form-banner form-banner--error" role="alert">
+            <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
+            {state.error}
+          </p>
+        ) : null}
+        {state && state.ok && mode === 'edit' && hasSubmitted && !isPending ? (
+          <p className="form-banner form-banner--success" role="status">
+            <CheckCircle2 size={18} strokeWidth={2} aria-hidden="true" />
+            Changes saved.
+          </p>
+        ) : null}
 
-      <form action={formAction} onSubmit={handleSubmit} noValidate>
-        <div className="field-grid">
-          <label className="field">
-            <span className="field__label">Name</span>
-            <input
-              className="input"
-              type="text"
-              name="name"
-              defaultValue={facility?.name ?? ''}
-              required
-              disabled={isPending}
-            />
-          </label>
-          <label className="field">
-            <span className="field__label">Address</span>
-            <input
-              className="input"
-              type="text"
-              name="address"
-              defaultValue={facility?.address ?? ''}
-              required
-              disabled={isPending}
-            />
-          </label>
-        </div>
+        <section className="editor-section card">
+          <div className="editor-section__head">
+            <h3 className="h-heading">Basics</h3>
+          </div>
+          <div className="field-grid">
+            <label className="field">
+              <span className="field__label">Name</span>
+              <input
+                className="input"
+                type="text"
+                name="name"
+                defaultValue={facility?.name ?? ''}
+                required
+                disabled={isPending}
+              />
+            </label>
+            <label className="field">
+              <span className="field__label">Address</span>
+              <input
+                className="input"
+                type="text"
+                name="address"
+                defaultValue={facility?.address ?? ''}
+                required
+                disabled={isPending}
+              />
+            </label>
+          </div>
+        </section>
 
-        <div className="field-grid">
-          <label className="field">
-            <span className="field__label">Latitude</span>
-            <input
-              className="input"
-              type="number"
-              name="lat"
-              step="any"
-              value={lat ?? ''}
-              onChange={(e) => setLat(parseCoord(e.target.value))}
-              required
-              disabled={isPending}
-            />
-          </label>
-          <label className="field">
-            <span className="field__label">Longitude</span>
-            <input
-              className="input"
-              type="number"
-              name="lng"
-              step="any"
-              value={lng ?? ''}
-              onChange={(e) => setLng(parseCoord(e.target.value))}
-              required
-              disabled={isPending}
-            />
-          </label>
-        </div>
+        <section className="editor-section card">
+          <div className="editor-section__head">
+            <h3 className="h-heading">Location</h3>
+            <p className="editor-section__hint">
+              Set the pin on the map — coordinates update automatically, or type them directly.
+            </p>
+          </div>
+          <div className="field-grid">
+            <label className="field">
+              <span className="field__label">Latitude</span>
+              <input
+                className="input"
+                type="number"
+                name="lat"
+                step="any"
+                value={lat ?? ''}
+                onChange={(e) => setLat(parseCoord(e.target.value))}
+                required
+                disabled={isPending}
+              />
+            </label>
+            <label className="field">
+              <span className="field__label">Longitude</span>
+              <input
+                className="input"
+                type="number"
+                name="lng"
+                step="any"
+                value={lng ?? ''}
+                onChange={(e) => setLng(parseCoord(e.target.value))}
+                required
+                disabled={isPending}
+              />
+            </label>
+          </div>
+        </section>
 
-        <div className="field-grid">
-          <label className="field">
-            <span className="field__label">Total capacity</span>
-            <input
-              className="input"
-              type="number"
-              name="totalCapacity"
-              min="1"
-              defaultValue={facility?.totalCapacity ?? ''}
-              required
-              disabled={isPending}
-            />
-          </label>
-          <label className="field">
-            <span className="field__label">Online quota</span>
-            <input
-              className="input"
-              type="number"
-              name="onlineQuota"
-              min="0"
-              defaultValue={facility?.onlineQuota ?? ''}
-              required
-              disabled={isPending}
-            />
-          </label>
-        </div>
+        <section className="editor-section card">
+          <div className="editor-section__head">
+            <h3 className="h-heading">Capacity &amp; vehicles</h3>
+          </div>
+          <div className="field-grid">
+            <label className="field">
+              <span className="field__label">Total capacity</span>
+              <input
+                className="input"
+                type="number"
+                name="totalCapacity"
+                min="1"
+                defaultValue={facility?.totalCapacity ?? ''}
+                required
+                disabled={isPending}
+              />
+            </label>
+            <label className="field">
+              <span className="field__label">Online quota</span>
+              <input
+                className="input"
+                type="number"
+                name="onlineQuota"
+                min="0"
+                defaultValue={facility?.onlineQuota ?? ''}
+                required
+                disabled={isPending}
+              />
+            </label>
+          </div>
 
-        <div className="field">
-          <span className="field__label">Vehicle types</span>
-          <div className="checkbox-group">
-            {VEHICLE_TYPE_OPTIONS.map(({ value, label }) => (
-              <label key={value} className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="vehicleTypes"
-                  value={value}
-                  defaultChecked={facility ? facility.vehicleTypes.includes(value) : value === 'car'}
-                  disabled={isPending}
-                />
-                {label}
-              </label>
+          <div className="field">
+            <span className="field__label">Vehicle types</span>
+            <MultiSelectControl
+              options={VEHICLE_OPTIONS}
+              value={vehicleTypes}
+              onChange={setVehicleTypes}
+              disabled={isPending}
+            />
+            {vehicleTypes.map((value) => (
+              <input key={value} type="hidden" name="vehicleTypes" value={value} />
             ))}
           </div>
-        </div>
 
-        <div className="field-grid">
           <label className="field">
             <span className="field__label">Height restriction (cm, optional)</span>
             <input
@@ -213,6 +241,12 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
               disabled={isPending}
             />
           </label>
+        </section>
+
+        <section className="editor-section card">
+          <div className="editor-section__head">
+            <h3 className="h-heading">Policy &amp; amenities</h3>
+          </div>
           <label className="field">
             <span className="field__label">Amenities (comma-separated)</span>
             <input
@@ -223,98 +257,96 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
               disabled={isPending}
             />
           </label>
-        </div>
+          <label className="field">
+            <span className="field__label">Cancellation policy</span>
+            <textarea
+              className="input input--textarea"
+              name="cancellationPolicy"
+              rows={3}
+              defaultValue={facility?.cancellationPolicy ?? ''}
+              disabled={isPending}
+            />
+          </label>
+        </section>
 
-        <label className="field">
-          <span className="field__label">Cancellation policy</span>
-          <textarea
-            className="input input--textarea"
-            name="cancellationPolicy"
-            rows={3}
-            defaultValue={facility?.cancellationPolicy ?? ''}
-            disabled={isPending}
-          />
-        </label>
-
-        <div className="field">
-          <span className="field__label">Opening hours</span>
+        <section className="editor-section card">
+          <div className="editor-section__head">
+            <h3 className="h-heading">Opening hours</h3>
+          </div>
+          <input type="hidden" name="is24h" value={is24h ? 'true' : 'false'} />
           <div className="opening-hours-row">
             <label className="checkbox-label">
               <input
-                type="hidden"
-                name="is24h"
-                value="false"
-              />
-              <input
                 type="checkbox"
-                onChange={(e) => {
-                  const form = e.currentTarget.form
-                  if (!form) return
-                  const hidden = form.querySelector<HTMLInputElement>('input[name="is24h"]')
-                  if (hidden) hidden.value = e.currentTarget.checked ? 'true' : 'false'
-                  const timeFields = form.querySelectorAll<HTMLInputElement>('.opening-hours-time')
-                  timeFields.forEach((f) => { f.disabled = e.currentTarget.checked })
-                }}
-                defaultChecked={is24h}
+                checked={is24h}
+                onChange={(e) => setIs24h(e.target.checked)}
                 disabled={isPending}
               />
               Open 24 hours
             </label>
-            <label className="field opening-hours-time-field">
+            <div className="field opening-hours-time-field">
               <span className="field__label">Opens</span>
-              <input
-                className="input opening-hours-time"
-                type="time"
+              <DateTimePicker
+                mode="time"
                 name="openTime"
-                defaultValue={prefillOpenTime(facility)}
+                value={openTime}
+                onChange={setOpenTime}
                 disabled={isPending || is24h}
+                ariaLabel="Opening time"
               />
-            </label>
-            <label className="field opening-hours-time-field">
+            </div>
+            <div className="field opening-hours-time-field">
               <span className="field__label">Closes</span>
-              <input
-                className="input opening-hours-time"
-                type="time"
+              <DateTimePicker
+                mode="time"
                 name="closeTime"
-                defaultValue={prefillCloseTime(facility)}
+                value={closeTime}
+                onChange={setCloseTime}
                 disabled={isPending || is24h}
+                ariaLabel="Closing time"
               />
-            </label>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {mode === 'edit' ? (
-          <div className="field">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                name="isActive"
-                value="true"
-                defaultChecked={facility?.isActive ?? false}
-                disabled={isPending}
-              />
-              Active (visible to customers)
-            </label>
-          </div>
-        ) : null}
+        {showVisibilitySection ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">Visibility</h3>
+            </div>
+            {mode === 'edit' ? (
+              <div className="field">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    value="true"
+                    defaultChecked={facility?.isActive ?? false}
+                    disabled={isPending}
+                  />
+                  Active (visible to customers)
+                </label>
+              </div>
+            ) : null}
 
-        {mode === 'create' && isPlatformAdmin ? (
-          <label className="field">
-            <span className="field__label">Operator ID</span>
-            <input
-              className="input"
-              type="text"
-              name="operatorId"
-              disabled={isPending}
-            />
-          </label>
+            {mode === 'create' && isPlatformAdmin ? (
+              <label className="field">
+                <span className="field__label">Operator ID</span>
+                <input
+                  className="input"
+                  type="text"
+                  name="operatorId"
+                  disabled={isPending}
+                />
+              </label>
+            ) : null}
+          </section>
         ) : null}
 
         <div className="form-actions">
           <SubmitButton mode={mode} />
         </div>
       </form>
-      </div>
 
       <aside className="facility-map-panel">
         <FacilityLocationPicker

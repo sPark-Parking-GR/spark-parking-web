@@ -1,8 +1,13 @@
 'use client'
 
 import { VEHICLE_TYPE_OPTIONS } from '@/lib/tariff-schema'
+import { MultiSelectControl } from './MultiSelectControl'
+import { VEHICLE_ICON } from './vehicle-icons'
+import { DateTimePicker } from './pickers/DateTimePicker'
 import type { TariffDraft } from '@/lib/tariff-api'
 import type { VehicleType } from '@spark/types'
+
+const VEHICLE_OPTIONS = VEHICLE_TYPE_OPTIONS.map((o) => ({ ...o, icon: VEHICLE_ICON[o.value] }))
 
 interface Props {
   draft: TariffDraft
@@ -27,15 +32,6 @@ function localInputToIso(value: string): string | null {
 }
 
 export function PlanMetaFields({ draft, onChange }: Props) {
-  function toggleVehicle(value: VehicleType) {
-    const has = draft.vehicleTypes.includes(value)
-    onChange({
-      vehicleTypes: has
-        ? draft.vehicleTypes.filter((v) => v !== value)
-        : [...draft.vehicleTypes, value],
-    })
-  }
-
   return (
     <section className="editor-section card">
       <div className="editor-section__head">
@@ -89,40 +85,35 @@ export function PlanMetaFields({ draft, onChange }: Props) {
       </div>
 
       <div className="field-grid">
-        <label className="field">
+        <div className="field">
           <span className="field__label">Valid from</span>
-          <input
-            className="input"
-            type="datetime-local"
+          <DateTimePicker
+            mode="datetime"
             value={isoToLocalInput(draft.validFrom)}
-            onChange={(e) => onChange({ validFrom: localInputToIso(e.target.value) })}
+            onChange={(v) => onChange({ validFrom: localInputToIso(v) })}
+            placeholder="Any time"
+            ariaLabel="Valid from"
           />
-        </label>
-        <label className="field">
+        </div>
+        <div className="field">
           <span className="field__label">Valid to</span>
-          <input
-            className="input"
-            type="datetime-local"
+          <DateTimePicker
+            mode="datetime"
             value={isoToLocalInput(draft.validTo)}
-            onChange={(e) => onChange({ validTo: localInputToIso(e.target.value) })}
+            onChange={(v) => onChange({ validTo: localInputToIso(v) })}
+            placeholder="Any time"
+            ariaLabel="Valid to"
           />
-        </label>
+        </div>
       </div>
 
       <div className="field">
         <span className="field__label">Vehicle types</span>
-        <div className="checkbox-group">
-          {VEHICLE_TYPE_OPTIONS.map(({ value, label }) => (
-            <label key={value} className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={draft.vehicleTypes.includes(value)}
-                onChange={() => toggleVehicle(value)}
-              />
-              {label}
-            </label>
-          ))}
-        </div>
+        <MultiSelectControl
+          options={VEHICLE_OPTIONS}
+          value={draft.vehicleTypes}
+          onChange={(vehicleTypes) => onChange({ vehicleTypes: vehicleTypes as VehicleType[] })}
+        />
       </div>
 
       <div className="field checkbox-group">

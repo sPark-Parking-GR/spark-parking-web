@@ -9,6 +9,15 @@ const ROLE_LABELS: Record<AuthUser['role'], string> = {
   platform_admin: 'Platform admin',
 }
 
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  const first = parts[0]
+  if (!first) return '?'
+  const last = parts[parts.length - 1]
+  if (parts.length === 1 || !last) return first.slice(0, 2).toUpperCase()
+  return ((first[0] ?? '') + (last[0] ?? '')).toUpperCase()
+}
+
 export function TopBar({ user }: { user: AuthUser }) {
   const name = user.displayName ?? user.email
 
@@ -19,6 +28,14 @@ export function TopBar({ user }: { user: AuthUser }) {
         <span className="topbar__identity">
           <span className="topbar__name">{name}</span>
           <span className="topbar__role text-secondary">{ROLE_LABELS[user.role]}</span>
+        </span>
+        <span
+          className="topbar__avatar"
+          data-tooltip={user.email}
+          tabIndex={0}
+          aria-label={`Signed in as ${name}`}
+        >
+          {initials(name)}
         </span>
         <SignOutButton />
       </div>

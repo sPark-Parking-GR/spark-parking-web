@@ -30,7 +30,7 @@ export default async function EditFacilityPage({ params }: PageProps) {
     <>
       <PageHeader
         title={facility.name}
-        actions={<DeleteFacilityButton id={id} />}
+        titleAccessory={<DeleteFacilityButton id={id} />}
       />
       <FacilityForm mode="edit" facility={facility} isPlatformAdmin={isPlatformAdmin} />
     </>

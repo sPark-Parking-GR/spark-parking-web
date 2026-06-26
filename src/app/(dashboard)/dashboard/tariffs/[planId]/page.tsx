@@ -32,7 +32,7 @@ export default async function EditTariffPlanPage({ params, searchParams }: PageP
     <>
       <PageHeader
         title={detail.name}
-        actions={<DeleteTariffButton facilityId={facilityId} planId={planId} />}
+        titleAccessory={<DeleteTariffButton facilityId={facilityId} planId={planId} />}
       />
       <TariffEditor mode="edit" facilityId={facilityId} planId={planId} plan={detail} />
     </>

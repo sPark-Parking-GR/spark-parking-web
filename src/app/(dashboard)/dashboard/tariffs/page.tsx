@@ -7,25 +7,18 @@ import { FacilitySelect } from '@/components/FacilitySelect'
 import { listFacilities, ApiError, AuthRequiredError } from '@/lib/api'
 import { listTariffPlans } from '@/lib/tariff-api'
 import type { TariffPlanListItem } from '@/lib/tariff-api'
-import { getSession } from '@/lib/session'
+import { loadPage, requireSession } from '@/lib/dal'
 
 interface PageProps {
   searchParams: Promise<{ facilityId?: string }>
 }
 
 export default async function TariffsPage({ searchParams }: PageProps) {
-  const session = await getSession()
-  if (!session.accessToken) redirect('/login')
+  await requireSession()
 
   const { facilityId } = await searchParams
 
-  let facilities
-  try {
-    facilities = await listFacilities({ take: 100 })
-  } catch (err) {
-    if (err instanceof AuthRequiredError) redirect('/login')
-    throw err
-  }
+  const facilities = await loadPage(() => listFacilities({ take: 100 }))
 
   let plans: TariffPlanListItem[] | undefined
   if (facilityId) {

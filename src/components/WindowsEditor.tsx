@@ -8,6 +8,7 @@ import {
   hhmmToMinutes,
   makeKey,
 } from '@/lib/tariff-schema'
+import { DateTimePicker } from '@/components/pickers/DateTimePicker'
 import type { TariffWindow } from '@/lib/tariff-api'
 
 interface Props {
@@ -110,25 +111,25 @@ export function WindowsEditor({ windows, onChange }: Props) {
               </div>
             </div>
 
-            <label className="field windows-row__time">
+            <div className="field windows-row__time">
               <span className="field__label">Start</span>
-              <input
-                className="input"
-                type="time"
+              <DateTimePicker
+                mode="time"
                 value={minutesToHHMM(win.startMinute)}
-                onChange={(e) => update(i, { startMinute: hhmmToMinutes(e.target.value) })}
+                onChange={(v) => update(i, { startMinute: hhmmToMinutes(v) })}
+                ariaLabel="Window start"
               />
-            </label>
+            </div>
 
-            <label className="field windows-row__time">
+            <div className="field windows-row__time">
               <span className="field__label">End</span>
-              <input
-                className="input"
-                type="time"
+              <DateTimePicker
+                mode="time"
                 value={minutesToHHMM(win.endMinute)}
-                onChange={(e) => update(i, { endMinute: hhmmToMinutes(e.target.value) })}
+                onChange={(v) => update(i, { endMinute: hhmmToMinutes(v) })}
+                ariaLabel="Window end"
               />
-            </label>
+            </div>
 
             <button
               type="button"

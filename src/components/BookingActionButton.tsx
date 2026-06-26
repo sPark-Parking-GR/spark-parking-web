@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import { Spinner } from './Spinner'
 import { checkInAction, checkOutAction } from '@/lib/booking-actions'
 import type { BookingActionResult } from '@/lib/booking-actions'
 
@@ -22,7 +23,14 @@ export function BookingActionButton({ id, kind }: { id: string; kind: Kind }) {
     <form action={formAction} className="booking-action">
       <input type="hidden" name="id" value={id} />
       <button type="submit" className={className} disabled={isPending}>
-        {isPending ? 'Working…' : label}
+        {isPending ? (
+          <>
+            <Spinner size={15} />
+            Working…
+          </>
+        ) : (
+          label
+        )}
       </button>
       {state && !state.ok ? (
         <span className="booking-action__error" role="alert">
