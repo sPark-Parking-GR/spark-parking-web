@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Poppins } from 'next/font/google'
+import { Inter, Montserrat_Alternates } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({
@@ -9,9 +9,9 @@ const inter = Inter({
   display: 'swap',
 })
 
-const poppins = Poppins({
+const montserratAlternates = Montserrat_Alternates({
   subsets: ['latin'],
-  weight: ['600', '700'],
+  weight: ['500', '600', '700'],
   variable: '--font-display',
   display: 'swap',
 })
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="el" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="el" className={`${inter.variable} ${montserratAlternates.variable}`}>
       <body>{children}</body>
     </html>
   )
