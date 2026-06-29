@@ -1,5 +1,6 @@
 'use client'
 
+import { Trash2 } from 'lucide-react'
 import {
   DAY_BITS,
   WEEKDAY_LABELS,
@@ -16,8 +17,9 @@ interface Props {
   onChange: (windows: TariffWindow[]) => void
 }
 
-// WHY: a day is fully covered only when, across all windows including that day,
-// the [start,end) ranges (wrapping past midnight) union to the entire [0,1440).
+// WHY: mirrors the API validator (schedule-validation.ts). A day is valid only
+// when its windows tile [0,1440) exactly — contiguous from 0, no gap, no overlap.
+// Overlap (start < cursor) is rejected just like a gap (start > cursor).
 function dayIsCovered(windows: TariffWindow[], bit: number): boolean {
   const segments: Array<[number, number]> = []
   for (const w of windows) {
@@ -26,17 +28,17 @@ function dayIsCovered(windows: TariffWindow[], bit: number): boolean {
       segments.push([w.startMinute, w.endMinute])
     } else {
       segments.push([w.startMinute, 1440])
-      segments.push([0, w.endMinute])
+      if (w.endMinute > 0) segments.push([0, w.endMinute])
     }
   }
+  if (segments.length === 0) return false
   segments.sort((a, b) => a[0] - b[0])
-  let reached = 0
+  let cursor = 0
   for (const [start, end] of segments) {
-    if (start > reached) return false
-    reached = Math.max(reached, end)
-    if (reached >= 1440) return true
+    if (start !== cursor) return false
+    cursor = end
   }
-  return reached >= 1440
+  return cursor === 1440
 }
 
 export function WindowsEditor({ windows, onChange }: Props) {
@@ -133,12 +135,14 @@ export function WindowsEditor({ windows, onChange }: Props) {
 
             <button
               type="button"
-              className="row-btn row-btn--remove"
+              className="btn btn--icon btn--ghost-danger"
               onClick={() => removeWindow(i)}
               disabled={windows.length <= 1}
               aria-label="Remove window"
+              data-tooltip="Remove window"
+              data-tooltip-pos="bottom"
             >
-              Remove
+              <Trash2 size={18} strokeWidth={2} aria-hidden="true" />
             </button>
           </div>
         ))}
@@ -146,8 +150,8 @@ export function WindowsEditor({ windows, onChange }: Props) {
 
       {uncoveredDays.length > 0 ? (
         <p className="editor-warning" role="status">
-          These days are not fully covered across 24h: {uncoveredDays.join(', ')}. Pricing will be rejected
-          until every active day is fully covered.
+          These days are not cleanly tiled across 24h (gap or overlap): {uncoveredDays.join(', ')}. Windows
+          must run end-to-end from 00:00 to 24:00 with no gap or overlap. Pricing will be rejected until fixed.
         </p>
       ) : null}
 

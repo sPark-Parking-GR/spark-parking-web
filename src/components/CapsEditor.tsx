@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import { CAP_SCOPE_OPTIONS, formatCents, eurosToCents, makeKey } from '@/lib/tariff-schema'
 import type { TariffCap } from '@/lib/tariff-api'
 
@@ -80,11 +81,13 @@ export function CapsEditor({ caps, onChange }: Props) {
 
             <button
               type="button"
-              className="row-btn row-btn--remove"
+              className="btn btn--icon btn--ghost-danger"
               onClick={() => removeCap(i)}
               aria-label="Remove cap"
+              data-tooltip="Remove cap"
+              data-tooltip-pos="bottom"
             >
-              Remove
+              <Trash2 size={18} strokeWidth={2} aria-hidden="true" />
             </button>
           </div>
         ))}

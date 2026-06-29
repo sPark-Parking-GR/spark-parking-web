@@ -1,5 +1,6 @@
 'use client'
 
+import { Trash2 } from 'lucide-react'
 import { UNIT_OPTIONS, makeKey } from '@/lib/tariff-schema'
 import type { TariffTier } from '@/lib/tariff-api'
 
@@ -119,12 +120,14 @@ export function TiersEditor({ tiers, onChange }: Props) {
 
               <button
                 type="button"
-                className="row-btn row-btn--remove"
+                className="btn btn--icon btn--ghost-danger"
                 onClick={() => removeTier(i)}
                 disabled={tiers.length <= 1}
                 aria-label="Remove tier"
+                data-tooltip="Remove tier"
+                data-tooltip-pos="bottom"
               >
-                Remove
+                <Trash2 size={18} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>
           )
