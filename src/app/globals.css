@@ -584,17 +584,20 @@ select.input {
 .dashboard-shell {
   display: grid;
   grid-template-columns: 240px 1fr;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--color-ink-soft) 0%, var(--color-ink) 38%);
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  min-height: 0;
+  overflow-y: auto;
   background:
     radial-gradient(120% 50% at 0% 0%, rgba(16, 148, 212, 0.14), transparent 60%),
     linear-gradient(180deg, var(--color-ink-soft) 0%, var(--color-ink) 38%);
-  border-right: 1px solid rgba(234, 227, 215, 0.08);
   padding: var(--space-lg) var(--space-md);
 }
 
@@ -668,6 +671,10 @@ select.input {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  overflow: hidden;
 }
 
 .topbar {
@@ -796,6 +803,8 @@ select.input {
 
 .dashboard-content {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: var(--space-lg);
   background:
     radial-gradient(120% 80% at 100% 0%, rgba(16, 148, 212, 0.06), transparent 60%),
@@ -970,12 +979,27 @@ select.input {
 @media (max-width: 720px) {
   .dashboard-shell {
     grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .dashboard-main {
+    min-height: auto;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .dashboard-content {
+    min-height: auto;
+    overflow-y: visible;
   }
 
   .sidebar {
     position: sticky;
     top: 0;
     z-index: 30;
+    min-height: auto;
+    overflow-y: visible;
     flex-direction: row;
     align-items: center;
     gap: var(--space-sm);

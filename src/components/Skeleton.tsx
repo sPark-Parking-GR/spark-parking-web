@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 interface SkeletonProps {
   width?: string | number
   height?: string | number
@@ -12,6 +14,32 @@ export function Skeleton({ width, height = '1em', radius = 6, className }: Skele
       style={{ width, height, borderRadius: radius }}
       aria-hidden="true"
     />
+  )
+}
+
+export function FieldSkeleton() {
+  return (
+    <div className="field">
+      <Skeleton width={96} height={13} className="field__label" />
+      <Skeleton height={44} radius={8} />
+    </div>
+  )
+}
+
+export function EditorSectionSkeleton({
+  headWidth = 96,
+  children,
+}: {
+  headWidth?: number
+  children: ReactNode
+}) {
+  return (
+    <section className="editor-section card">
+      <div className="editor-section__head">
+        <Skeleton width={headWidth} height={16} />
+      </div>
+      {children}
+    </section>
   )
 }
 
