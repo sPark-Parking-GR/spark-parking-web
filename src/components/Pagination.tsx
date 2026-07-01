@@ -6,9 +6,10 @@ interface Props {
   take: number
   total: number
   buildHref: (skip: number) => string
+  sticky?: boolean
 }
 
-export function Pagination({ skip, take, total, buildHref }: Props) {
+export function Pagination({ skip, take, total, buildHref, sticky = false }: Props) {
   if (total <= take) return null
 
   const hasPrev = skip > 0
@@ -17,7 +18,10 @@ export function Pagination({ skip, take, total, buildHref }: Props) {
   const to = Math.min(skip + take, total)
 
   return (
-    <nav className="pagination" aria-label="Pagination">
+    <nav
+      className={`pagination${sticky ? ' pagination--sticky' : ''}`}
+      aria-label="Pagination"
+    >
       {hasPrev ? (
         <Link href={buildHref(Math.max(0, skip - take))} className="btn btn--secondary pagination__btn">
           <ChevronLeft size={16} strokeWidth={2} aria-hidden="true" />

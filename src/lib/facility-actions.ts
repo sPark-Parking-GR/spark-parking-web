@@ -6,11 +6,20 @@ import {
   createFacility,
   updateFacility,
   deleteFacility,
+  bulkFacilities,
+  adminMapFacilities,
+  listFacilities,
   ApiError,
   AuthRequiredError,
 } from './api'
 import { facilityFormSchema } from './facility-schema'
-import type { CreateFacilityInput, UpdateFacilityInput } from './api'
+import type {
+  AdminMapResponse,
+  BulkFacilityAction,
+  CreateFacilityInput,
+  FacilityKind,
+  UpdateFacilityInput,
+} from './api'
 import type { OpeningHours } from '@spark/types'
 
 const FACILITIES_PATH = '/dashboard/facilities'
@@ -187,6 +196,60 @@ export async function updateFacilityAction(
   revalidatePath(FACILITIES_PATH)
   revalidatePath(`${FACILITIES_PATH}/${id}`)
   return { ok: true }
+}
+
+export async function bulkFacilityAction(
+  action: BulkFacilityAction,
+  ids: string[],
+): Promise<FacilityActionResult & { affected?: number }> {
+  if (ids.length === 0) return { ok: false, error: 'Select at least one facility.' }
+
+  try {
+    const { affected } = await bulkFacilities(ids, action)
+    revalidatePath(FACILITIES_PATH)
+    return { ok: true, affected }
+  } catch (err) {
+    return mapApiError(err)
+  }
+}
+
+export type MapFacilitiesResult =
+  | { ok: true; data: AdminMapResponse }
+  | { ok: false; error: string }
+
+export async function fetchMapFacilitiesAction(params: {
+  north: number
+  south: number
+  east: number
+  west: number
+  q?: string
+  isActive?: boolean
+  isVerified?: boolean
+  kind?: FacilityKind
+}): Promise<MapFacilitiesResult> {
+  try {
+    const data = await adminMapFacilities(params)
+    return { ok: true, data }
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    return { ok: false, error: 'Could not load map data.' }
+  }
+}
+
+export type FacilityOption = { id: string; name: string; address: string }
+
+export async function searchFacilitiesAction(q: string): Promise<FacilityOption[]> {
+  try {
+    const { items } = await listFacilities({
+      q: q.trim() || undefined,
+      take: 20,
+      isActive: true,
+    })
+    return items.map(({ id, name, address }) => ({ id, name, address }))
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    return []
+  }
 }
 
 export async function deleteFacilityAction(formData: FormData): Promise<void> {

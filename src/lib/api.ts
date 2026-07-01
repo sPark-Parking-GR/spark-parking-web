@@ -25,6 +25,10 @@ export class AuthRequiredError extends Error {
   }
 }
 
+export type FacilityKind = 'BUSINESS' | 'FREE_PUBLIC' | 'RESTRICTED' | 'UNKNOWN'
+export type FacilitySource = 'OSM' | 'GOOGLE' | 'MANUAL' | null
+export type BulkFacilityAction = 'enable' | 'disable' | 'deploy' | 'delete'
+
 export interface AdminFacilityListItem {
   id: string
   name: string
@@ -33,9 +37,36 @@ export interface AdminFacilityListItem {
   onlineQuota: number
   isActive: boolean
   isVerified: boolean
+  kind: FacilityKind
+  source: FacilitySource
   operatorId: string
+  operatorName: string
   createdAt: string
   updatedAt: string
+}
+
+export interface AdminMapPoint {
+  id: string
+  name: string
+  lat: number
+  lng: number
+  kind: FacilityKind
+  isActive: boolean
+  isVerified: boolean
+}
+
+export interface AdminMapCluster {
+  id: string
+  lat: number
+  lng: number
+  count: number
+}
+
+export interface AdminMapResponse {
+  mode: 'points' | 'clusters'
+  points: AdminMapPoint[]
+  clusters: AdminMapCluster[]
+  total: number
 }
 
 export interface AdminFacility {
@@ -204,6 +235,7 @@ export function listFacilities(params: {
   q?: string
   isActive?: boolean
   isVerified?: boolean
+  kind?: FacilityKind
   operatorId?: string
 }): Promise<FacilityListResponse> {
   const query = new URLSearchParams()
@@ -212,9 +244,44 @@ export function listFacilities(params: {
   if (params.q) query.set('q', params.q)
   if (params.isActive !== undefined) query.set('isActive', String(params.isActive))
   if (params.isVerified !== undefined) query.set('isVerified', String(params.isVerified))
+  if (params.kind) query.set('kind', params.kind)
   if (params.operatorId) query.set('operatorId', params.operatorId)
   const qs = query.toString()
   return apiFetch<FacilityListResponse>(`/facilities${qs ? `?${qs}` : ''}`)
+}
+
+export function bulkFacilities(
+  ids: string[],
+  action: BulkFacilityAction,
+): Promise<{ affected: number }> {
+  return apiFetch<{ affected: number }>('/facilities/bulk', {
+    method: 'PATCH',
+    body: JSON.stringify({ ids, action }),
+  })
+}
+
+export function adminMapFacilities(params: {
+  north: number
+  south: number
+  east: number
+  west: number
+  q?: string
+  isActive?: boolean
+  isVerified?: boolean
+  kind?: FacilityKind
+  operatorId?: string
+}): Promise<AdminMapResponse> {
+  const query = new URLSearchParams()
+  query.set('north', String(params.north))
+  query.set('south', String(params.south))
+  query.set('east', String(params.east))
+  query.set('west', String(params.west))
+  if (params.q) query.set('q', params.q)
+  if (params.isActive !== undefined) query.set('isActive', String(params.isActive))
+  if (params.isVerified !== undefined) query.set('isVerified', String(params.isVerified))
+  if (params.kind) query.set('kind', params.kind)
+  if (params.operatorId) query.set('operatorId', params.operatorId)
+  return apiFetch<AdminMapResponse>(`/facilities/map?${query.toString()}`)
 }
 
 export function getFacilityForEdit(id: string): Promise<AdminFacility> {

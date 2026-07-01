@@ -3,11 +3,11 @@ import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { TariffPlanTable } from '@/components/TariffPlanTable'
-import { FacilitySelect } from '@/components/FacilitySelect'
-import { listFacilities, ApiError, AuthRequiredError } from '@/lib/api'
+import { FacilityPicker } from '@/components/FacilityPicker'
+import { getFacilityForEdit, ApiError, AuthRequiredError } from '@/lib/api'
 import { listTariffPlans } from '@/lib/tariff-api'
 import type { TariffPlanListItem } from '@/lib/tariff-api'
-import { loadPage, requireSession } from '@/lib/dal'
+import { requireSession } from '@/lib/dal'
 
 interface PageProps {
   searchParams: Promise<{ facilityId?: string }>
@@ -18,15 +18,16 @@ export default async function TariffsPage({ searchParams }: PageProps) {
 
   const { facilityId } = await searchParams
 
-  const facilities = await loadPage(() => listFacilities({ take: 100 }))
-
+  let selected: { id: string; name: string } | null = null
   let plans: TariffPlanListItem[] | undefined
   if (facilityId) {
     try {
+      const facility = await getFacilityForEdit(facilityId)
+      selected = { id: facility.id, name: facility.name }
       plans = (await listTariffPlans(facilityId)).items
     } catch (err) {
       if (err instanceof AuthRequiredError) redirect('/login')
-      if (err instanceof ApiError && err.status === 404) plans = []
+      if (err instanceof ApiError && (err.status === 404 || err.status === 403)) plans = []
       else throw err
     }
   }
@@ -46,7 +47,7 @@ export default async function TariffsPage({ searchParams }: PageProps) {
       />
 
       <div className="table-toolbar">
-        <FacilitySelect facilities={facilities.items} selectedId={facilityId ?? ''} />
+        <FacilityPicker selected={selected} />
       </div>
 
       {!facilityId ? (
