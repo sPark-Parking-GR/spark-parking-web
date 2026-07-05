@@ -33,7 +33,7 @@ export function TariffPlanTable({ items, facilityId }: Props) {
             <tr key={item.id}>
               <td>
                 <Link
-                  href={`/dashboard/tariffs/${item.id}?facilityId=${encodeURIComponent(facilityId)}`}
+                  href={`/dashboard/tariffs/${facilityId}/${item.id}`}
                   className="table-link"
                 >
                   {item.name}

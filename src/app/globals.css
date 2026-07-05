@@ -1122,6 +1122,10 @@ select.input {
   background: rgba(16, 148, 212, 0.04);
 }
 
+.table--clickable tbody tr {
+  cursor: pointer;
+}
+
 .table-link {
   font-weight: 500;
   color: var(--color-primary);

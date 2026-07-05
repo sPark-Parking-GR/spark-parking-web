@@ -4,11 +4,16 @@ import { Skeleton, TableSkeleton } from '@/components/Skeleton'
 export default function Loading() {
   return (
     <>
-      <PageHeader title="Tariffs" description="Pick a facility, then configure its pricing plans." />
+      <PageHeader title="Tariffs" description="Pick a facility to view and edit its pricing plans." />
       <div className="table-toolbar">
-        <Skeleton width={320} height={62} radius={14} />
+        <Skeleton width={280} height={42} radius={14} />
       </div>
-      <TableSkeleton rows={5} columns={6} />
+      <div className="table-toolbar table-toolbar--filters">
+        <Skeleton width={150} height={40} radius={12} />
+        <Skeleton width={150} height={40} radius={12} />
+        <Skeleton width={150} height={40} radius={12} />
+      </div>
+      <TableSkeleton rows={8} columns={6} />
     </>
   )
 }

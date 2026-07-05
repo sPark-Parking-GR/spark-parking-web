@@ -33,7 +33,7 @@ function mapApiError(err: unknown): TariffActionResult {
 }
 
 function listHref(facilityId: string): string {
-  return `${TARIFFS_PATH}?facilityId=${encodeURIComponent(facilityId)}`
+  return `${TARIFFS_PATH}/${facilityId}`
 }
 
 export async function saveTariffPlanAction(
@@ -69,9 +69,9 @@ export async function saveTariffPlanAction(
     return mapApiError(err)
   }
 
-  revalidatePath(TARIFFS_PATH)
+  revalidatePath(`${TARIFFS_PATH}/${facilityId}`)
   if (planId) {
-    revalidatePath(`${TARIFFS_PATH}/${planId}`)
+    revalidatePath(`${TARIFFS_PATH}/${facilityId}/${planId}`)
   }
   redirect(listHref(facilityId))
 }
@@ -87,7 +87,7 @@ export async function deleteTariffPlanAction(
     return
   }
 
-  revalidatePath(TARIFFS_PATH)
+  revalidatePath(`${TARIFFS_PATH}/${facilityId}`)
   redirect(listHref(facilityId))
 }
 

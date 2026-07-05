@@ -1,61 +1,90 @@
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
-import { TariffPlanTable } from '@/components/TariffPlanTable'
-import { FacilityPicker } from '@/components/FacilityPicker'
-import { getFacilityForEdit, ApiError, AuthRequiredError } from '@/lib/api'
-import { listTariffPlans } from '@/lib/tariff-api'
-import type { TariffPlanListItem } from '@/lib/tariff-api'
-import { requireSession } from '@/lib/dal'
+import { TariffFacilityTable } from '@/components/TariffFacilityTable'
+import { FacilityFilters } from '@/components/FacilityFilters'
+import { SearchInput } from '@/components/SearchInput'
+import { Pagination } from '@/components/Pagination'
+import { listFacilities } from '@/lib/api'
+import type { FacilityKind } from '@/lib/api'
+import { buildQuery, loadPage, requireSession } from '@/lib/dal'
+
+const PAGE_SIZE = 20
+
+const KINDS: FacilityKind[] = ['BUSINESS', 'FREE_PUBLIC', 'RESTRICTED', 'UNKNOWN']
 
 interface PageProps {
-  searchParams: Promise<{ facilityId?: string }>
+  searchParams: Promise<{
+    q?: string
+    skip?: string
+    status?: string
+    verified?: string
+    kind?: string
+  }>
 }
 
 export default async function TariffsPage({ searchParams }: PageProps) {
   await requireSession()
 
-  const { facilityId } = await searchParams
+  const params = await searchParams
+  const q = params.q?.trim() ?? ''
+  const skip = Math.max(0, parseInt(params.skip ?? '0', 10) || 0)
 
-  let selected: { id: string; name: string } | null = null
-  let plans: TariffPlanListItem[] | undefined
-  if (facilityId) {
-    try {
-      const facility = await getFacilityForEdit(facilityId)
-      selected = { id: facility.id, name: facility.name }
-      plans = (await listTariffPlans(facilityId)).items
-    } catch (err) {
-      if (err instanceof AuthRequiredError) redirect('/login')
-      if (err instanceof ApiError && (err.status === 404 || err.status === 403)) plans = []
-      else throw err
-    }
-  }
+  const isActive =
+    params.status === 'active' ? true : params.status === 'inactive' ? false : undefined
+  const isVerified =
+    params.verified === 'verified' ? true : params.verified === 'pending' ? false : undefined
+  const kind = KINDS.includes(params.kind as FacilityKind)
+    ? (params.kind as FacilityKind)
+    : undefined
+
+  const filterParams = { q: q || undefined, status: params.status, verified: params.verified, kind }
+
+  const { items, total } = await loadPage(() =>
+    listFacilities({
+      skip,
+      take: PAGE_SIZE,
+      ...(q ? { q } : {}),
+      ...(isActive !== undefined ? { isActive } : {}),
+      ...(isVerified !== undefined ? { isVerified } : {}),
+      ...(kind ? { kind } : {}),
+    }),
+  )
+
+  const buildHref = (nextSkip: number) =>
+    buildQuery('/dashboard/tariffs', { ...filterParams, skip: nextSkip })
+
+  const hasFilters = Boolean(q || isActive !== undefined || isVerified !== undefined || kind)
 
   return (
     <>
-      <PageHeader
-        title="Tariffs"
-        description="Pick a facility, then configure its pricing plans."
-        actions={
-          facilityId ? (
-            <Link href={`/dashboard/tariffs/new?facilityId=${encodeURIComponent(facilityId)}`} className="btn btn--primary">
-              New plan
-            </Link>
-          ) : undefined
-        }
-      />
+      <PageHeader title="Tariffs" description="Pick a facility to view and edit its pricing plans." />
 
       <div className="table-toolbar">
-        <FacilityPicker selected={selected} />
+        <SearchInput placeholder="Search facilities…" />
+      </div>
+      <div className="table-toolbar table-toolbar--filters">
+        <FacilityFilters />
+      </div>
+      <div className="table-toolbar table-toolbar--count">
+        <span className="text-secondary table-toolbar__count">
+          {total} {total === 1 ? 'facility' : 'facilities'}
+        </span>
       </div>
 
-      {!facilityId ? (
-        <EmptyState title="Select a facility" message="Choose a facility above to view and edit its tariff plans." />
-      ) : plans && plans.length > 0 ? (
-        <TariffPlanTable items={plans} facilityId={facilityId} />
+      {items.length === 0 ? (
+        <EmptyState
+          title="No facilities found"
+          message={
+            hasFilters
+              ? 'No facilities match your search or filters.'
+              : 'Create a facility first to configure its tariffs.'
+          }
+        />
       ) : (
-        <EmptyState title="No tariff plans" message="Create the first pricing plan for this facility." />
+        <>
+          <TariffFacilityTable items={items} />
+          <Pagination skip={skip} take={PAGE_SIZE} total={total} buildHref={buildHref} sticky />
+        </>
       )}
     </>
   )

@@ -8,7 +8,6 @@ import {
   deleteFacility,
   bulkFacilities,
   adminMapFacilities,
-  listFacilities,
   ApiError,
   AuthRequiredError,
 } from './api'
@@ -233,22 +232,6 @@ export async function fetchMapFacilitiesAction(params: {
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     return { ok: false, error: 'Could not load map data.' }
-  }
-}
-
-export type FacilityOption = { id: string; name: string; address: string }
-
-export async function searchFacilitiesAction(q: string): Promise<FacilityOption[]> {
-  try {
-    const { items } = await listFacilities({
-      q: q.trim() || undefined,
-      take: 20,
-      isActive: true,
-    })
-    return items.map(({ id, name, address }) => ({ id, name, address }))
-  } catch (err) {
-    if (err instanceof AuthRequiredError) redirect('/login')
-    return []
   }
 }
 

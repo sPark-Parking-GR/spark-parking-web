@@ -6,7 +6,7 @@ import { makeKey, ALL_DAYS_MASK } from '@/lib/tariff-schema'
 import type { TariffDraft } from '@/lib/tariff-api'
 
 interface PageProps {
-  searchParams: Promise<{ facilityId?: string }>
+  params: Promise<{ facilityId: string }>
 }
 
 function buildDefaultDraft(): TariffDraft {
@@ -29,12 +29,11 @@ function buildDefaultDraft(): TariffDraft {
   }
 }
 
-export default async function NewTariffPlanPage({ searchParams }: PageProps) {
+export default async function NewTariffPlanPage({ params }: PageProps) {
   const session = await getSession()
   if (!session.accessToken) redirect('/login')
 
-  const { facilityId } = await searchParams
-  if (!facilityId) redirect('/dashboard/tariffs')
+  const { facilityId } = await params
 
   return (
     <>
