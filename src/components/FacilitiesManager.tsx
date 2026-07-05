@@ -3,18 +3,26 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Pencil, Power, PowerOff, Rocket, Trash2 } from 'lucide-react'
+import { Banknote, Pencil, Power, PowerOff, Rocket, Trash2 } from 'lucide-react'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
-import { bulkFacilityAction } from '@/lib/facility-actions'
+import { AssignTariffModal } from './AssignTariffModal'
+import { bulkFacilityAction, getFacilityTariffAssignmentsAction } from '@/lib/facility-actions'
 import { KIND_META, sourceLabel } from '@/lib/facility-display'
 import { usePersistentSelection } from '@/lib/use-persistent-selection'
-import type { AdminFacilityListItem, BulkFacilityAction } from '@/lib/api'
+import type {
+  AdminFacilityListItem,
+  AssignTariffInput,
+  BulkFacilityAction,
+  FacilityTariffAssignment,
+  FacilityTariffPlan,
+} from '@/lib/api'
 
 const SELECTION_KEY = 'facilities:selection'
 
 interface Props {
   items: AdminFacilityListItem[]
+  tariffPlans: FacilityTariffPlan[]
 }
 
 const CONFIRMABLE: BulkFacilityAction[] = ['deploy', 'delete']
@@ -39,7 +47,7 @@ const CONFIRM_COPY: Record<
   },
 }
 
-export function FacilitiesManager({ items }: Props) {
+export function FacilitiesManager({ items, tariffPlans }: Props) {
   const router = useRouter()
   const [selected, setSelected] = usePersistentSelection(SELECTION_KEY)
   const [pending, startTransition] = useTransition()
@@ -47,6 +55,13 @@ export function FacilitiesManager({ items }: Props) {
   const [confirm, setConfirm] = useState<{ action: 'deploy' | 'delete'; ids: string[] } | null>(
     null,
   )
+  const [assignTarget, setAssignTarget] = useState<{
+    ids: string[]
+    initialAssignments: FacilityTariffAssignment[] | null
+    defaultPlan: { id: string; name: string } | null
+  } | null>(null)
+  const [assignError, setAssignError] = useState<string | null>(null)
+  const [assignLoading, setAssignLoading] = useState(false)
   const headerCheck = useRef<HTMLInputElement>(null)
 
   const allSelected = items.length > 0 && items.every((i) => selected.has(i.id))
@@ -100,6 +115,50 @@ export function FacilitiesManager({ items }: Props) {
     execute(action, ids)
   }
 
+  const openAssign = async (ids: string[]) => {
+    if (ids.length === 0) return
+    if (ids.length > 500) {
+      setError('You can act on at most 500 facilities at once. Narrow your selection.')
+      return
+    }
+    setAssignError(null)
+
+    if (ids.length !== 1) {
+      setAssignTarget({ ids, initialAssignments: null, defaultPlan: null })
+      return
+    }
+
+    setAssignLoading(true)
+    try {
+      const facilityId = ids[0]
+      if (!facilityId) return
+      const result = await getFacilityTariffAssignmentsAction(facilityId)
+      if (result === null) {
+        setAssignError('Could not load current tariff assignments.')
+        setAssignTarget({ ids, initialAssignments: null, defaultPlan: null })
+      } else {
+        setAssignTarget({ ids, initialAssignments: result.assignments, defaultPlan: result.defaultPlan })
+      }
+    } finally {
+      setAssignLoading(false)
+    }
+  }
+
+  const submitAssign = (assignments: AssignTariffInput[]) => {
+    if (!assignTarget) return
+    setAssignError(null)
+    startTransition(async () => {
+      const res = await bulkFacilityAction('assignTariff', assignTarget.ids, assignments)
+      if (!res.ok) {
+        setAssignError(res.error)
+        return
+      }
+      setSelected(new Set())
+      setAssignTarget(null)
+      router.refresh()
+    })
+  }
+
   return (
     <div className="facilities-manager">
       {error ? (
@@ -141,6 +200,15 @@ export function FacilitiesManager({ items }: Props) {
             >
               <PowerOff size={15} strokeWidth={2} aria-hidden="true" />
               Disable
+            </button>
+            <button
+              type="button"
+              className="btn btn--secondary btn--sm"
+              disabled={pending || assignLoading}
+              onClick={() => openAssign(selectedIds)}
+            >
+              <Banknote size={15} strokeWidth={2} aria-hidden="true" />
+              Assign tariff
             </button>
             <button
               type="button"
@@ -274,6 +342,17 @@ export function FacilitiesManager({ items }: Props) {
                           <Power size={17} strokeWidth={2} aria-hidden="true" />
                         </button>
                       )}
+                      <button
+                        type="button"
+                        className="btn btn--icon btn--ghost"
+                        disabled={pending || assignLoading}
+                        onClick={() => openAssign([item.id])}
+                        aria-label="Assign tariff"
+                        data-tooltip="Assign tariff"
+                        data-tooltip-pos="bottom"
+                      >
+                        <Banknote size={17} strokeWidth={2} aria-hidden="true" />
+                      </button>
                       <Link
                         href={`/dashboard/facilities/${item.id}`}
                         className="btn btn--icon btn--ghost"
@@ -344,6 +423,25 @@ export function FacilitiesManager({ items }: Props) {
           </>
         ) : null}
       </Modal>
+
+      <AssignTariffModal
+        open={assignTarget !== null}
+        onClose={() => setAssignTarget(null)}
+        title="Assign tariff plan"
+        description={
+          assignTarget
+            ? `Assign a tariff plan to ${assignTarget.ids.length} ${
+                assignTarget.ids.length === 1 ? 'facility' : 'facilities'
+              }.`
+            : ''
+        }
+        plans={tariffPlans}
+        initialAssignments={assignTarget?.initialAssignments ?? null}
+        defaultPlan={assignTarget?.defaultPlan ?? null}
+        pending={pending}
+        error={assignError}
+        onSubmit={submitAssign}
+      />
     </div>
   )
 }

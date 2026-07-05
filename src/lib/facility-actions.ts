@@ -8,15 +8,20 @@ import {
   deleteFacility,
   bulkFacilities,
   adminMapFacilities,
+  assignFacilityTariff,
+  getFacilityTariffAssignments,
   ApiError,
   AuthRequiredError,
 } from './api'
 import { facilityFormSchema } from './facility-schema'
 import type {
   AdminMapResponse,
+  AssignTariffInput,
   BulkFacilityAction,
   CreateFacilityInput,
   FacilityKind,
+  FacilityTariffAssignmentsResponse,
+  FacilityVehicleType,
   UpdateFacilityInput,
 } from './api'
 import type { OpeningHours } from '@spark/types'
@@ -32,7 +37,9 @@ function mapApiError(err: unknown): FacilityActionResult {
   if (err instanceof ApiError) {
     if (err.status === 403) return { ok: false, error: 'You are not allowed to set those fields.' }
     if (err.status === 404) return { ok: false, error: 'Facility not found.' }
-    if (err.status === 400) return { ok: false, error: 'Invalid data. Check all fields and try again.' }
+    if (err.status === 400) {
+      return { ok: false, error: err.message || 'Invalid data. Check all fields and try again.' }
+    }
   }
   return { ok: false, error: 'Something went wrong. Please try again.' }
 }
@@ -200,16 +207,50 @@ export async function updateFacilityAction(
 export async function bulkFacilityAction(
   action: BulkFacilityAction,
   ids: string[],
+  assignments?: AssignTariffInput[],
 ): Promise<FacilityActionResult & { affected?: number }> {
   if (ids.length === 0) return { ok: false, error: 'Select at least one facility.' }
 
   try {
-    const { affected } = await bulkFacilities(ids, action)
+    const { affected } = await bulkFacilities(ids, action, assignments)
     revalidatePath(FACILITIES_PATH)
     return { ok: true, affected }
   } catch (err) {
+    if (action === 'assignTariff' && err instanceof ApiError && err.status === 404) {
+      return { ok: false, error: 'Tariff plan not found.' }
+    }
     return mapApiError(err)
   }
+}
+
+export async function getFacilityTariffAssignmentsAction(
+  facilityId: string,
+): Promise<FacilityTariffAssignmentsResponse | null> {
+  try {
+    return await getFacilityTariffAssignments(facilityId)
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    return null
+  }
+}
+
+export async function assignTariffAction(
+  facilityId: string,
+  vehicleType: FacilityVehicleType,
+  tariffPlanId: string | null,
+): Promise<FacilityActionResult> {
+  try {
+    await assignFacilityTariff(facilityId, vehicleType, tariffPlanId)
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) {
+      return { ok: false, error: 'Facility or tariff plan not found.' }
+    }
+    return mapApiError(err)
+  }
+
+  revalidatePath(FACILITIES_PATH)
+  revalidatePath(`${FACILITIES_PATH}/${facilityId}`)
+  return { ok: true }
 }
 
 export type MapFacilitiesResult =

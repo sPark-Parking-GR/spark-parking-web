@@ -3,7 +3,6 @@ import type { TariffPlanListItem } from '@/lib/tariff-api'
 
 interface Props {
   items: TariffPlanListItem[]
-  facilityId: string
 }
 
 function formatValidity(from: string | null, to: string | null): string {
@@ -14,7 +13,7 @@ function formatValidity(from: string | null, to: string | null): string {
   return `Until ${fmt(to as string)}`
 }
 
-export function TariffPlanTable({ items, facilityId }: Props) {
+export function TariffPlanTable({ items }: Props) {
   return (
     <div className="table-wrapper">
       <table className="table">
@@ -32,22 +31,17 @@ export function TariffPlanTable({ items, facilityId }: Props) {
           {items.map((item) => (
             <tr key={item.id}>
               <td>
-                <Link
-                  href={`/dashboard/tariffs/${facilityId}/${item.id}`}
-                  className="table-link"
-                >
+                <Link href={`/dashboard/tariffs/${item.id}`} className="table-link">
                   {item.name}
                 </Link>
+                {item.isDefault ? <span className="badge badge--info">Default</span> : null}
               </td>
               <td>
-                <span className="badge-stack">
-                  {item.isDefault ? <span className="badge badge--success">Default</span> : null}
-                  {item.isActive ? (
-                    <span className="badge badge--success">Active</span>
-                  ) : (
-                    <span className="badge badge--neutral">Inactive</span>
-                  )}
-                </span>
+                {item.isActive ? (
+                  <span className="badge badge--success">Active</span>
+                ) : (
+                  <span className="badge badge--neutral">Inactive</span>
+                )}
               </td>
               <td className="text-secondary">{item.vehicleTypes.join(', ')}</td>
               <td className="text-secondary">{formatValidity(item.validFrom, item.validTo)}</td>

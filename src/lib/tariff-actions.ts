@@ -8,13 +8,16 @@ import {
   updateTariffPlan,
   deleteTariffPlan,
   simulateTariff,
+  getTariffAssignments,
 } from './tariff-api'
 import { tariffDraftSchema } from './tariff-schema'
-import type { SimulateRequest, SimulateResult } from './tariff-api'
+import type { SimulateRequest, SimulateResult, PlanAssignments } from './tariff-api'
 
 const TARIFFS_PATH = '/dashboard/tariffs'
 
-export type TariffActionResult = { ok: true } | { ok: false; error: string }
+export type TariffActionResult =
+  | { ok: true }
+  | { ok: false; error: string; requiresDefaultReplacement?: boolean }
 
 function mapApiError(err: unknown): TariffActionResult {
   if (err instanceof AuthRequiredError) {
@@ -22,7 +25,10 @@ function mapApiError(err: unknown): TariffActionResult {
   }
   if (err instanceof ApiError) {
     if (err.status === 403) return { ok: false, error: 'You are not allowed to manage this plan.' }
-    if (err.status === 404) return { ok: false, error: 'Tariff plan or facility not found.' }
+    if (err.status === 404) return { ok: false, error: 'Tariff plan not found.' }
+    if (err.status === 409) {
+      return { ok: false, error: err.message, requiresDefaultReplacement: true }
+    }
     // WHY: 400 from the pricing engine carries a safe, operator-facing schedule
     // validation message (e.g. "windows do not cover 24h") — surface it verbatim.
     if (err.status === 400) {
@@ -32,13 +38,9 @@ function mapApiError(err: unknown): TariffActionResult {
   return { ok: false, error: 'Something went wrong. Please try again.' }
 }
 
-function listHref(facilityId: string): string {
-  return `${TARIFFS_PATH}/${facilityId}`
-}
-
 export async function saveTariffPlanAction(
-  facilityId: string,
   planId: string | null,
+  newDefaultPlanId: string | undefined,
   _prev: TariffActionResult,
   formData: FormData,
 ): Promise<TariffActionResult> {
@@ -61,40 +63,46 @@ export async function saveTariffPlanAction(
 
   try {
     if (planId) {
-      await updateTariffPlan(facilityId, planId, parsed.data)
+      await updateTariffPlan(planId, parsed.data, newDefaultPlanId)
     } else {
-      await createTariffPlan(facilityId, parsed.data)
+      await createTariffPlan(parsed.data)
     }
   } catch (err) {
     return mapApiError(err)
   }
 
-  revalidatePath(`${TARIFFS_PATH}/${facilityId}`)
+  revalidatePath(TARIFFS_PATH)
   if (planId) {
-    revalidatePath(`${TARIFFS_PATH}/${facilityId}/${planId}`)
+    revalidatePath(`${TARIFFS_PATH}/${planId}`)
   }
-  redirect(listHref(facilityId))
+  redirect(TARIFFS_PATH)
 }
 
 export async function deleteTariffPlanAction(
-  facilityId: string,
   planId: string,
-): Promise<void> {
+  newDefaultPlanId?: string,
+): Promise<TariffActionResult> {
   try {
-    await deleteTariffPlan(facilityId, planId)
+    await deleteTariffPlan(planId, newDefaultPlanId)
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
-    return
+    return mapApiError(err)
   }
 
-  revalidatePath(`${TARIFFS_PATH}/${facilityId}`)
-  redirect(listHref(facilityId))
+  revalidatePath(TARIFFS_PATH)
+  redirect(TARIFFS_PATH)
 }
 
-export async function simulateTariffAction(
-  facilityId: string,
-  body: SimulateRequest,
-): Promise<SimulateResult> {
+export async function getTariffAssignmentsAction(planId: string): Promise<PlanAssignments | null> {
+  try {
+    return await getTariffAssignments(planId)
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    return null
+  }
+}
+
+export async function simulateTariffAction(body: SimulateRequest): Promise<SimulateResult> {
   const parsed = tariffDraftSchema.safeParse(body.draft)
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'Fix the tariff configuration to preview a quote.' }
@@ -108,7 +116,7 @@ export async function simulateTariffAction(
   }
 
   try {
-    return await simulateTariff(facilityId, { ...body, draft: parsed.data })
+    return await simulateTariff({ ...body, draft: parsed.data })
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     if (err instanceof ApiError) {

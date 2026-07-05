@@ -5,17 +5,13 @@ import { getSession } from '@/lib/session'
 import { makeKey, ALL_DAYS_MASK } from '@/lib/tariff-schema'
 import type { TariffDraft } from '@/lib/tariff-api'
 
-interface PageProps {
-  params: Promise<{ facilityId: string }>
-}
-
 function buildDefaultDraft(): TariffDraft {
   const windowKey = makeKey()
   const tierKey = makeKey()
   return {
     name: 'New tariff plan',
-    isDefault: false,
     isActive: true,
+    isDefault: false,
     validFrom: null,
     validTo: null,
     timezone: 'Europe/Athens',
@@ -29,16 +25,14 @@ function buildDefaultDraft(): TariffDraft {
   }
 }
 
-export default async function NewTariffPlanPage({ params }: PageProps) {
+export default async function NewTariffPlanPage() {
   const session = await getSession()
   if (!session.accessToken) redirect('/login')
-
-  const { facilityId } = await params
 
   return (
     <>
       <PageHeader title="New tariff plan" />
-      <TariffEditor mode="create" facilityId={facilityId} plan={buildDefaultDraft()} />
+      <TariffEditor mode="create" plan={buildDefaultDraft()} />
     </>
   )
 }

@@ -35,8 +35,8 @@ export interface TariffCap {
 
 export interface TariffDraft {
   name: string
-  isDefault: boolean
   isActive: boolean
+  isDefault: boolean
   validFrom: string | null
   validTo: string | null
   timezone: string
@@ -52,8 +52,8 @@ export interface TariffDraft {
 export interface TariffPlanListItem {
   id: string
   name: string
-  isDefault: boolean
   isActive: boolean
+  isDefault: boolean
   validFrom: string | null
   validTo: string | null
   vehicleTypes: VehicleType[]
@@ -66,6 +66,18 @@ export interface TariffPlanDetail extends TariffDraft {
   version: number
   createdAt: string
   updatedAt: string
+}
+
+export interface PlanAssignment {
+  id: string
+  name: string
+}
+
+export interface PlanAssignments {
+  facilities: PlanAssignment[]
+  count: number
+  isDefault: boolean
+  implicitFacilityCount: number
 }
 
 export interface SimLineItem {
@@ -95,42 +107,46 @@ export type SimulateResult =
   | { ok: true; quote: SimulateQuote }
   | { ok: false; error: string }
 
-function plansPath(facilityId: string): string {
-  return `/facilities/${facilityId}/tariff-plans`
+const PLANS_PATH = '/tariff-plans'
+
+export function listTariffPlans(): Promise<{ items: TariffPlanListItem[] }> {
+  return apiFetch<{ items: TariffPlanListItem[] }>(PLANS_PATH)
 }
 
-export function listTariffPlans(facilityId: string): Promise<{ items: TariffPlanListItem[] }> {
-  return apiFetch<{ items: TariffPlanListItem[] }>(plansPath(facilityId))
+export function getTariffPlan(planId: string): Promise<TariffPlanDetail> {
+  return apiFetch<TariffPlanDetail>(`${PLANS_PATH}/${planId}`)
 }
 
-export function getTariffPlan(facilityId: string, planId: string): Promise<TariffPlanDetail> {
-  return apiFetch<TariffPlanDetail>(`${plansPath(facilityId)}/${planId}`)
+export function getTariffAssignments(planId: string): Promise<PlanAssignments> {
+  return apiFetch<PlanAssignments>(`${PLANS_PATH}/${planId}/assignments`)
 }
 
-export function createTariffPlan(facilityId: string, draft: TariffDraft): Promise<TariffPlanDetail> {
-  return apiFetch<TariffPlanDetail>(plansPath(facilityId), {
+export function createTariffPlan(draft: TariffDraft): Promise<TariffPlanDetail> {
+  return apiFetch<TariffPlanDetail>(PLANS_PATH, {
     method: 'POST',
     body: JSON.stringify(draft),
   })
 }
 
 export function updateTariffPlan(
-  facilityId: string,
   planId: string,
   draft: TariffDraft,
+  newDefaultPlanId?: string,
 ): Promise<TariffPlanDetail> {
-  return apiFetch<TariffPlanDetail>(`${plansPath(facilityId)}/${planId}`, {
+  const qs = newDefaultPlanId ? `?newDefaultPlanId=${encodeURIComponent(newDefaultPlanId)}` : ''
+  return apiFetch<TariffPlanDetail>(`${PLANS_PATH}/${planId}${qs}`, {
     method: 'PATCH',
     body: JSON.stringify(draft),
   })
 }
 
-export function deleteTariffPlan(facilityId: string, planId: string): Promise<void> {
-  return apiFetch<void>(`${plansPath(facilityId)}/${planId}`, { method: 'DELETE' })
+export function deleteTariffPlan(planId: string, newDefaultPlanId?: string): Promise<void> {
+  const qs = newDefaultPlanId ? `?newDefaultPlanId=${encodeURIComponent(newDefaultPlanId)}` : ''
+  return apiFetch<void>(`${PLANS_PATH}/${planId}${qs}`, { method: 'DELETE' })
 }
 
-export function simulateTariff(facilityId: string, body: SimulateRequest): Promise<SimulateResult> {
-  return apiFetch<SimulateResult>(`${plansPath(facilityId)}/simulate`, {
+export function simulateTariff(body: SimulateRequest): Promise<SimulateResult> {
+  return apiFetch<SimulateResult>(`${PLANS_PATH}/simulate`, {
     method: 'POST',
     body: JSON.stringify(body),
   })

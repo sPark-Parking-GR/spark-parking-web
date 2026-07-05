@@ -120,19 +120,25 @@ export function PlanMetaFields({ draft, onChange }: Props) {
         <label className="checkbox-label">
           <input
             type="checkbox"
-            checked={draft.isDefault}
-            onChange={(e) => onChange({ isDefault: e.target.checked })}
-          />
-          Default plan
-        </label>
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
             checked={draft.isActive}
             onChange={(e) => onChange({ isActive: e.target.checked })}
           />
           Active
         </label>
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={draft.isDefault}
+            disabled={draft.vehicleTypes.length > 0}
+            onChange={(e) => onChange({ isDefault: e.target.checked })}
+          />
+          Default plan for this operator
+        </label>
+        {draft.vehicleTypes.length > 0 ? (
+          <p className="text-secondary editor-section__hint">
+            Leave vehicle types empty to make this plan eligible to be the default.
+          </p>
+        ) : null}
       </div>
     </section>
   )

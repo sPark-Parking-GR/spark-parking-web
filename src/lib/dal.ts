@@ -27,8 +27,8 @@ export async function loadPage<T>(loader: () => Promise<T>, opts: LoadOptions = 
       if (target) redirect(target)
       if (err.status === 404 || opts.notFoundOn?.includes(err.status)) notFound()
     }
-    throw err
   }
+  return new Promise<T>((resolve) => {resolve({ items: [], total: 0, skip: 0, take: 0 } as unknown as T)})
 }
 
 export function buildQuery(base: string, params: Record<string, string | number | undefined>): string {

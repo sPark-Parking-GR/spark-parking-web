@@ -44,14 +44,15 @@ const capSchema = z.object({
 export const tariffDraftSchema = z
   .object({
     name: z.string().trim().min(1, 'Plan name is required.'),
-    isDefault: z.boolean(),
     isActive: z.boolean(),
+    isDefault: z.boolean(),
     validFrom: isoDateString.nullable(),
     validTo: isoDateString.nullable(),
     timezone: z.string().trim().min(1, 'Timezone is required.'),
     graceMinutes: z.number().int().min(0, 'Grace minutes must be 0 or greater.'),
     incrementMinutes: z.number().int().positive('Increment minutes must be at least 1.'),
-    vehicleTypes: z.array(z.enum(VEHICLE_TYPES)).min(1, 'Select at least one vehicle type.'),
+    // Empty means "prices every vehicle type" — required for a default-eligible plan.
+    vehicleTypes: z.array(z.enum(VEHICLE_TYPES)),
     tiers: z.array(tierSchema).min(1, 'Add at least one tier.'),
     windows: z.array(windowSchema).min(1, 'Add at least one window.'),
     rates: z.array(rateSchema),
@@ -60,6 +61,14 @@ export const tariffDraftSchema = z
   .superRefine((draft, ctx) => {
     if (draft.validFrom && draft.validTo && Date.parse(draft.validFrom) >= Date.parse(draft.validTo)) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['validTo'], message: 'Valid-to must be after valid-from.' })
+    }
+
+    if (draft.isDefault && draft.vehicleTypes.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['isDefault'],
+        message: 'A default plan cannot restrict vehicle types.',
+      })
     }
 
     const openEnded = draft.tiers.filter((t) => t.toMinute === null)

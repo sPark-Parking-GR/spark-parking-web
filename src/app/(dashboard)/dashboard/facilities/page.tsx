@@ -10,6 +10,7 @@ import { SearchInput } from '@/components/SearchInput'
 import { Pagination } from '@/components/Pagination'
 import { listFacilities } from '@/lib/api'
 import type { FacilityKind } from '@/lib/api'
+import { listTariffPlans } from '@/lib/tariff-api'
 import { buildQuery, loadPage, requireSession } from '@/lib/dal'
 
 const PAGE_SIZE = 20
@@ -85,16 +86,19 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
     )
   }
 
-  const { items, total } = await loadPage(() =>
-    listFacilities({
-      skip,
-      take: PAGE_SIZE,
-      ...(q ? { q } : {}),
-      ...(isActive !== undefined ? { isActive } : {}),
-      ...(isVerified !== undefined ? { isVerified } : {}),
-      ...(kind ? { kind } : {}),
-    }),
-  )
+  const [{ items, total }, { items: tariffPlans }] = await Promise.all([
+    loadPage(() =>
+      listFacilities({
+        skip,
+        take: PAGE_SIZE,
+        ...(q ? { q } : {}),
+        ...(isActive !== undefined ? { isActive } : {}),
+        ...(isVerified !== undefined ? { isVerified } : {}),
+        ...(kind ? { kind } : {}),
+      }),
+    ),
+    listTariffPlans(),
+  ])
 
   const buildHref = (nextSkip: number) =>
     buildQuery('/dashboard/facilities', { ...filterParams, skip: nextSkip })
@@ -122,7 +126,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
         />
       ) : (
         <>
-          <FacilitiesManager items={items} />
+          <FacilitiesManager items={items} tariffPlans={tariffPlans} />
           <Pagination skip={skip} take={PAGE_SIZE} total={total} buildHref={buildHref} sticky />
         </>
       )}

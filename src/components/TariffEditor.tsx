@@ -12,10 +12,12 @@ import { TiersEditor } from './TiersEditor'
 import { RateGrid } from './RateGrid'
 import { CapsEditor } from './CapsEditor'
 import { QuoteSimulator } from './QuoteSimulator'
+import { DefaultReplacementModal } from './DefaultReplacementModal'
 import type { TariffActionResult } from '@/lib/tariff-actions'
 import type {
   TariffCap,
   TariffDraft,
+  TariffPlanListItem,
   TariffRate,
   TariffTier,
   TariffWindow,
@@ -25,9 +27,9 @@ import type { VehicleType } from '@spark/types'
 
 interface Props {
   mode: 'create' | 'edit'
-  facilityId: string
   planId?: string
   plan?: TariffDraft
+  plans?: TariffPlanListItem[]
 }
 
 const INITIAL_STATE: TariffActionResult = { ok: true }
@@ -50,8 +52,13 @@ function planCurrency(draft: TariffDraft): string {
 // keeping rates a complete matrix in lock-step with the axes.
 function reducer(draft: TariffDraft, action: Action): TariffDraft {
   switch (action.type) {
-    case 'meta':
-      return { ...draft, ...action.patch }
+    case 'meta': {
+      const merged = { ...draft, ...action.patch }
+      if (action.patch.vehicleTypes && action.patch.vehicleTypes.length > 0 && draft.isDefault) {
+        merged.isDefault = false
+      }
+      return merged
+    }
     case 'windows':
       return {
         ...draft,
@@ -101,14 +108,65 @@ function SubmitButton({ mode }: { mode: 'create' | 'edit' }) {
   )
 }
 
-export function TariffEditor({ mode, facilityId, planId, plan }: Props) {
+interface ReplacementModalStatusProps {
+  open: boolean
+  candidates: { id: string; name: string }[]
+  error: string | null
+  onClose: () => void
+  onConfirm: (candidateId: string) => void
+}
+
+function ReplacementModalStatus({
+  open,
+  candidates,
+  error,
+  onClose,
+  onConfirm,
+}: ReplacementModalStatusProps) {
+  const { pending } = useFormStatus()
+  return (
+    <DefaultReplacementModal
+      open={open}
+      onClose={onClose}
+      candidates={candidates}
+      pending={pending}
+      error={error}
+      onConfirm={onConfirm}
+    />
+  )
+}
+
+export function TariffEditor({ mode, planId, plan, plans }: Props) {
   const [draft, dispatch] = useReducer(reducer, plan as TariffDraft)
+  const [newDefaultPlanId, setNewDefaultPlanId] = useState<string | undefined>(undefined)
+  const formRef = useRef<HTMLFormElement>(null)
 
   const boundSave = useMemo(
-    () => saveTariffPlanAction.bind(null, facilityId, planId ?? null),
-    [facilityId, planId],
+    () => saveTariffPlanAction.bind(null, planId ?? null, newDefaultPlanId),
+    [planId, newDefaultPlanId],
   )
   const [state, formAction] = useActionState(boundSave, INITIAL_STATE)
+
+  const replacementCandidates = useMemo(
+    () =>
+      (plans ?? [])
+        .filter((p) => p.id !== planId && p.isActive && p.vehicleTypes.length === 0)
+        .map((p) => ({ id: p.id, name: p.name })),
+    [plans, planId],
+  )
+
+  function handleReplacementConfirm(candidateId: string) {
+    setNewDefaultPlanId(candidateId)
+  }
+
+  // WHY: rebinding formAction with the chosen replacement id doesn't itself
+  // resubmit the form — request it explicitly once the new bound action is live.
+  useEffect(() => {
+    if (newDefaultPlanId) {
+      formRef.current?.requestSubmit()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boundSave])
 
   const simWindow = useMemo(defaultSimWindow, [])
   const [startsAt, setStartsAt] = useState(simWindow.startsAt)
@@ -139,7 +197,7 @@ export function TariffEditor({ mode, facilityId, planId, plan }: Props) {
     const handle = setTimeout(() => {
       const id = ++runId.current
       setSimPending(true)
-      simulateTariffAction(facilityId, { draft, startsAt, endsAt, vehicleType })
+      simulateTariffAction({ draft, startsAt, endsAt, vehicleType })
         .then((res) => {
           if (id === runId.current) setSimResult(res)
         })
@@ -152,7 +210,7 @@ export function TariffEditor({ mode, facilityId, planId, plan }: Props) {
     }, SIM_DEBOUNCE_MS)
     return () => clearTimeout(handle)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draftKey, startsAt, endsAt, vehicleType, facilityId])
+  }, [draftKey, startsAt, endsAt, vehicleType])
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     if (!clientValidation.ok) {
@@ -160,12 +218,14 @@ export function TariffEditor({ mode, facilityId, planId, plan }: Props) {
     }
   }
 
+  const showReplacementModal = !state.ok && Boolean(state.requiresDefaultReplacement)
+
   return (
-    <form action={formAction} onSubmit={handleSubmit} className="tariff-editor">
+    <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="tariff-editor">
       <input type="hidden" name="draft" value={draftKey} />
 
       <div className="tariff-editor__left">
-        {state && !state.ok ? (
+        {state && !state.ok && !state.requiresDefaultReplacement ? (
           <p className="form-banner form-banner--error" role="alert">
             <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
             {state.error}
@@ -221,6 +281,14 @@ export function TariffEditor({ mode, facilityId, planId, plan }: Props) {
           }}
         />
       </div>
+
+      <ReplacementModalStatus
+        open={showReplacementModal}
+        candidates={replacementCandidates}
+        error={!state.ok && newDefaultPlanId ? state.error : null}
+        onClose={() => setNewDefaultPlanId(undefined)}
+        onConfirm={handleReplacementConfirm}
+      />
     </form>
   )
 }

@@ -27,7 +27,30 @@ export class AuthRequiredError extends Error {
 
 export type FacilityKind = 'BUSINESS' | 'FREE_PUBLIC' | 'RESTRICTED' | 'UNKNOWN'
 export type FacilitySource = 'OSM' | 'GOOGLE' | 'MANUAL' | null
-export type BulkFacilityAction = 'enable' | 'disable' | 'deploy' | 'delete'
+export type BulkFacilityAction = 'enable' | 'disable' | 'deploy' | 'delete' | 'assignTariff'
+
+// Prisma VehicleType enum casing, used only by the facility tariff-assignment endpoints.
+// Distinct from the lowercase @spark/types VehicleType used elsewhere (tariff plans, quotes).
+export type FacilityVehicleType = 'CAR' | 'MOTORCYCLE' | 'VAN' | 'TRUCK'
+
+export type FacilityTariffSource = 'explicit' | 'default' | 'none'
+
+export interface FacilityTariffAssignment {
+  vehicleType: FacilityVehicleType
+  tariffPlanId: string | null
+  tariffPlanName: string | null
+  source: FacilityTariffSource
+}
+
+export interface FacilityTariffAssignmentsResponse {
+  assignments: FacilityTariffAssignment[]
+  defaultPlan: { id: string; name: string } | null
+}
+
+export interface AssignTariffInput {
+  vehicleType: FacilityVehicleType
+  tariffPlanId: string | null
+}
 
 export interface AdminFacilityListItem {
   id: string
@@ -43,6 +66,12 @@ export interface AdminFacilityListItem {
   operatorName: string
   createdAt: string
   updatedAt: string
+}
+
+export interface FacilityTariffPlan {
+  id: string
+  name: string
+  vehicleTypes: string[]
 }
 
 export interface AdminMapPoint {
@@ -201,7 +230,12 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
     }
   }
 
-  let response = await authFetch(path, init, accessToken)
+  let response: Response
+  try {
+    response = await authFetch(path, init, accessToken)
+  } catch {
+    throw new ApiError('Network error', 0)
+  }
 
   if (response.status === 401) {
     try {
@@ -214,7 +248,11 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
       }
       throw new AuthRequiredError()
     }
-    response = await authFetch(path, init, accessToken)
+    try {
+      response = await authFetch(path, init, accessToken)
+    } catch {
+      throw new ApiError('Network error', 0)
+    }
   }
 
   if (!response.ok) {
@@ -253,10 +291,36 @@ export function listFacilities(params: {
 export function bulkFacilities(
   ids: string[],
   action: BulkFacilityAction,
+  assignments?: AssignTariffInput[],
 ): Promise<{ affected: number }> {
   return apiFetch<{ affected: number }>('/facilities/bulk', {
     method: 'PATCH',
-    body: JSON.stringify({ ids, action }),
+    body: JSON.stringify(
+      action === 'assignTariff' ? { ids, action, assignments: assignments ?? [] } : { ids, action },
+    ),
+  })
+}
+
+export function getFacilityTariffAssignments(
+  facilityId: string,
+): Promise<FacilityTariffAssignmentsResponse> {
+  return apiFetch<FacilityTariffAssignmentsResponse>(
+    `/facilities/${facilityId}/tariff-assignments`,
+  )
+}
+
+export function assignFacilityTariff(
+  facilityId: string,
+  vehicleType: FacilityVehicleType,
+  tariffPlanId: string | null,
+): Promise<{ facilityId: string; vehicleType: FacilityVehicleType; tariffPlanId: string | null }> {
+  return apiFetch<{
+    facilityId: string
+    vehicleType: FacilityVehicleType
+    tariffPlanId: string | null
+  }>(`/facilities/${facilityId}/tariff-plan`, {
+    method: 'PATCH',
+    body: JSON.stringify({ vehicleType, tariffPlanId }),
   })
 }
 
