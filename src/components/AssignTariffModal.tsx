@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import type { AssignTariffInput, FacilityTariffAssignment, FacilityTariffPlan, FacilityVehicleType } from '@/lib/api'
@@ -22,12 +23,16 @@ interface Props {
 const NO_CHANGE = '__no_change__'
 const NO_PLAN = '__no_plan__'
 
-const ROWS: { vehicleType: FacilityVehicleType; label: string }[] = [
-  { vehicleType: 'CAR', label: 'Car' },
-  { vehicleType: 'MOTORCYCLE', label: 'Motorcycle' },
-  { vehicleType: 'VAN', label: 'Van' },
-  { vehicleType: 'TRUCK', label: 'Truck' },
-]
+const VEHICLE_TYPES: FacilityVehicleType[] = ['CAR', 'MOTORCYCLE', 'VAN', 'TRUCK']
+
+function rowsFor(t: ReturnType<typeof useTranslations>): { vehicleType: FacilityVehicleType; label: string }[] {
+  return [
+    { vehicleType: 'CAR', label: t('vehicleTypes.car') },
+    { vehicleType: 'MOTORCYCLE', label: t('vehicleTypes.motorcycle') },
+    { vehicleType: 'VAN', label: t('vehicleTypes.van') },
+    { vehicleType: 'TRUCK', label: t('vehicleTypes.truck') },
+  ]
+}
 
 function feasiblePlans(plans: FacilityTariffPlan[], vehicleType: FacilityVehicleType): FacilityTariffPlan[] {
   // Plan.vehicleTypes comes from the tariff-plan wire contract (lowercase, e.g. "car"),
@@ -44,18 +49,18 @@ function initialSelection(
   plans: FacilityTariffPlan[],
 ): Record<string, string> {
   const selection: Record<string, string> = {}
-  for (const row of ROWS) {
+  for (const vehicleType of VEHICLE_TYPES) {
     if (!assignments) {
-      selection[row.vehicleType] = NO_CHANGE
+      selection[vehicleType] = NO_CHANGE
       continue
     }
-    const current = assignments.find((a) => a.vehicleType === row.vehicleType)
+    const current = assignments.find((a) => a.vehicleType === vehicleType)
     if (current && current.source === 'explicit' && current.tariffPlanId) {
-      selection[row.vehicleType] = current.tariffPlanId
+      selection[vehicleType] = current.tariffPlanId
       continue
     }
-    const feasible = feasiblePlans(plans, row.vehicleType)
-    selection[row.vehicleType] = feasible.length === 1 ? (feasible[0]?.id ?? NO_PLAN) : NO_PLAN
+    const feasible = feasiblePlans(plans, vehicleType)
+    selection[vehicleType] = feasible.length === 1 ? (feasible[0]?.id ?? NO_PLAN) : NO_PLAN
   }
   return selection
 }
@@ -72,6 +77,8 @@ export function AssignTariffModal({
   error,
   onSubmit,
 }: Props) {
+  const t = useTranslations('facilities')
+  const ROWS = rowsFor(t)
   const isBulk = initialAssignments === null
 
   const [selection, setSelection] = useState<Record<string, string>>(() =>
@@ -84,11 +91,11 @@ export function AssignTariffModal({
 
   const handleSubmit = () => {
     const assignments: AssignTariffInput[] = []
-    for (const row of ROWS) {
-      const value = selection[row.vehicleType] ?? NO_CHANGE
+    for (const vehicleType of VEHICLE_TYPES) {
+      const value = selection[vehicleType] ?? NO_CHANGE
       const initial = initialAssignments
         ? (() => {
-            const current = initialAssignments.find((a) => a.vehicleType === row.vehicleType)
+            const current = initialAssignments.find((a) => a.vehicleType === vehicleType)
             return current && current.source === 'explicit' && current.tariffPlanId
               ? current.tariffPlanId
               : NO_PLAN
@@ -102,7 +109,7 @@ export function AssignTariffModal({
       }
 
       assignments.push({
-        vehicleType: row.vehicleType,
+        vehicleType,
         tariffPlanId: value === NO_PLAN ? null : value,
       })
     }
@@ -112,10 +119,7 @@ export function AssignTariffModal({
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <p className="modal__text">
-        Each dropdown only lists tariffs that can legally price that vehicle type. When exactly
-        one qualifying tariff exists, it is pre-selected automatically, but it still needs an
-        explicit Assign click to take effect. Any vehicle type left unset falls back to the
-        operator&apos;s default plan{isBulk ? '' : ' (shown in the row below)'}.
+        {isBulk ? t('assignModal.helpTextBulk') : t('assignModal.helpTextSingle')}
       </p>
       <p className="modal__text">{description}</p>
 
@@ -140,8 +144,8 @@ export function AssignTariffModal({
                   }
                   disabled={pending}
                 >
-                  {isBulk ? <option value={NO_CHANGE}>No change</option> : null}
-                  <option value={NO_PLAN}>No tariff plan</option>
+                  {isBulk ? <option value={NO_CHANGE}>{t('assignModal.noChange')}</option> : null}
+                  <option value={NO_PLAN}>{t('tariff.noPlan')}</option>
                   {options.map((plan) => (
                     <option key={plan.id} value={plan.id}>
                       {plan.name}
@@ -154,20 +158,17 @@ export function AssignTariffModal({
         })}
 
         {isBulk ? (
-          <p className="text-secondary editor-section__hint">
-            Vehicle types left unassigned will fall back to each facility&apos;s own operator
-            default plan.
-          </p>
+          <p className="text-secondary editor-section__hint">{t('assignModal.bulkFallbackHint')}</p>
         ) : (
           <div className="editor-row">
             <div className="field">
-              <span className="field__label">All other vehicle types</span>
+              <span className="field__label">{t('assignModal.allOtherVehicleTypes')}</span>
               {defaultPlan ? (
                 <Link href={`/dashboard/tariffs/${defaultPlan.id}`} className="table-link">
                   {defaultPlan.name}
                 </Link>
               ) : (
-                <span className="text-secondary">No default set</span>
+                <span className="text-secondary">{t('assignModal.noDefaultSet')}</span>
               )}
             </div>
           </div>
@@ -176,16 +177,16 @@ export function AssignTariffModal({
 
       <div className="modal__footer">
         <button type="button" className="btn btn--secondary" onClick={onClose} disabled={pending}>
-          Cancel
+          {t('actions.cancel')}
         </button>
         <button type="button" className="btn btn--primary" disabled={pending} onClick={handleSubmit}>
           {pending ? (
             <>
               <Spinner size={15} />
-              Saving…
+              {t('form.saving')}
             </>
           ) : (
-            'Assign'
+            t('assignModal.assign')
           )}
         </button>
       </div>

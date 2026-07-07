@@ -1,8 +1,10 @@
+import { getTranslations } from 'next-intl/server'
 import { Skeleton, FieldSkeleton, EditorSectionSkeleton } from '@/components/Skeleton'
 
-export function FacilityFormSkeleton() {
+export async function FacilityFormSkeleton() {
+  const t = await getTranslations('facilities')
   return (
-    <div className="facility-form-layout" role="status" aria-label="Loading facility">
+    <div className="facility-form-layout" role="status" aria-label={t('form.loadingAria')}>
       <div className="facility-form-card">
         <EditorSectionSkeleton headWidth={64}>
           <div className="field-grid">

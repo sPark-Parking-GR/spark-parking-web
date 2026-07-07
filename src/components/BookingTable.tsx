@@ -1,3 +1,6 @@
+import { getTranslations } from 'next-intl/server'
+import { Badge } from '@spark/ui'
+import type { BadgeVariant } from '@spark/ui'
 import { BookingActionButton } from './BookingActionButton'
 import type { BookingListItem, BookingStatus } from '@/lib/booking-api'
 
@@ -5,15 +8,15 @@ interface Props {
   items: BookingListItem[]
 }
 
-const STATUS_BADGE: Record<BookingStatus, { label: string; variant: string }> = {
-  PENDING_PAYMENT: { label: 'Pending payment', variant: 'badge--warning' },
-  CONFIRMED: { label: 'Confirmed', variant: 'badge--success' },
-  CHECKED_IN: { label: 'Checked in', variant: 'badge--warning' },
-  CHECKED_OUT: { label: 'Checked out', variant: 'badge--neutral' },
-  CANCELLED: { label: 'Cancelled', variant: 'badge--neutral' },
-  EXPIRED: { label: 'Expired', variant: 'badge--neutral' },
-  REFUND_PENDING: { label: 'Refund pending', variant: 'badge--warning' },
-  REFUNDED: { label: 'Refunded', variant: 'badge--error' },
+const STATUS_BADGE: Record<BookingStatus, { labelKey: string; variant: BadgeVariant }> = {
+  PENDING_PAYMENT: { labelKey: 'status.pendingPayment', variant: 'warn' },
+  CONFIRMED: { labelKey: 'status.confirmed', variant: 'ok' },
+  CHECKED_IN: { labelKey: 'status.checkedIn', variant: 'ok' },
+  CHECKED_OUT: { labelKey: 'status.checkedOut', variant: 'neutral' },
+  CANCELLED: { labelKey: 'status.cancelled', variant: 'bad' },
+  EXPIRED: { labelKey: 'status.expired', variant: 'bad' },
+  REFUND_PENDING: { labelKey: 'status.refundPending', variant: 'warn' },
+  REFUNDED: { labelKey: 'status.refunded', variant: 'neutral' },
 }
 
 const dateFmt = new Intl.DateTimeFormat('en-GB', {
@@ -27,19 +30,21 @@ function formatMoney(cents: number, currency: string): string {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(cents / 100)
 }
 
-export function BookingTable({ items }: Props) {
+export async function BookingTable({ items }: Props) {
+  const t = await getTranslations('bookings')
+
   return (
     <div className="table-wrapper">
       <table className="table">
         <thead>
           <tr>
-            <th>Access code</th>
-            <th>Facility</th>
-            <th>Vehicle</th>
-            <th>Window</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Action</th>
+            <th>{t('table.accessCode')}</th>
+            <th>{t('table.facility')}</th>
+            <th>{t('table.vehicle')}</th>
+            <th>{t('table.window')}</th>
+            <th className="table-amount">{t('table.price')}</th>
+            <th>{t('table.status')}</th>
+            <th>{t('table.action')}</th>
           </tr>
         </thead>
         <tbody>
@@ -49,19 +54,19 @@ export function BookingTable({ items }: Props) {
             return (
               <tr key={item.id}>
                 <td>
-                  <span className="mono">{item.accessCode}</span>
+                  <span className="mono table-code">{item.accessCode}</span>
                 </td>
-                <td>{item.facility.name}</td>
-                <td>
+                <td className="table-facility">{item.facility.name}</td>
+                <td className="text-secondary">
                   <span className="mono">{item.vehiclePlate}</span>
-                  <span className="text-secondary"> · {item.vehicleType.toLowerCase()}</span>
+                  <span> · {item.vehicleType.toLowerCase()}</span>
                 </td>
                 <td className="text-secondary">
                   {dateFmt.format(new Date(item.startsAt))} → {dateFmt.format(new Date(item.endsAt))}
                 </td>
-                <td>{formatMoney(price, item.currency)}</td>
+                <td className="table-amount">{formatMoney(price, item.currency)}</td>
                 <td>
-                  <span className={`badge ${badge.variant}`}>{badge.label}</span>
+                  <Badge variant={badge.variant}>{t(badge.labelKey)}</Badge>
                 </td>
                 <td>
                   {item.status === 'CONFIRMED' ? (

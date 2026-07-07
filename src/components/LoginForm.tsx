@@ -1,46 +1,47 @@
 'use client'
 
 import { useActionState } from 'react'
+import { useTranslations } from 'next-intl'
 import { z } from 'zod'
 import { signInAction } from '@/lib/auth-actions'
-
-const credentialsSchema = z.object({
-  email: z.string().trim().email('Enter a valid email address.'),
-  password: z.string().min(1, 'Enter your password.'),
-})
 
 type LoginState = { error: string | null }
 
 const INITIAL_STATE: LoginState = { error: null }
 
-async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
-  const parsed = credentialsSchema.safeParse({
-    email: formData.get('email'),
-    password: formData.get('password'),
-  })
-
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Enter a valid email and password.' }
-  }
-
-  const from = formData.get('from')
-  const result = await signInAction(parsed.data, typeof from === 'string' ? from : undefined)
-  if (!result.ok) {
-    return { error: result.error }
-  }
-
-  return { error: null }
-}
-
 export function LoginForm({ from }: { from?: string }) {
-  const [state, formAction, isPending] = useActionState(loginAction, INITIAL_STATE)
+  const t = useTranslations('login')
+
+  const [state, formAction, isPending] = useActionState(async (_prev: LoginState, formData: FormData): Promise<LoginState> => {
+    const credentialsSchema = z.object({
+      email: z.string().trim().email(t('emailInvalid')),
+      password: z.string().min(1, t('passwordRequired')),
+    })
+
+    const parsed = credentialsSchema.safeParse({
+      email: formData.get('email'),
+      password: formData.get('password'),
+    })
+
+    if (!parsed.success) {
+      return { error: parsed.error.issues[0]?.message ?? t('credentialsInvalid') }
+    }
+
+    const fromField = formData.get('from')
+    const result = await signInAction(parsed.data, typeof fromField === 'string' ? fromField : undefined)
+    if (!result.ok) {
+      return { error: result.error }
+    }
+
+    return { error: null }
+  }, INITIAL_STATE)
 
   return (
     <form action={formAction} className="auth-form" noValidate>
       {from ? <input type="hidden" name="from" value={from} /> : null}
 
       <label className="field">
-        <span className="field__label">Email</span>
+        <span className="field__label">{t('emailLabel')}</span>
         <input
           className="input"
           type="email"
@@ -53,7 +54,7 @@ export function LoginForm({ from }: { from?: string }) {
       </label>
 
       <label className="field">
-        <span className="field__label">Password</span>
+        <span className="field__label">{t('passwordLabel')}</span>
         <input
           className="input"
           type="password"
@@ -72,7 +73,7 @@ export function LoginForm({ from }: { from?: string }) {
       ) : null}
 
       <button type="submit" className="btn btn--primary btn--block" disabled={isPending}>
-        {isPending ? 'Signing in…' : 'Sign in'}
+        {isPending ? t('signingIn') : t('signIn')}
       </button>
     </form>
   )

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { TariffPlanTable } from '@/components/TariffPlanTable'
@@ -17,6 +18,7 @@ interface PageProps {
 export default async function TariffsPage({ searchParams }: PageProps) {
   await requireSession()
 
+  const t = await getTranslations('tariffs')
   const params = await searchParams
   const q = params.q?.trim() ?? ''
   const skip = Math.max(0, parseInt(params.skip ?? '0', 10) || 0)
@@ -35,29 +37,27 @@ export default async function TariffsPage({ searchParams }: PageProps) {
   return (
     <>
       <PageHeader
-        title="Tariffs"
-        description="Manage pricing plans and assign them to facilities."
+        title={t('list.title')}
+        description={t('list.description')}
         actions={
           <Link href="/dashboard/tariffs/new" className="btn btn--primary">
             <Plus size={16} strokeWidth={2.25} aria-hidden="true" />
-            New plan
+            {t('list.newPlan')}
           </Link>
         }
       />
 
       <div className="table-toolbar">
-        <SearchInput placeholder="Search tariff plans…" />
+        <SearchInput placeholder={t('list.searchPlaceholder')} />
       </div>
       <div className="table-toolbar table-toolbar--count">
-        <span className="text-secondary table-toolbar__count">
-          {total} {total === 1 ? 'plan' : 'plans'}
-        </span>
+        <span className="text-secondary table-toolbar__count">{t('list.count', { count: total })}</span>
       </div>
 
       {items.length === 0 ? (
         <EmptyState
-          title="No tariff plans found"
-          message={q ? 'No plans match your search.' : 'Create your first pricing plan to get started.'}
+          title={t('list.empty.title')}
+          message={q ? t('list.empty.filtered') : t('list.empty.default')}
         />
       ) : (
         <>

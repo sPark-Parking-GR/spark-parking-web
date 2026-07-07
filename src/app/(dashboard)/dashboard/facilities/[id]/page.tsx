@@ -3,19 +3,24 @@ import { PageHeader } from '@/components/PageHeader'
 import { FacilityForm } from '@/components/FacilityForm'
 import { DeleteFacilityButton } from '@/components/DeleteFacilityButton'
 import { FacilityTariffPanel } from '@/components/FacilityTariffPanel'
+import { FacilityDetailTabs } from '@/components/FacilityDetailTabs'
+import { FacilityOverviewPanel } from '@/components/FacilityOverviewPanel'
 import { getFacilityForEdit, getFacilityTariffAssignments, ApiError, AuthRequiredError } from '@/lib/api'
 import { listTariffPlans } from '@/lib/tariff-api'
 import { getSession } from '@/lib/session'
 
 interface PageProps {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ tab?: string }>
 }
 
-export default async function EditFacilityPage({ params }: PageProps) {
+export default async function EditFacilityPage({ params, searchParams }: PageProps) {
   const session = await getSession()
   if (!session.accessToken) redirect('/login')
 
   const { id } = await params
+  const { tab } = await searchParams
+  const activeTab = tab === 'manage' ? 'manage' : 'overview'
 
   let facility
   let tariffPlans
@@ -46,13 +51,20 @@ export default async function EditFacilityPage({ params }: PageProps) {
         title={facility.name}
         titleAccessory={<DeleteFacilityButton id={id} />}
       />
-      <FacilityTariffPanel
-        facilityId={id}
-        assignments={assignments}
-        defaultPlan={defaultPlan}
-        tariffPlans={tariffPlans}
-      />
-      <FacilityForm mode="edit" facility={facility} isPlatformAdmin={isPlatformAdmin} />
+      <FacilityDetailTabs active={activeTab} />
+      {activeTab === 'manage' ? (
+        <>
+          <FacilityTariffPanel
+            facilityId={id}
+            assignments={assignments}
+            defaultPlan={defaultPlan}
+            tariffPlans={tariffPlans}
+          />
+          <FacilityForm mode="edit" facility={facility} isPlatformAdmin={isPlatformAdmin} />
+        </>
+      ) : (
+        <FacilityOverviewPanel facility={facility} />
+      )}
     </>
   )
 }

@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { FacilitiesManager } from '@/components/FacilitiesManager'
+import { FacilityCardGrid } from '@/components/FacilityCardGrid'
 import { FacilityFilters } from '@/components/FacilityFilters'
 import { ViewToggle } from '@/components/ViewToggle'
 import { FacilityMapView } from '@/components/FacilityMapView'
@@ -29,7 +31,9 @@ interface PageProps {
 }
 
 export default async function FacilitiesPage({ searchParams }: PageProps) {
-  await requireSession()
+  const t = await getTranslations('facilities')
+  const session = await requireSession()
+  const isPlatformAdmin = session.user.role === 'platform_admin'
 
   const params = await searchParams
   const q = params.q?.trim() ?? ''
@@ -55,7 +59,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
   const toolbar = (
     <>
       <div className="table-toolbar">
-        <SearchInput placeholder="Search facilities…" />
+        <SearchInput placeholder={t('list.searchPlaceholder')} />
         <ViewToggle />
       </div>
       <div className="table-toolbar table-toolbar--filters">
@@ -66,11 +70,11 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
 
   const header = (
     <PageHeader
-      title="Facilities"
+      title={t('list.title')}
       actions={
         <Link href="/dashboard/facilities/new" className="btn btn--primary">
           <Plus size={16} strokeWidth={2.25} aria-hidden="true" />
-          New facility
+          {t('actions.newFacility')}
         </Link>
       }
     />
@@ -86,7 +90,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
     )
   }
 
-  const [{ items, total }, { items: tariffPlans }] = await Promise.all([
+  const [{ items, total }, tariffPlans] = await Promise.all([
     loadPage(() =>
       listFacilities({
         skip,
@@ -97,7 +101,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
         ...(kind ? { kind } : {}),
       }),
     ),
-    listTariffPlans(),
+    isPlatformAdmin ? listTariffPlans().then((res) => res.items) : Promise.resolve([]),
   ])
 
   const buildHref = (nextSkip: number) =>
@@ -111,22 +115,22 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
       {toolbar}
       <div className="table-toolbar table-toolbar--count">
         <span className="text-secondary table-toolbar__count">
-          {total} {total === 1 ? 'facility' : 'facilities'}
+          {t('list.count', { count: total })}
         </span>
       </div>
 
       {items.length === 0 ? (
         <EmptyState
-          title="No facilities found"
-          message={
-            hasFilters
-              ? 'No facilities match your search or filters.'
-              : 'Create your first facility to get started.'
-          }
+          title={t('list.emptyTitle')}
+          message={hasFilters ? t('list.emptyFiltered') : t('list.emptyDefault')}
         />
       ) : (
         <>
-          <FacilitiesManager items={items} tariffPlans={tariffPlans} />
+          {isPlatformAdmin ? (
+            <FacilitiesManager items={items} tariffPlans={tariffPlans} />
+          ) : (
+            <FacilityCardGrid items={items} />
+          )}
           <Pagination skip={skip} take={PAGE_SIZE} total={total} buildHref={buildHref} sticky />
         </>
       )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import {
   DAY_BITS,
   WEEKDAY_LABELS,
@@ -11,6 +12,8 @@ import {
 } from '@/lib/tariff-schema'
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
 import type { TariffWindow } from '@/lib/tariff-api'
+
+const WEEKDAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 
 interface Props {
   windows: TariffWindow[]
@@ -42,6 +45,8 @@ function dayIsCovered(windows: TariffWindow[], bit: number): boolean {
 }
 
 export function WindowsEditor({ windows, onChange }: Props) {
+  const t = useTranslations('tariffs')
+
   function update(index: number, patch: Partial<TariffWindow>) {
     onChange(windows.map((w, i) => (i === index ? { ...w, ...patch } : w)))
   }
@@ -56,7 +61,13 @@ export function WindowsEditor({ windows, onChange }: Props) {
   function addWindow() {
     onChange([
       ...windows,
-      { key: makeKey(), label: 'New window', dayMask: ALL_DAYS_MASK, startMinute: 0, endMinute: 1440 },
+      {
+        key: makeKey(),
+        label: t('new.defaultWindowLabel'),
+        dayMask: ALL_DAYS_MASK,
+        startMinute: 0,
+        endMinute: 1440,
+      },
     ])
   }
 
@@ -64,26 +75,26 @@ export function WindowsEditor({ windows, onChange }: Props) {
     onChange(windows.filter((_, i) => i !== index))
   }
 
-  const uncoveredDays = WEEKDAY_LABELS.filter((_, i) => {
-    const bit = DAY_BITS[i] ?? 0
-    const usedByAny = windows.some((w) => (w.dayMask & bit) !== 0)
-    return usedByAny && !dayIsCovered(windows, bit)
-  })
+  const uncoveredDays = WEEKDAY_LABELS.map((_, i) => i)
+    .filter((i) => {
+      const bit = DAY_BITS[i] ?? 0
+      const usedByAny = windows.some((w) => (w.dayMask & bit) !== 0)
+      return usedByAny && !dayIsCovered(windows, bit)
+    })
+    .map((i) => t(`windows.weekday.${WEEKDAY_KEYS[i]}`))
 
   return (
     <section className="editor-section card">
       <div className="editor-section__head">
-        <h3 className="h-heading">Windows</h3>
-        <p className="text-secondary editor-section__hint">
-          Time-of-day slots per weekday. Start is inclusive, end exclusive; end ≤ start wraps past midnight.
-        </p>
+        <h3 className="h-heading">{t('windows.heading')}</h3>
+        <p className="text-secondary editor-section__hint">{t('windows.hint')}</p>
       </div>
 
       <div className="editor-rows">
         {windows.map((win, i) => (
           <div key={win.key} className="editor-row windows-row">
             <label className="field windows-row__label">
-              <span className="field__label">Label</span>
+              <span className="field__label">{t('windows.label')}</span>
               <input
                 className="input"
                 type="text"
@@ -93,20 +104,20 @@ export function WindowsEditor({ windows, onChange }: Props) {
             </label>
 
             <div className="field">
-              <span className="field__label">Days</span>
+              <span className="field__label">{t('windows.days')}</span>
               <div className="weekday-chips">
-                {WEEKDAY_LABELS.map((label, di) => {
+                {WEEKDAY_KEYS.map((dayKey, di) => {
                   const bit = DAY_BITS[di] ?? 0
                   const active = (win.dayMask & bit) === bit
                   return (
                     <button
-                      key={label}
+                      key={dayKey}
                       type="button"
                       className={`weekday-chip${active ? ' weekday-chip--active' : ''}`}
                       onClick={() => toggleDay(i, bit)}
                       aria-pressed={active}
                     >
-                      {label}
+                      {t(`windows.weekday.${dayKey}`)}
                     </button>
                   )
                 })}
@@ -114,22 +125,22 @@ export function WindowsEditor({ windows, onChange }: Props) {
             </div>
 
             <div className="field windows-row__time">
-              <span className="field__label">Start</span>
+              <span className="field__label">{t('windows.start')}</span>
               <DateTimePicker
                 mode="time"
                 value={minutesToHHMM(win.startMinute)}
                 onChange={(v) => update(i, { startMinute: hhmmToMinutes(v) })}
-                ariaLabel="Window start"
+                ariaLabel={t('windows.startAria')}
               />
             </div>
 
             <div className="field windows-row__time">
-              <span className="field__label">End</span>
+              <span className="field__label">{t('windows.end')}</span>
               <DateTimePicker
                 mode="time"
                 value={minutesToHHMM(win.endMinute)}
                 onChange={(v) => update(i, { endMinute: hhmmToMinutes(v) })}
-                ariaLabel="Window end"
+                ariaLabel={t('windows.endAria')}
               />
             </div>
 
@@ -138,8 +149,8 @@ export function WindowsEditor({ windows, onChange }: Props) {
               className="btn btn--icon btn--ghost-danger"
               onClick={() => removeWindow(i)}
               disabled={windows.length <= 1}
-              aria-label="Remove window"
-              data-tooltip="Remove window"
+              aria-label={t('windows.removeWindow')}
+              data-tooltip={t('windows.removeWindow')}
               data-tooltip-pos="bottom"
             >
               <Trash2 size={18} strokeWidth={2} aria-hidden="true" />
@@ -150,13 +161,12 @@ export function WindowsEditor({ windows, onChange }: Props) {
 
       {uncoveredDays.length > 0 ? (
         <p className="editor-warning" role="status">
-          These days are not cleanly tiled across 24h (gap or overlap): {uncoveredDays.join(', ')}. Windows
-          must run end-to-end from 00:00 to 24:00 with no gap or overlap. Pricing will be rejected until fixed.
+          {t('windows.uncoveredWarning', { days: uncoveredDays.join(', ') })}
         </p>
       ) : null}
 
       <button type="button" className="row-btn row-btn--add" onClick={addWindow}>
-        + Add window
+        {t('windows.addWindow')}
       </button>
     </section>
   )

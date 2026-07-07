@@ -1,6 +1,7 @@
 'use client'
 
 import { Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { UNIT_OPTIONS, makeKey } from '@/lib/tariff-schema'
 import type { TariffTier } from '@/lib/tariff-api'
 
@@ -23,7 +24,15 @@ function normalize(tiers: TariffTier[]): TariffTier[] {
   })
 }
 
+const UNIT_KEY: Record<TariffTier['unit'], string> = {
+  per_minute: 'perMinute',
+  per_block: 'perBlock',
+  flat: 'flat',
+}
+
 export function TiersEditor({ tiers, onChange }: Props) {
+  const t = useTranslations('tariffs')
+
   function update(index: number, patch: Partial<TariffTier>) {
     onChange(normalize(tiers.map((t, i) => (i === index ? { ...t, ...patch } : t))))
   }
@@ -53,10 +62,8 @@ export function TiersEditor({ tiers, onChange }: Props) {
   return (
     <section className="editor-section card">
       <div className="editor-section__head">
-        <h3 className="h-heading">Tiers</h3>
-        <p className="text-secondary editor-section__hint">
-          Cumulative-duration bands. Each tier starts where the previous ends; the last tier is open-ended.
-        </p>
+        <h3 className="h-heading">{t('tiers.heading')}</h3>
+        <p className="text-secondary editor-section__hint">{t('tiers.hint')}</p>
       </div>
 
       <div className="editor-rows">
@@ -65,14 +72,14 @@ export function TiersEditor({ tiers, onChange }: Props) {
           return (
             <div key={tier.key} className="editor-row tiers-row">
               <label className="field tiers-row__cell">
-                <span className="field__label">From (min)</span>
+                <span className="field__label">{t('tiers.fromMinutes')}</span>
                 <input className="input" type="number" value={tier.fromMinute} readOnly disabled />
               </label>
 
               <label className="field tiers-row__cell">
-                <span className="field__label">To (min)</span>
+                <span className="field__label">{t('tiers.toMinutes')}</span>
                 {isLast ? (
-                  <input className="input" type="text" value="∞ (open)" readOnly disabled />
+                  <input className="input" type="text" value={t('tiers.openEnded')} readOnly disabled />
                 ) : (
                   <input
                     className="input"
@@ -85,7 +92,7 @@ export function TiersEditor({ tiers, onChange }: Props) {
               </label>
 
               <label className="field tiers-row__cell">
-                <span className="field__label">Unit</span>
+                <span className="field__label">{t('tiers.unit')}</span>
                 <select
                   className="input"
                   value={tier.unit}
@@ -99,7 +106,7 @@ export function TiersEditor({ tiers, onChange }: Props) {
                 >
                   {UNIT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
-                      {o.label}
+                      {t(`tiers.unitOptions.${UNIT_KEY[o.value]}`)}
                     </option>
                   ))}
                 </select>
@@ -107,7 +114,7 @@ export function TiersEditor({ tiers, onChange }: Props) {
 
               {tier.unit === 'per_block' ? (
                 <label className="field tiers-row__cell">
-                  <span className="field__label">Block (min)</span>
+                  <span className="field__label">{t('tiers.blockMinutes')}</span>
                   <input
                     className="input"
                     type="number"
@@ -123,8 +130,8 @@ export function TiersEditor({ tiers, onChange }: Props) {
                 className="btn btn--icon btn--ghost-danger"
                 onClick={() => removeTier(i)}
                 disabled={tiers.length <= 1}
-                aria-label="Remove tier"
-                data-tooltip="Remove tier"
+                aria-label={t('tiers.removeTier')}
+                data-tooltip={t('tiers.removeTier')}
                 data-tooltip-pos="bottom"
               >
                 <Trash2 size={18} strokeWidth={2} aria-hidden="true" />
@@ -135,7 +142,7 @@ export function TiersEditor({ tiers, onChange }: Props) {
       </div>
 
       <button type="button" className="row-btn row-btn--add" onClick={addTier}>
-        + Add tier
+        {t('tiers.addTier')}
       </button>
     </section>
   )

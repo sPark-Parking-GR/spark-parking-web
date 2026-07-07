@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { GoogleLocationPicker } from '@/components/maps/GoogleLocationPicker'
 
 export interface LocationPickerProps {
@@ -12,13 +13,14 @@ export interface LocationPickerProps {
 const PROVIDER = process.env.NEXT_PUBLIC_MAP_PROVIDER ?? 'google'
 
 export function FacilityLocationPicker(props: LocationPickerProps) {
+  const t = useTranslations('facilities')
   switch (PROVIDER) {
     case 'google':
       return <GoogleLocationPicker {...props} />
     default:
       return (
         <p className="facility-map__fallback">
-          Unsupported map provider: <code>{PROVIDER}</code>
+          {t('map.unsupportedProvider')} <code>{PROVIDER}</code>
         </p>
       )
   }

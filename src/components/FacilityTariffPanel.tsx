@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Banknote } from 'lucide-react'
 import { AssignTariffModal } from './AssignTariffModal'
 import { bulkFacilityAction } from '@/lib/facility-actions'
@@ -15,15 +16,16 @@ interface Props {
   tariffPlans: FacilityTariffPlan[]
 }
 
-const ROWS: { vehicleType: FacilityTariffAssignment['vehicleType']; label: string }[] = [
-  { vehicleType: 'CAR', label: 'Car' },
-  { vehicleType: 'MOTORCYCLE', label: 'Motorcycle' },
-  { vehicleType: 'VAN', label: 'Van' },
-  { vehicleType: 'TRUCK', label: 'Truck' },
-]
-
 export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tariffPlans }: Props) {
+  const t = useTranslations('facilities')
   const router = useRouter()
+
+  const ROWS: { vehicleType: FacilityTariffAssignment['vehicleType']; label: string }[] = [
+    { vehicleType: 'CAR', label: t('vehicleTypes.car') },
+    { vehicleType: 'MOTORCYCLE', label: t('vehicleTypes.motorcycle') },
+    { vehicleType: 'VAN', label: t('vehicleTypes.van') },
+    { vehicleType: 'TRUCK', label: t('vehicleTypes.truck') },
+  ]
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -48,7 +50,7 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
   return (
     <section className="editor-section card">
       <div className="editor-section__head">
-        <h3 className="h-heading">Tariff plans</h3>
+        <h3 className="h-heading">{t('tariff.heading')}</h3>
       </div>
 
       {error ? (
@@ -61,8 +63,8 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
         <table className="table">
           <thead>
             <tr>
-              <th>Vehicle type</th>
-              <th>Tariff plan</th>
+              <th>{t('tariff.vehicleTypeCol')}</th>
+              <th>{t('tariff.tariffPlanCol')}</th>
             </tr>
           </thead>
           <tbody>
@@ -78,11 +80,11 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
                           {assignment.tariffPlanName}
                         </Link>
                         {assignment.source === 'default' ? (
-                          <span className="badge badge--info">Default</span>
+                          <span className="badge badge--info">{t('tariff.default')}</span>
                         ) : null}
                       </>
                     ) : (
-                      <span className="text-secondary">No tariff plan</span>
+                      <span className="text-secondary">{t('tariff.noPlan')}</span>
                     )}
                   </td>
                 </tr>
@@ -94,14 +96,14 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
 
       <button type="button" className="btn btn--secondary" onClick={() => setOpen(true)}>
         <Banknote size={15} strokeWidth={2} aria-hidden="true" />
-        Change tariff plans
+        {t('tariff.changePlans')}
       </button>
 
       <AssignTariffModal
         open={open}
         onClose={() => setOpen(false)}
-        title="Assign tariff plans"
-        description="Choose the tariff plan customers are billed under, per vehicle type, at this facility."
+        title={t('tariff.assignPlansTitle')}
+        description={t('tariff.assignPlansDescription')}
         plans={tariffPlans}
         initialAssignments={assignments}
         defaultPlan={defaultPlan}

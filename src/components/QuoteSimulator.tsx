@@ -1,7 +1,9 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { formatCents } from '@/lib/tariff-schema'
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
+import { Badge } from '@spark/ui'
 import type { SimulateResult } from '@/lib/tariff-api'
 import type { VehicleType } from '@spark/types'
 
@@ -15,13 +17,6 @@ interface Props {
   onChange: (patch: { startsAt?: string; endsAt?: string; vehicleType?: VehicleType }) => void
 }
 
-const VEHICLE_LABELS: Record<VehicleType, string> = {
-  car: 'Car',
-  motorcycle: 'Motorcycle',
-  van: 'Van',
-  truck: 'Truck',
-}
-
 export function QuoteSimulator({
   startsAt,
   endsAt,
@@ -31,38 +26,39 @@ export function QuoteSimulator({
   pending,
   onChange,
 }: Props) {
+  const t = useTranslations('tariffs')
   const options = vehicleTypes.length > 0 ? vehicleTypes : (['car'] as VehicleType[])
 
   return (
     <aside className="simulator">
       <div className="simulator__head">
-        <h3 className="h-heading">Live quote</h3>
-        {pending ? <span className="simulator__pending">updating…</span> : null}
+        <h3 className="h-heading">{t('simulator.heading')}</h3>
+        {pending ? <Badge variant="neutral">{t('simulator.updating')}</Badge> : null}
       </div>
 
       <div className="simulator__dates">
         <div className="field">
-          <span className="field__label">Starts at</span>
+          <span className="field__label">{t('simulator.startsAt')}</span>
           <DateTimePicker
             mode="datetime"
             value={startsAt}
             onChange={(v) => onChange({ startsAt: v })}
-            ariaLabel="Quote start"
+            ariaLabel={t('simulator.startAria')}
           />
         </div>
         <div className="field">
-          <span className="field__label">Ends at</span>
+          <span className="field__label">{t('simulator.endsAt')}</span>
           <DateTimePicker
             mode="datetime"
             value={endsAt}
             onChange={(v) => onChange({ endsAt: v })}
-            ariaLabel="Quote end"
+            ariaLabel={t('simulator.endAria')}
           />
         </div>
       </div>
 
       <label className="field">
-        <span className="field__label">Vehicle type</span>
+        <span className="field__label">{t('simulator.vehicleType')}</span>
         <select
           className="input"
           value={vehicleType}
@@ -70,24 +66,24 @@ export function QuoteSimulator({
         >
           {options.map((v) => (
             <option key={v} value={v}>
-              {VEHICLE_LABELS[v]}
+              {t(`vehicleTypes.${v}`)}
             </option>
           ))}
         </select>
       </label>
 
       {result === null ? (
-        <p className="text-secondary simulator__hint">Adjust the plan to preview a quote.</p>
+        <p className="text-secondary simulator__hint">{t('simulator.emptyHint')}</p>
       ) : result.ok ? (
         <div className="simulator__result">
           <table className="sim-table">
             <thead>
               <tr>
-                <th>Item</th>
-                <th>Dur</th>
-                <th>Unit</th>
-                <th>Qty</th>
-                <th>Subtotal</th>
+                <th>{t('simulator.itemHeader')}</th>
+                <th>{t('simulator.durHeader')}</th>
+                <th>{t('simulator.unitHeader')}</th>
+                <th>{t('simulator.qtyHeader')}</th>
+                <th>{t('simulator.subtotalHeader')}</th>
               </tr>
             </thead>
             <tbody>
@@ -104,15 +100,15 @@ export function QuoteSimulator({
           </table>
           <dl className="sim-summary">
             <div>
-              <dt>Duration</dt>
+              <dt>{t('simulator.duration')}</dt>
               <dd>{result.quote.durationMinutes}m</dd>
             </div>
             <div>
-              <dt>Billable</dt>
+              <dt>{t('simulator.billable')}</dt>
               <dd>{result.quote.billableMinutes}m</dd>
             </div>
             <div className="sim-summary__total">
-              <dt>Total</dt>
+              <dt>{t('simulator.total')}</dt>
               <dd>
                 {result.quote.currency} €{formatCents(result.quote.totalCents)}
               </dd>

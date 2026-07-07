@@ -1,15 +1,16 @@
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { TariffEditor } from '@/components/TariffEditor'
 import { getSession } from '@/lib/session'
 import { makeKey, ALL_DAYS_MASK } from '@/lib/tariff-schema'
 import type { TariffDraft } from '@/lib/tariff-api'
 
-function buildDefaultDraft(): TariffDraft {
+function buildDefaultDraft(name: string, windowLabel: string): TariffDraft {
   const windowKey = makeKey()
   const tierKey = makeKey()
   return {
-    name: 'New tariff plan',
+    name,
     isActive: true,
     isDefault: false,
     validFrom: null,
@@ -19,7 +20,7 @@ function buildDefaultDraft(): TariffDraft {
     incrementMinutes: 60,
     vehicleTypes: ['car'],
     tiers: [{ key: tierKey, fromMinute: 0, toMinute: null, unit: 'per_block', blockMinutes: 60 }],
-    windows: [{ key: windowKey, label: 'All day', dayMask: ALL_DAYS_MASK, startMinute: 0, endMinute: 1440 }],
+    windows: [{ key: windowKey, label: windowLabel, dayMask: ALL_DAYS_MASK, startMinute: 0, endMinute: 1440 }],
     rates: [{ tierKey, windowKey, priceCents: 0, currency: 'EUR' }],
     caps: [],
   }
@@ -29,10 +30,12 @@ export default async function NewTariffPlanPage() {
   const session = await getSession()
   if (!session.accessToken) redirect('/login')
 
+  const t = await getTranslations('tariffs')
+
   return (
     <>
-      <PageHeader title="New tariff plan" />
-      <TariffEditor mode="create" plan={buildDefaultDraft()} />
+      <PageHeader title={t('new.pageTitle')} />
+      <TariffEditor mode="create" plan={buildDefaultDraft(t('new.defaultName'), t('new.defaultWindowLabel'))} />
     </>
   )
 }

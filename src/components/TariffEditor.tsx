@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useFormStatus } from 'react-dom'
+import { useTranslations } from 'next-intl'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import { saveTariffPlanAction } from '@/lib/tariff-actions'
 import { simulateTariffAction } from '@/lib/tariff-actions'
@@ -101,9 +102,10 @@ function defaultSimWindow(): { startsAt: string; endsAt: string } {
 
 function SubmitButton({ mode }: { mode: 'create' | 'edit' }) {
   const { pending } = useFormStatus()
+  const t = useTranslations('tariffs')
   return (
     <button type="submit" className="btn btn--primary" disabled={pending}>
-      {pending ? 'Saving…' : mode === 'create' ? 'Create plan' : 'Save changes'}
+      {pending ? t('editor.saving') : mode === 'create' ? t('editor.createPlan') : t('editor.saveChanges')}
     </button>
   )
 }
@@ -137,6 +139,7 @@ function ReplacementModalStatus({
 }
 
 export function TariffEditor({ mode, planId, plan, plans }: Props) {
+  const t = useTranslations('tariffs')
   const [draft, dispatch] = useReducer(reducer, plan as TariffDraft)
   const [newDefaultPlanId, setNewDefaultPlanId] = useState<string | undefined>(undefined)
   const formRef = useRef<HTMLFormElement>(null)
@@ -202,7 +205,7 @@ export function TariffEditor({ mode, planId, plan, plans }: Props) {
           if (id === runId.current) setSimResult(res)
         })
         .catch(() => {
-          if (id === runId.current) setSimResult({ ok: false, error: 'Could not compute a quote.' })
+          if (id === runId.current) setSimResult({ ok: false, error: t('editor.simulationError') })
         })
         .finally(() => {
           if (id === runId.current) setSimPending(false)
@@ -236,7 +239,7 @@ export function TariffEditor({ mode, planId, plan, plans }: Props) {
           <div className="form-banner form-banner--warning" role="status">
             <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
             <div className="form-banner__body">
-              <strong>Fix before saving</strong>
+              <strong>{t('editor.fixBeforeSaving')}</strong>
               <ul>
                 {Array.from(new Set(clientValidation.issues)).map((msg) => (
                   <li key={msg}>{msg}</li>

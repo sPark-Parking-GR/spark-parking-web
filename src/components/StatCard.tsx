@@ -10,6 +10,7 @@ export function StatCard({
   icon: Icon,
   tone = 'primary',
   index = 0,
+  trend,
 }: {
   label: string
   value: string
@@ -17,6 +18,7 @@ export function StatCard({
   icon?: LucideIcon
   tone?: StatTone
   index?: number
+  trend?: string
 }) {
   return (
     <div className="stat-card" style={{ animationDelay: `${index * 70}ms` }}>
@@ -40,6 +42,7 @@ export function StatCard({
         ) : null}
       </div>
       <span className="stat-card__value">{value}</span>
+      {trend ? <span className="stat-card__trend text-secondary">{trend}</span> : null}
     </div>
   )
 }

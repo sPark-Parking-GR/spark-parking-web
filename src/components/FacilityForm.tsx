@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
+import { useTranslations } from 'next-intl'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { facilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
 import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actions'
@@ -23,10 +24,11 @@ interface Props {
 const INITIAL_STATE: FacilityActionResult = { ok: true }
 
 function SubmitButton({ mode }: { mode: 'create' | 'edit' }) {
+  const t = useTranslations('facilities')
   const { pending } = useFormStatus()
   return (
     <button type="submit" className="btn btn--primary" disabled={pending}>
-      {pending ? 'Saving…' : mode === 'create' ? 'Create facility' : 'Save changes'}
+      {pending ? t('form.saving') : mode === 'create' ? t('form.createFacility') : t('form.saveChanges')}
     </button>
   )
 }
@@ -50,6 +52,7 @@ function prefillCloseTime(facility?: AdminFacility): string {
 }
 
 export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
+  const t = useTranslations('facilities')
   const boundAction =
     mode === 'edit' && facility
       ? updateFacilityAction.bind(null, facility.id)
@@ -115,17 +118,17 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
         {state && state.ok && mode === 'edit' && hasSubmitted && !isPending ? (
           <p className="form-banner form-banner--success" role="status">
             <CheckCircle2 size={18} strokeWidth={2} aria-hidden="true" />
-            Changes saved.
+            {t('form.changesSaved')}
           </p>
         ) : null}
 
         <section className="editor-section card">
           <div className="editor-section__head">
-            <h3 className="h-heading">Basics</h3>
+            <h3 className="h-heading">{t('form.basics')}</h3>
           </div>
           <div className="field-grid">
             <label className="field">
-              <span className="field__label">Name</span>
+              <span className="field__label">{t('form.nameLabel')}</span>
               <input
                 className="input"
                 type="text"
@@ -136,7 +139,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
               />
             </label>
             <label className="field">
-              <span className="field__label">Address</span>
+              <span className="field__label">{t('form.addressLabel')}</span>
               <input
                 className="input"
                 type="text"
@@ -151,14 +154,12 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
 
         <section className="editor-section card">
           <div className="editor-section__head">
-            <h3 className="h-heading">Location</h3>
-            <p className="editor-section__hint">
-              Set the pin on the map — coordinates update automatically, or type them directly.
-            </p>
+            <h3 className="h-heading">{t('form.location')}</h3>
+            <p className="editor-section__hint">{t('form.locationHint')}</p>
           </div>
           <div className="field-grid">
             <label className="field">
-              <span className="field__label">Latitude</span>
+              <span className="field__label">{t('form.latitudeLabel')}</span>
               <input
                 className="input"
                 type="number"
@@ -171,7 +172,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
               />
             </label>
             <label className="field">
-              <span className="field__label">Longitude</span>
+              <span className="field__label">{t('form.longitudeLabel')}</span>
               <input
                 className="input"
                 type="number"
@@ -188,11 +189,11 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
 
         <section className="editor-section card">
           <div className="editor-section__head">
-            <h3 className="h-heading">Capacity &amp; vehicles</h3>
+            <h3 className="h-heading">{t('form.capacityVehicles')}</h3>
           </div>
           <div className="field-grid">
             <label className="field">
-              <span className="field__label">Total capacity</span>
+              <span className="field__label">{t('form.totalCapacityLabel')}</span>
               <input
                 className="input"
                 type="number"
@@ -204,7 +205,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
               />
             </label>
             <label className="field">
-              <span className="field__label">Online quota</span>
+              <span className="field__label">{t('form.onlineQuotaLabel')}</span>
               <input
                 className="input"
                 type="number"
@@ -218,7 +219,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
           </div>
 
           <div className="field">
-            <span className="field__label">Vehicle types</span>
+            <span className="field__label">{t('form.vehicleTypesLabel')}</span>
             <MultiSelectControl
               options={VEHICLE_OPTIONS}
               value={vehicleTypes}
@@ -231,7 +232,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
           </div>
 
           <label className="field">
-            <span className="field__label">Height restriction (cm, optional)</span>
+            <span className="field__label">{t('form.heightRestrictionLabel')}</span>
             <input
               className="input"
               type="number"
@@ -245,10 +246,10 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
 
         <section className="editor-section card">
           <div className="editor-section__head">
-            <h3 className="h-heading">Policy &amp; amenities</h3>
+            <h3 className="h-heading">{t('form.policyAmenities')}</h3>
           </div>
           <label className="field">
-            <span className="field__label">Amenities (comma-separated)</span>
+            <span className="field__label">{t('form.amenitiesLabel')}</span>
             <input
               className="input"
               type="text"
@@ -258,7 +259,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
             />
           </label>
           <label className="field">
-            <span className="field__label">Cancellation policy</span>
+            <span className="field__label">{t('form.cancellationPolicyLabel')}</span>
             <textarea
               className="input input--textarea"
               name="cancellationPolicy"
@@ -271,7 +272,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
 
         <section className="editor-section card">
           <div className="editor-section__head">
-            <h3 className="h-heading">Opening hours</h3>
+            <h3 className="h-heading">{t('form.openingHours')}</h3>
           </div>
           <input type="hidden" name="is24h" value={is24h ? 'true' : 'false'} />
           <div className="opening-hours-row">
@@ -282,28 +283,28 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
                 onChange={(e) => setIs24h(e.target.checked)}
                 disabled={isPending}
               />
-              Open 24 hours
+              {t('form.open24h')}
             </label>
             <div className="field opening-hours-time-field">
-              <span className="field__label">Opens</span>
+              <span className="field__label">{t('form.opens')}</span>
               <DateTimePicker
                 mode="time"
                 name="openTime"
                 value={openTime}
                 onChange={setOpenTime}
                 disabled={isPending || is24h}
-                ariaLabel="Opening time"
+                ariaLabel={t('form.openingTimeAria')}
               />
             </div>
             <div className="field opening-hours-time-field">
-              <span className="field__label">Closes</span>
+              <span className="field__label">{t('form.closes')}</span>
               <DateTimePicker
                 mode="time"
                 name="closeTime"
                 value={closeTime}
                 onChange={setCloseTime}
                 disabled={isPending || is24h}
-                ariaLabel="Closing time"
+                ariaLabel={t('form.closingTimeAria')}
               />
             </div>
           </div>
@@ -312,7 +313,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
         {showVisibilitySection ? (
           <section className="editor-section card">
             <div className="editor-section__head">
-              <h3 className="h-heading">Visibility</h3>
+              <h3 className="h-heading">{t('form.visibility')}</h3>
             </div>
             {mode === 'edit' ? (
               <div className="field">
@@ -324,14 +325,14 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
                     defaultChecked={facility?.isActive ?? false}
                     disabled={isPending}
                   />
-                  Active (visible to customers)
+                  {t('form.activeVisible')}
                 </label>
               </div>
             ) : null}
 
             {mode === 'create' && isPlatformAdmin ? (
               <label className="field">
-                <span className="field__label">Operator ID</span>
+                <span className="field__label">{t('form.operatorIdLabel')}</span>
                 <input
                   className="input"
                   type="text"
@@ -357,9 +358,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
             setLng(nextLng)
           }}
         />
-        <p className="facility-map__hint">
-          Click the map or drag the pin to set the location. The coordinates update automatically.
-        </p>
+        <p className="facility-map__hint">{t('form.mapHint')}</p>
       </aside>
     </div>
   )

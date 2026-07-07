@@ -1,14 +1,17 @@
+import { getTranslations } from 'next-intl/server'
 import { NavLink } from '@/components/NavLink'
 import { SparkLogo } from '@/components/SparkLogo'
 import type { NavItem } from '@/lib/nav'
 
-export function Sidebar({ items }: { items: NavItem[] }) {
+export async function Sidebar({ items }: { items: NavItem[] }) {
+  const t = await getTranslations('shell')
+
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" data-theme="dark">
       <div className="sidebar__brand">
-        <SparkLogo label="Admin" onInk gradientId="spark-sidebar-grad" />
+        <SparkLogo label={t('brandTag')} onInk gradientId="spark-sidebar-grad" />
       </div>
-      <nav className="sidebar__nav" aria-label="Primary">
+      <nav className="sidebar__nav" aria-label={t('primaryNav')}>
         {items.map((item) => (
           <NavLink key={item.href} item={item} />
         ))}

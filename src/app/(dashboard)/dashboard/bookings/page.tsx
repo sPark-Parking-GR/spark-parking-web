@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { BookingTable } from '@/components/BookingTable'
@@ -9,11 +10,11 @@ import { buildQuery, loadPage, requireSession } from '@/lib/dal'
 
 const PAGE_SIZE = 20
 
-const STATUS_FILTERS: { label: string; value?: BookingStatus }[] = [
-  { label: 'All' },
-  { label: 'Confirmed', value: 'CONFIRMED' },
-  { label: 'Checked in', value: 'CHECKED_IN' },
-  { label: 'Checked out', value: 'CHECKED_OUT' },
+const STATUS_FILTERS: { labelKey: string; value?: BookingStatus }[] = [
+  { labelKey: 'filters.all' },
+  { labelKey: 'filters.confirmed', value: 'CONFIRMED' },
+  { labelKey: 'filters.checkedIn', value: 'CHECKED_IN' },
+  { labelKey: 'filters.checkedOut', value: 'CHECKED_OUT' },
 ]
 
 function parseStatus(value: string | undefined): BookingStatus | undefined {
@@ -27,6 +28,7 @@ interface PageProps {
 export default async function BookingsPage({ searchParams }: PageProps) {
   await requireSession()
 
+  const t = await getTranslations('bookings')
   const params = await searchParams
   const status = parseStatus(params.status)
   const q = params.q?.trim() ?? ''
@@ -48,31 +50,29 @@ export default async function BookingsPage({ searchParams }: PageProps) {
 
   return (
     <>
-      <PageHeader title="Bookings" description="Track reservations and run check-in / check-out." />
+      <PageHeader title={t('title')} description={t('description')} />
 
       <div className="tabs">
         {STATUS_FILTERS.map((f) => (
           <Link
-            key={f.label}
+            key={f.labelKey}
             href={buildQuery('/dashboard/bookings', { status: f.value, q })}
             className={`tab ${f.value === status ? 'tab--active' : ''}`}
           >
-            {f.label}
+            {t(f.labelKey)}
           </Link>
         ))}
       </div>
 
       <div className="table-toolbar">
-        <SearchInput placeholder="Search access code or plate…" />
-        <span className="text-secondary table-toolbar__count">
-          {total} {total === 1 ? 'booking' : 'bookings'}
-        </span>
+        <SearchInput placeholder={t('searchPlaceholder')} />
+        <span className="text-secondary table-toolbar__count">{t('count', { count: total })}</span>
       </div>
 
       {items.length === 0 ? (
         <EmptyState
-          title="No bookings"
-          message={q || status ? 'No bookings match these filters.' : 'Bookings will appear here as they come in.'}
+          title={t('empty.title')}
+          message={q || status ? t('empty.filtered') : t('empty.default')}
         />
       ) : (
         <>

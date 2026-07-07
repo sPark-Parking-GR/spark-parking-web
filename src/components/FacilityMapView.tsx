@@ -9,6 +9,7 @@ import {
   type MapCameraChangedEvent,
 } from '@vis.gl/react-google-maps'
 import { Power, PowerOff, Rocket, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Spinner } from './Spinner'
 import { bulkFacilityAction, fetchMapFacilitiesAction } from '@/lib/facility-actions'
 import { KIND_META } from '@/lib/facility-display'
@@ -35,6 +36,7 @@ function pinClass(point: AdminMapPoint): string {
 }
 
 export function FacilityMapView({ filters }: Props) {
+  const t = useTranslations('facilities')
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID'
 
@@ -83,7 +85,7 @@ export function FacilityMapView({ filters }: Props) {
   if (!apiKey) {
     return (
       <p className="facility-map__fallback">
-        Map unavailable — set <code>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code>.
+        {t.rich('map.unavailable', { code: (chunks) => <code>{chunks}</code> })}
       </p>
     )
   }
@@ -123,29 +125,29 @@ export function FacilityMapView({ filters }: Props) {
 
       <div className="map-view__legend">
         <span className="map-legend__item">
-          <span className="map-pin map-pin--live" /> Live
+          <span className="map-pin map-pin--live" /> {t('status.live')}
         </span>
         <span className="map-legend__item">
-          <span className="map-pin map-pin--active" /> Active
+          <span className="map-pin map-pin--active" /> {t('status.active')}
         </span>
         <span className="map-legend__item">
-          <span className="map-pin map-pin--inactive" /> Inactive
+          <span className="map-pin map-pin--inactive" /> {t('status.inactive')}
         </span>
       </div>
 
       <div className="map-view__status">
         {loading ? (
           <>
-            <Spinner size={14} /> Loading…
+            <Spinner size={14} /> {t('map.loading')}
           </>
         ) : data ? (
           data.mode === 'clusters' ? (
-            `${data.total} facilities — zoom in to act`
+            t('map.zoomToAct', { count: data.total })
           ) : (
-            `${data.points.length} shown`
+            t('map.shown', { count: data.points.length })
           )
         ) : (
-          'Pan or zoom the map to load facilities'
+          t('map.panOrZoom')
         )}
       </div>
 
@@ -154,7 +156,7 @@ export function FacilityMapView({ filters }: Props) {
           <button
             type="button"
             className="map-popup__close"
-            aria-label="Close"
+            aria-label={t('map.close')}
             onClick={() => setSelected(null)}
           >
             <X size={16} strokeWidth={2} aria-hidden="true" />
@@ -164,8 +166,8 @@ export function FacilityMapView({ filters }: Props) {
           </span>
           <h3 className="map-popup__title">{selected.name}</h3>
           <p className="map-popup__meta text-secondary">
-            {selected.isActive ? 'Active' : 'Inactive'} ·{' '}
-            {selected.isVerified ? 'Verified' : 'Pending'}
+            {selected.isActive ? t('status.active') : t('status.inactive')} ·{' '}
+            {selected.isVerified ? t('status.verified') : t('status.pending')}
           </p>
           <div className="map-popup__actions">
             {!(selected.isActive && selected.isVerified) ? (
@@ -176,7 +178,7 @@ export function FacilityMapView({ filters }: Props) {
                 onClick={() => act('deploy', selected)}
               >
                 <Rocket size={15} strokeWidth={2} aria-hidden="true" />
-                Deploy
+                {t('actions.deploy')}
               </button>
             ) : null}
             {selected.isActive ? (
@@ -187,7 +189,7 @@ export function FacilityMapView({ filters }: Props) {
                 onClick={() => act('disable', selected)}
               >
                 <PowerOff size={15} strokeWidth={2} aria-hidden="true" />
-                Disable
+                {t('actions.disable')}
               </button>
             ) : (
               <button
@@ -197,11 +199,11 @@ export function FacilityMapView({ filters }: Props) {
                 onClick={() => act('enable', selected)}
               >
                 <Power size={15} strokeWidth={2} aria-hidden="true" />
-                Enable
+                {t('actions.enable')}
               </button>
             )}
             <Link href={`/dashboard/facilities/${selected.id}`} className="btn btn--secondary btn--sm">
-              Edit
+              {t('actions.edit')}
             </Link>
           </div>
         </div>

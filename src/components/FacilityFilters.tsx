@@ -2,26 +2,28 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import { Spinner } from './Spinner'
 import { KIND_OPTIONS } from '@/lib/facility-display'
 
-const STATUS_OPTIONS = [
-  { value: '', label: 'Any status' },
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-]
-
-const VERIFIED_OPTIONS = [
-  { value: '', label: 'Any verification' },
-  { value: 'verified', label: 'Verified' },
-  { value: 'pending', label: 'Pending' },
-]
-
 export function FacilityFilters() {
+  const t = useTranslations('facilities')
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
+
+  const STATUS_OPTIONS = [
+    { value: '', label: t('filters.anyStatus') },
+    { value: 'active', label: t('status.active') },
+    { value: 'inactive', label: t('status.inactive') },
+  ]
+
+  const VERIFIED_OPTIONS = [
+    { value: '', label: t('filters.anyVerification') },
+    { value: 'verified', label: t('status.verified') },
+    { value: 'pending', label: t('status.pending') },
+  ]
 
   const setParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams)
@@ -36,7 +38,7 @@ export function FacilityFilters() {
     <div className="filter-bar">
       <select
         className="input filter-bar__select"
-        aria-label="Filter by status"
+        aria-label={t('filters.statusAria')}
         value={searchParams.get('status') ?? ''}
         onChange={(e) => setParam('status', e.target.value)}
       >
@@ -48,7 +50,7 @@ export function FacilityFilters() {
       </select>
       <select
         className="input filter-bar__select"
-        aria-label="Filter by verification"
+        aria-label={t('filters.verifiedAria')}
         value={searchParams.get('verified') ?? ''}
         onChange={(e) => setParam('verified', e.target.value)}
       >
@@ -60,11 +62,11 @@ export function FacilityFilters() {
       </select>
       <select
         className="input filter-bar__select"
-        aria-label="Filter by kind"
+        aria-label={t('filters.kindAria')}
         value={searchParams.get('kind') ?? ''}
         onChange={(e) => setParam('kind', e.target.value)}
       >
-        <option value="">Any kind</option>
+        <option value="">{t('filters.anyKind')}</option>
         {KIND_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}

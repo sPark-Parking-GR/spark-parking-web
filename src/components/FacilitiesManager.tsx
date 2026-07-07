@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Banknote, Pencil, Power, PowerOff, Rocket, Trash2 } from 'lucide-react'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
@@ -27,28 +28,27 @@ interface Props {
 
 const CONFIRMABLE: BulkFacilityAction[] = ['deploy', 'delete']
 
-const CONFIRM_COPY: Record<
-  'deploy' | 'delete',
-  { title: string; body: (n: number) => string; cta: string; danger: boolean }
-> = {
-  deploy: {
-    title: 'Deploy facilities',
-    body: (n) =>
-      `Activate and verify ${n} ${n === 1 ? 'facility' : 'facilities'}. They become visible in the mobile app immediately.`,
-    cta: 'Deploy',
-    danger: false,
-  },
-  delete: {
-    title: 'Delete facilities',
-    body: (n) =>
-      `Deactivate ${n} ${n === 1 ? 'facility' : 'facilities'} and remove ${n === 1 ? 'it' : 'them'} from the mobile app. You can re-enable later.`,
-    cta: 'Delete',
-    danger: true,
-  },
-}
-
 export function FacilitiesManager({ items, tariffPlans }: Props) {
+  const t = useTranslations('facilities')
   const router = useRouter()
+
+  const CONFIRM_COPY: Record<
+    'deploy' | 'delete',
+    { title: string; body: (n: number) => string; cta: string; danger: boolean }
+  > = {
+    deploy: {
+      title: t('confirm.deployTitle'),
+      body: (n) => t('confirm.deployBody', { count: n }),
+      cta: t('actions.deploy'),
+      danger: false,
+    },
+    delete: {
+      title: t('confirm.deleteTitle'),
+      body: (n) => t('confirm.deleteBody', { count: n }),
+      cta: t('actions.delete'),
+      danger: true,
+    },
+  }
   const [selected, setSelected] = usePersistentSelection(SELECTION_KEY)
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -105,7 +105,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
   const run = (action: BulkFacilityAction, ids: string[]) => {
     if (ids.length === 0) return
     if (ids.length > 500) {
-      setError('You can act on at most 500 facilities at once. Narrow your selection.')
+      setError(t('errors.tooManySelected'))
       return
     }
     if (CONFIRMABLE.includes(action)) {
@@ -118,7 +118,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
   const openAssign = async (ids: string[]) => {
     if (ids.length === 0) return
     if (ids.length > 500) {
-      setError('You can act on at most 500 facilities at once. Narrow your selection.')
+      setError(t('errors.tooManySelected'))
       return
     }
     setAssignError(null)
@@ -134,7 +134,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
       if (!facilityId) return
       const result = await getFacilityTariffAssignmentsAction(facilityId)
       if (result === null) {
-        setAssignError('Could not load current tariff assignments.')
+        setAssignError(t('errors.loadAssignmentsFailed'))
         setAssignTarget({ ids, initialAssignments: null, defaultPlan: null })
       } else {
         setAssignTarget({ ids, initialAssignments: result.assignments, defaultPlan: result.defaultPlan })
@@ -168,9 +168,9 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
       ) : null}
 
       {selected.size > 0 ? (
-        <div className="bulk-bar" role="toolbar" aria-label="Bulk actions">
+        <div className="bulk-bar" role="toolbar" aria-label={t('table.bulkActionsLabel')}>
           <span className="bulk-bar__count">
-            {selected.size} selected
+            {t('table.selectedCount', { count: selected.size })}
             {pending ? <Spinner size={14} /> : null}
           </span>
           <div className="bulk-bar__actions">
@@ -181,7 +181,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               onClick={() => run('deploy', selectedIds)}
             >
               <Rocket size={15} strokeWidth={2} aria-hidden="true" />
-              Deploy
+              {t('actions.deploy')}
             </button>
             <button
               type="button"
@@ -190,7 +190,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               onClick={() => run('enable', selectedIds)}
             >
               <Power size={15} strokeWidth={2} aria-hidden="true" />
-              Enable
+              {t('actions.enable')}
             </button>
             <button
               type="button"
@@ -199,7 +199,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               onClick={() => run('disable', selectedIds)}
             >
               <PowerOff size={15} strokeWidth={2} aria-hidden="true" />
-              Disable
+              {t('actions.disable')}
             </button>
             <button
               type="button"
@@ -208,7 +208,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               onClick={() => openAssign(selectedIds)}
             >
               <Banknote size={15} strokeWidth={2} aria-hidden="true" />
-              Assign tariff
+              {t('actions.assignTariff')}
             </button>
             <button
               type="button"
@@ -217,7 +217,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               onClick={() => run('delete', selectedIds)}
             >
               <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
-              Delete
+              {t('actions.delete')}
             </button>
           </div>
           <button
@@ -225,7 +225,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
             className="bulk-bar__clear"
             onClick={() => setSelected(new Set())}
           >
-            Clear
+            {t('actions.clear')}
           </button>
         </div>
       ) : null}
@@ -235,7 +235,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
           <thead>
             <tr>
               <th className="table__check">
-                <label className="checkbox-label" aria-label="Select all on this page">
+                <label className="checkbox-label" aria-label={t('table.selectAll')}>
                   <input
                     ref={headerCheck}
                     type="checkbox"
@@ -244,13 +244,13 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                   />
                 </label>
               </th>
-              <th>Name</th>
-              <th>Operator</th>
-              <th>Kind</th>
-              <th>Capacity</th>
-              <th>Status</th>
-              <th>Verified</th>
-              <th className="table__actions-col" aria-label="Actions" />
+              <th>{t('table.name')}</th>
+              <th>{t('table.operator')}</th>
+              <th>{t('table.kind')}</th>
+              <th>{t('table.capacity')}</th>
+              <th>{t('table.status')}</th>
+              <th>{t('table.verified')}</th>
+              <th className="table__actions-col" aria-label={t('table.actionsCol')} />
             </tr>
           </thead>
           <tbody>
@@ -261,7 +261,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               return (
                 <tr key={item.id} className={isSelected ? 'is-selected' : undefined}>
                   <td className="table__check">
-                    <label className="checkbox-label" aria-label={`Select ${item.name}`}>
+                    <label className="checkbox-label" aria-label={t('table.selectOne', { name: item.name })}>
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -290,16 +290,16 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                   </td>
                   <td>
                     {item.isActive ? (
-                      <span className="badge badge--success">Active</span>
+                      <span className="badge badge--success">{t('status.active')}</span>
                     ) : (
-                      <span className="badge badge--neutral">Inactive</span>
+                      <span className="badge badge--neutral">{t('status.inactive')}</span>
                     )}
                   </td>
                   <td>
                     {item.isVerified ? (
-                      <span className="badge badge--success">Verified</span>
+                      <span className="badge badge--success">{t('status.verified')}</span>
                     ) : (
-                      <span className="badge badge--warning">Pending</span>
+                      <span className="badge badge--warning">{t('status.pending')}</span>
                     )}
                   </td>
                   <td>
@@ -310,8 +310,8 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                           className="btn btn--icon btn--ghost-primary"
                           disabled={pending}
                           onClick={() => run('deploy', [item.id])}
-                          aria-label="Deploy"
-                          data-tooltip="Deploy (activate + verify)"
+                          aria-label={t('actions.deploy')}
+                          data-tooltip={t('table.tooltipDeploy')}
                           data-tooltip-pos="bottom"
                         >
                           <Rocket size={17} strokeWidth={2} aria-hidden="true" />
@@ -323,8 +323,8 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                           className="btn btn--icon btn--ghost"
                           disabled={pending}
                           onClick={() => run('disable', [item.id])}
-                          aria-label="Disable"
-                          data-tooltip="Disable"
+                          aria-label={t('actions.disable')}
+                          data-tooltip={t('table.tooltipDisable')}
                           data-tooltip-pos="bottom"
                         >
                           <PowerOff size={17} strokeWidth={2} aria-hidden="true" />
@@ -335,8 +335,8 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                           className="btn btn--icon btn--ghost"
                           disabled={pending}
                           onClick={() => run('enable', [item.id])}
-                          aria-label="Enable"
-                          data-tooltip="Enable"
+                          aria-label={t('actions.enable')}
+                          data-tooltip={t('table.tooltipEnable')}
                           data-tooltip-pos="bottom"
                         >
                           <Power size={17} strokeWidth={2} aria-hidden="true" />
@@ -347,8 +347,8 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                         className="btn btn--icon btn--ghost"
                         disabled={pending || assignLoading}
                         onClick={() => openAssign([item.id])}
-                        aria-label="Assign tariff"
-                        data-tooltip="Assign tariff"
+                        aria-label={t('actions.assignTariff')}
+                        data-tooltip={t('table.tooltipAssignTariff')}
                         data-tooltip-pos="bottom"
                       >
                         <Banknote size={17} strokeWidth={2} aria-hidden="true" />
@@ -356,8 +356,8 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                       <Link
                         href={`/dashboard/facilities/${item.id}`}
                         className="btn btn--icon btn--ghost"
-                        aria-label="Edit"
-                        data-tooltip="Edit"
+                        aria-label={t('actions.edit')}
+                        data-tooltip={t('table.tooltipEdit')}
                         data-tooltip-pos="bottom"
                       >
                         <Pencil size={16} strokeWidth={2} aria-hidden="true" />
@@ -367,8 +367,8 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                         className="btn btn--icon btn--ghost-danger"
                         disabled={pending}
                         onClick={() => run('delete', [item.id])}
-                        aria-label="Delete"
-                        data-tooltip="Delete"
+                        aria-label={t('actions.delete')}
+                        data-tooltip={t('table.tooltipDelete')}
                         data-tooltip-pos="bottom"
                       >
                         <Trash2 size={17} strokeWidth={2} aria-hidden="true" />
@@ -398,7 +398,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                 className="btn btn--secondary"
                 onClick={() => setConfirm(null)}
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
               <button
                 type="button"
@@ -413,7 +413,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                 {pending ? (
                   <>
                     <Spinner size={15} />
-                    Working…
+                    {t('confirm.working')}
                   </>
                 ) : (
                   CONFIRM_COPY[confirm.action].cta
@@ -427,12 +427,10 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
       <AssignTariffModal
         open={assignTarget !== null}
         onClose={() => setAssignTarget(null)}
-        title="Assign tariff plan"
+        title={t('assignModal.assignPlanTitle')}
         description={
           assignTarget
-            ? `Assign a tariff plan to ${assignTarget.ids.length} ${
-                assignTarget.ids.length === 1 ? 'facility' : 'facilities'
-              }.`
+            ? t('assignModal.assignPlanDescription', { count: assignTarget.ids.length })
             : ''
         }
         plans={tariffPlans}

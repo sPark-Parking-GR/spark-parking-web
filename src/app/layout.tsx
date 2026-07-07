@@ -1,5 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter, Montserrat_Alternates } from 'next/font/google'
+import { cookies } from 'next/headers'
+import { NextIntlClientProvider } from 'next-intl'
+import { colors, cssVarsFor, radii, shadows } from '@spark/ui'
+import { AppThemeProvider } from '../components/AppThemeProvider'
+import { defaultLocale, isLocale } from '../i18n/locales'
 import './globals.css'
 
 const inter = Inter({
@@ -22,10 +27,32 @@ export const metadata: Metadata = {
   icons: { icon: '/icon.png', apple: '/icon.png' },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const lightVars = cssVarsFor(colors.light, radii, shadows.light)
+const darkVars = cssVarsFor(colors.dark, radii, shadows.dark)
+
+const themeStyle = `
+:root{${lightVars}}
+:root[data-theme="dark"]{${darkVars}}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){${darkVars}} }
+:root[data-theme="light"]{${lightVars}}
+`
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies()
+  const stored = cookieStore.get('spark-lang')?.value
+  const locale = isLocale(stored) ? stored : defaultLocale
+  const messages = (await import(`../../messages/${locale}.json`)).default
+
   return (
-    <html lang="el" className={`${inter.variable} ${montserratAlternates.variable}`}>
-      <body>{children}</body>
+    <html lang={locale} className={`${inter.variable} ${montserratAlternates.variable}`}>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
+      </head>
+      <body>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <AppThemeProvider>{children}</AppThemeProvider>
+        </NextIntlClientProvider>
+      </body>
     </html>
   )
 }

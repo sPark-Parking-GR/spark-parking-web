@@ -1,0 +1,475 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "facilities": "Facilities",
+    "tariffs": "Tariffs",
+    "bookings": "Bookings",
+    "capacity": "Capacity",
+    "analytics": "Analytics",
+    "operators": "Operators",
+    "audit": "Audit log"
+  },
+  "search": "Search…",
+  "shell": {
+    "brandTag": "Admin",
+    "primaryNav": "Primary",
+    "title": "Dashboard",
+    "subtitle": "Operator and platform administration",
+    "roleGuest": "Guest",
+    "roleUser": "User",
+    "roleOperatorStaff": "Operator staff",
+    "roleOperatorAdmin": "Operator admin",
+    "rolePlatformAdmin": "Platform admin",
+    "notifications": "Notifications",
+    "signedInAs": "Signed in as {name}",
+    "exit": "Exit",
+    "exiting": "Exiting…",
+    "signOutTooltip": "End your session",
+    "switchToLightMode": "Switch to light mode",
+    "switchToDarkMode": "Switch to dark mode"
+  },
+  "login": {
+    "tagline": "Make Parking Smart",
+    "title": "Sign in to your dashboard",
+    "forbiddenMessage": "This account does not have access to the admin dashboard. Sign in with an operator or platform administrator account.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "emailInvalid": "Enter a valid email address.",
+    "passwordRequired": "Enter your password.",
+    "credentialsInvalid": "Enter a valid email and password."
+  },
+  "overview": {
+    "title": "Overview",
+    "description": "A snapshot of your parking operations.",
+    "stats": {
+      "facilities": {
+        "label": "Facilities",
+        "hint": "Total parking facilities you currently manage."
+      },
+      "activeBookings": {
+        "label": "Active bookings",
+        "hint": "Bookings currently in progress across all facilities."
+      },
+      "revenueToday": {
+        "label": "Revenue today",
+        "hint": "Confirmed revenue collected since midnight."
+      },
+      "avgOccupancy": {
+        "label": "Avg occupancy",
+        "hint": "Average space occupancy across all facilities."
+      }
+    },
+    "revenuePanel": {
+      "title": "Revenue · last 7 days",
+      "subtitle": "Daily confirmed revenue trend",
+      "emptyTitle": "No revenue data yet",
+      "emptyMessage": "Revenue charts arrive once booking data is available."
+    },
+    "occupancyPanel": {
+      "title": "Live occupancy",
+      "subtitle": "Real-time capacity across facilities",
+      "emptyTitle": "No occupancy data yet",
+      "emptyMessage": "Live occupancy arrives once facility capacity is synced."
+    },
+    "recentBookings": {
+      "title": "Recent bookings",
+      "subtitle": "Latest reservations across all facilities",
+      "viewAll": "View all →",
+      "emptyTitle": "No recent bookings",
+      "emptyMessage": "Recent activity will appear here once bookings start coming in."
+    }
+  },
+  "facilities": {
+    "list": {
+      "title": "Facilities",
+      "searchPlaceholder": "Search facilities…",
+      "count": "{count, plural, one {# facility} other {# facilities}}",
+      "emptyTitle": "No facilities found",
+      "emptyFiltered": "No facilities match your search or filters.",
+      "emptyDefault": "Create your first facility to get started."
+    },
+    "actions": {
+      "newFacility": "New facility",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deploy": "Deploy",
+      "enable": "Enable",
+      "disable": "Disable",
+      "assignTariff": "Assign tariff",
+      "clear": "Clear"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "verified": "Verified",
+      "pending": "Pending",
+      "pendingVerification": "Pending verification",
+      "live": "Live"
+    },
+    "stats": {
+      "totalSpots": "Total spots",
+      "onlineQuota": "Online quota",
+      "vehicleTypes": "Vehicle types"
+    },
+    "table": {
+      "name": "Name",
+      "operator": "Operator",
+      "kind": "Kind",
+      "capacity": "Capacity",
+      "status": "Status",
+      "verified": "Verified",
+      "selectAll": "Select all on this page",
+      "selectOne": "Select {name}",
+      "actionsCol": "Actions",
+      "bulkActionsLabel": "Bulk actions",
+      "selectedCount": "{count, plural, one {# selected} other {# selected}}",
+      "tooltipDeploy": "Deploy (activate + verify)",
+      "tooltipDisable": "Disable",
+      "tooltipEnable": "Enable",
+      "tooltipAssignTariff": "Assign tariff",
+      "tooltipEdit": "Edit",
+      "tooltipDelete": "Delete"
+    },
+    "confirm": {
+      "deployTitle": "Deploy facilities",
+      "deployBody": "{count, plural, one {Activate and verify # facility. It becomes visible in the mobile app immediately.} other {Activate and verify # facilities. They become visible in the mobile app immediately.}}",
+      "deleteTitle": "Delete facilities",
+      "deleteBody": "{count, plural, one {Deactivate # facility and remove it from the mobile app. You can re-enable later.} other {Deactivate # facilities and remove them from the mobile app. You can re-enable later.}}",
+      "working": "Working…"
+    },
+    "errors": {
+      "tooManySelected": "You can act on at most 500 facilities at once. Narrow your selection.",
+      "loadAssignmentsFailed": "Could not load current tariff assignments."
+    },
+    "filters": {
+      "statusAria": "Filter by status",
+      "verifiedAria": "Filter by verification",
+      "kindAria": "Filter by kind",
+      "anyStatus": "Any status",
+      "anyVerification": "Any verification",
+      "anyKind": "Any kind"
+    },
+    "form": {
+      "saving": "Saving…",
+      "createFacility": "Create facility",
+      "saveChanges": "Save changes",
+      "changesSaved": "Changes saved.",
+      "basics": "Basics",
+      "location": "Location",
+      "locationHint": "Set the pin on the map — coordinates update automatically, or type them directly.",
+      "capacityVehicles": "Capacity & vehicles",
+      "policyAmenities": "Policy & amenities",
+      "openingHours": "Opening hours",
+      "visibility": "Visibility",
+      "nameLabel": "Name",
+      "addressLabel": "Address",
+      "latitudeLabel": "Latitude",
+      "longitudeLabel": "Longitude",
+      "totalCapacityLabel": "Total capacity",
+      "onlineQuotaLabel": "Online quota",
+      "vehicleTypesLabel": "Vehicle types",
+      "heightRestrictionLabel": "Height restriction (cm, optional)",
+      "amenitiesLabel": "Amenities (comma-separated)",
+      "cancellationPolicyLabel": "Cancellation policy",
+      "opens": "Opens",
+      "closes": "Closes",
+      "openingTimeAria": "Opening time",
+      "closingTimeAria": "Closing time",
+      "open24h": "Open 24 hours",
+      "activeVisible": "Active (visible to customers)",
+      "operatorIdLabel": "Operator ID",
+      "mapHint": "Click the map or drag the pin to set the location. The coordinates update automatically.",
+      "loadingAria": "Loading facility"
+    },
+    "map": {
+      "unsupportedProvider": "Unsupported map provider:",
+      "unavailable": "Map unavailable — set <code>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code>.",
+      "loading": "Loading…",
+      "zoomToAct": "{count, plural, one {# facility — zoom in to act} other {# facilities — zoom in to act}}",
+      "shown": "{count} shown",
+      "panOrZoom": "Pan or zoom the map to load facilities",
+      "close": "Close"
+    },
+    "detail": {
+      "overviewTab": "Overview",
+      "manageTab": "Manage"
+    },
+    "overview": {
+      "open24h": "Open 24 hours",
+      "hoursNotSet": "Hours not set",
+      "onlineAvailability": "Online availability",
+      "activeHours": "Active hours",
+      "ringHint": "{onlineQuota} of {totalCapacity} spots configured for online booking.",
+      "amenities": "Amenities",
+      "noAmenities": "No amenities listed."
+    },
+    "delete": {
+      "ariaLabel": "Delete facility",
+      "modalTitle": "Delete facility",
+      "modalText": "This permanently removes the facility and its configuration. This action cannot be undone.",
+      "deleting": "Deleting…",
+      "confirm": "Delete facility"
+    },
+    "tariff": {
+      "heading": "Tariff plans",
+      "vehicleTypeCol": "Vehicle type",
+      "tariffPlanCol": "Tariff plan",
+      "default": "Default",
+      "noPlan": "No tariff plan",
+      "changePlans": "Change tariff plans",
+      "assignPlansTitle": "Assign tariff plans",
+      "assignPlansDescription": "Choose the tariff plan customers are billed under, per vehicle type, at this facility."
+    },
+    "vehicleTypes": {
+      "car": "Car",
+      "motorcycle": "Motorcycle",
+      "van": "Van",
+      "truck": "Truck"
+    },
+    "assignModal": {
+      "assignPlanTitle": "Assign tariff plan",
+      "assignPlanDescription": "{count, plural, one {Assign a tariff plan to # facility.} other {Assign a tariff plan to # facilities.}}",
+      "helpTextBulk": "Each dropdown only lists tariffs that can legally price that vehicle type. When exactly one qualifying tariff exists, it is pre-selected automatically, but it still needs an explicit Assign click to take effect. Any vehicle type left unset falls back to the operator's default plan.",
+      "helpTextSingle": "Each dropdown only lists tariffs that can legally price that vehicle type. When exactly one qualifying tariff exists, it is pre-selected automatically, but it still needs an explicit Assign click to take effect. Any vehicle type left unset falls back to the operator's default plan (shown in the row below).",
+      "noChange": "No change",
+      "allOtherVehicleTypes": "All other vehicle types",
+      "noDefaultSet": "No default set",
+      "bulkFallbackHint": "Vehicle types left unassigned will fall back to each facility's own operator default plan.",
+      "assign": "Assign"
+    }
+  },
+  "tariffs": {
+    "list": {
+      "title": "Tariffs",
+      "description": "Manage pricing plans and assign them to facilities.",
+      "newPlan": "New plan",
+      "searchPlaceholder": "Search tariff plans…",
+      "count": "{count, plural, one {# plan} other {# plans}}",
+      "empty": {
+        "title": "No tariff plans found",
+        "default": "Create your first pricing plan to get started.",
+        "filtered": "No plans match your search."
+      }
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "vehicles": "Vehicles",
+      "validity": "Validity",
+      "version": "Version",
+      "updated": "Updated",
+      "default": "Default",
+      "active": "Active",
+      "inactive": "Inactive",
+      "validityAlways": "Always",
+      "validityFrom": "From {date}",
+      "validityUntil": "Until {date}",
+      "validityRange": "{from} – {to}"
+    },
+    "new": {
+      "pageTitle": "New tariff plan",
+      "defaultName": "New tariff plan",
+      "defaultWindowLabel": "All day"
+    },
+    "detail": {
+      "description": "{count, plural, one {Used by # facility.} other {Used by # facilities.}}",
+      "descriptionDefault": "{count, plural, one {Used by # facility} other {Used by # facilities}} directly, plus {implicitCount} more as the operator default."
+    },
+    "editor": {
+      "saving": "Saving…",
+      "createPlan": "Create plan",
+      "saveChanges": "Save changes",
+      "fixBeforeSaving": "Fix before saving",
+      "simulationError": "Could not compute a quote."
+    },
+    "meta": {
+      "heading": "Plan details",
+      "planName": "Plan name",
+      "timezone": "Timezone (IANA)",
+      "graceMinutes": "Grace minutes",
+      "incrementMinutes": "Increment minutes",
+      "validFrom": "Valid from",
+      "validTo": "Valid to",
+      "anyTime": "Any time",
+      "vehicleTypesLabel": "Vehicle types",
+      "active": "Active",
+      "defaultPlan": "Default plan for this operator",
+      "defaultHint": "Leave vehicle types empty to make this plan eligible to be the default."
+    },
+    "vehicleTypes": {
+      "car": "Car",
+      "motorcycle": "Motorcycle",
+      "van": "Van",
+      "truck": "Truck"
+    },
+    "rateGrid": {
+      "heading": "Rate grid",
+      "hint": "Every tier × window needs a price. Empty cells are flagged and rejected on save.",
+      "currency": "Currency",
+      "tierWindowHeader": "Tier \\ Window",
+      "tierLabel": "T{index} · {from}–{to}m"
+    },
+    "caps": {
+      "heading": "Caps (optional)",
+      "hint": "Clamp totals. Stay = whole stay; rolling = per window bucket (1440 = daily).",
+      "windowMinutes": "Window (min)",
+      "cap": "Cap (€)",
+      "scope": "Scope",
+      "removeCap": "Remove cap",
+      "addCap": "+ Add cap",
+      "scopeOptions": {
+        "stay": "Whole stay",
+        "rolling": "Rolling window"
+      }
+    },
+    "tiers": {
+      "heading": "Tiers",
+      "hint": "Cumulative-duration bands. Each tier starts where the previous ends; the last tier is open-ended.",
+      "fromMinutes": "From (min)",
+      "toMinutes": "To (min)",
+      "openEnded": "∞ (open)",
+      "unit": "Unit",
+      "blockMinutes": "Block (min)",
+      "removeTier": "Remove tier",
+      "addTier": "+ Add tier",
+      "unitOptions": {
+        "perMinute": "Per minute",
+        "perBlock": "Per block",
+        "flat": "Flat"
+      }
+    },
+    "windows": {
+      "heading": "Windows",
+      "hint": "Time-of-day slots per weekday. Start is inclusive, end exclusive; end ≤ start wraps past midnight.",
+      "label": "Label",
+      "days": "Days",
+      "start": "Start",
+      "end": "End",
+      "startAria": "Window start",
+      "endAria": "Window end",
+      "removeWindow": "Remove window",
+      "addWindow": "+ Add window",
+      "uncoveredWarning": "These days are not cleanly tiled across 24h (gap or overlap): {days}. Windows must run end-to-end from 00:00 to 24:00 with no gap or overlap. Pricing will be rejected until fixed.",
+      "weekday": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      }
+    },
+    "simulator": {
+      "heading": "Live quote",
+      "updating": "Updating…",
+      "startsAt": "Starts at",
+      "endsAt": "Ends at",
+      "startAria": "Quote start",
+      "endAria": "Quote end",
+      "vehicleType": "Vehicle type",
+      "emptyHint": "Adjust the plan to preview a quote.",
+      "itemHeader": "Item",
+      "durHeader": "Dur",
+      "unitHeader": "Unit",
+      "qtyHeader": "Qty",
+      "subtotalHeader": "Subtotal",
+      "duration": "Duration",
+      "billable": "Billable",
+      "total": "Total"
+    }
+  },
+  "bookings": {
+    "title": "Bookings",
+    "description": "Track reservations and run check-in / check-out.",
+    "filters": {
+      "all": "All",
+      "confirmed": "Confirmed",
+      "checkedIn": "Checked in",
+      "checkedOut": "Checked out"
+    },
+    "searchPlaceholder": "Search access code or plate…",
+    "count": "{count, plural, one {# booking} other {# bookings}}",
+    "empty": {
+      "title": "No bookings",
+      "filtered": "No bookings match these filters.",
+      "default": "Bookings will appear here as they come in."
+    },
+    "table": {
+      "accessCode": "Access code",
+      "facility": "Facility",
+      "vehicle": "Vehicle",
+      "window": "Window",
+      "price": "Price",
+      "status": "Status",
+      "action": "Action"
+    },
+    "status": {
+      "pendingPayment": "Pending payment",
+      "confirmed": "Confirmed",
+      "checkedIn": "Checked in",
+      "checkedOut": "Checked out",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "refundPending": "Refund pending",
+      "refunded": "Refunded"
+    },
+    "actions": {
+      "checkIn": "Check in",
+      "checkOut": "Check out",
+      "working": "Working…"
+    }
+  },
+  "insights": {
+    "analytics": {
+      "title": "Analytics",
+      "description": "Platform-wide performance insights.",
+      "stats": {
+        "totalRevenue": {
+          "label": "Total revenue",
+          "hint": "Confirmed revenue collected across all facilities."
+        },
+        "bookings": {
+          "label": "Bookings",
+          "hint": "Total bookings completed across all facilities."
+        },
+        "avgTicket": {
+          "label": "Avg. ticket",
+          "hint": "Average revenue per booking across all facilities."
+        }
+      },
+      "revenuePanel": {
+        "title": "Revenue · last 12 months",
+        "subtitle": "Monthly revenue trend",
+        "emptyTitle": "No revenue data yet",
+        "emptyMessage": "The revenue chart will populate once analytics reporting is available."
+      },
+      "topFacilitiesPanel": {
+        "title": "Top facilities",
+        "subtitle": "Ranked by revenue",
+        "emptyTitle": "No facility data yet",
+        "emptyMessage": "Facility rankings will appear once revenue data is available."
+      }
+    },
+    "operators": {
+      "title": "Operators",
+      "description": "People who can manage your facilities.",
+      "invite": "Invite",
+      "emptyTitle": "No team members yet",
+      "emptyMessage": "Operator accounts and roles will appear here once team management is available."
+    },
+    "audit": {
+      "title": "Audit log",
+      "description": "Every change made across your account.",
+      "activityPanel": {
+        "title": "Activity history",
+        "subtitle": "Account and facility changes over time"
+      },
+      "emptyTitle": "No activity recorded yet",
+      "emptyMessage": "A history of account and facility changes will appear here once audit logging is available."
+    }
+  }
+}

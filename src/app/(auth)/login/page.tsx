@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { getTranslations } from 'next-intl/server'
 
 import { LoginForm } from '@/components/LoginForm'
 import { SparkMark } from '@/components/SparkMark'
@@ -9,6 +10,7 @@ interface LoginPageProps {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { from, error } = await searchParams
+  const t = await getTranslations('login')
 
   return (
     <div className="auth-stack">
@@ -24,18 +26,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             className="auth-brand__title"
           />
         </span>
-        <p className="auth-brand__tagline">Make Parking Smart</p>
+        <p className="auth-brand__tagline">{t('tagline')}</p>
       </div>
 
       <section className="auth-card" aria-labelledby="login-title">
         <h1 id="login-title" className="h-heading auth-card__title">
-          Sign in to your dashboard
+          {t('title')}
         </h1>
 
         {error === 'forbidden' ? (
           <p className="auth-alert" role="alert">
-            This account does not have access to the admin dashboard. Sign in with an operator or platform
-            administrator account.
+            {t('forbiddenMessage')}
           </p>
         ) : null}
 

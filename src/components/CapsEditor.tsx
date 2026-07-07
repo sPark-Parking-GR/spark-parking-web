@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
-import { CAP_SCOPE_OPTIONS, formatCents, eurosToCents, makeKey } from '@/lib/tariff-schema'
+import { useTranslations } from 'next-intl'
+import { Stepper } from '@spark/ui'
+import { CAP_SCOPE_OPTIONS, makeKey } from '@/lib/tariff-schema'
 import type { TariffCap } from '@/lib/tariff-api'
 
 interface Props {
@@ -11,6 +13,7 @@ interface Props {
 }
 
 export function CapsEditor({ caps, onChange }: Props) {
+  const t = useTranslations('tariffs')
   // Caps carry no identity field; track stable React keys alongside the rows so a
   // removal in the middle doesn't make controlled inputs shift onto the wrong row.
   const [rowIds, setRowIds] = useState<string[]>(() => caps.map(() => makeKey()))
@@ -32,17 +35,15 @@ export function CapsEditor({ caps, onChange }: Props) {
   return (
     <section className="editor-section card">
       <div className="editor-section__head">
-        <h3 className="h-heading">Caps (optional)</h3>
-        <p className="text-secondary editor-section__hint">
-          Clamp totals. Stay = whole stay; rolling = per window bucket (1440 = daily).
-        </p>
+        <h3 className="h-heading">{t('caps.heading')}</h3>
+        <p className="text-secondary editor-section__hint">{t('caps.hint')}</p>
       </div>
 
       <div className="editor-rows">
         {caps.map((cap, i) => (
           <div key={rowIds[i]} className="editor-row caps-row">
             <label className="field caps-row__cell">
-              <span className="field__label">Window (min)</span>
+              <span className="field__label">{t('caps.windowMinutes')}</span>
               <input
                 className="input"
                 type="number"
@@ -52,20 +53,20 @@ export function CapsEditor({ caps, onChange }: Props) {
               />
             </label>
 
-            <label className="field caps-row__cell">
-              <span className="field__label">Cap (€)</span>
-              <input
-                className="input"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formatCents(cap.capCents)}
-                onChange={(e) => update(i, { capCents: eurosToCents(e.target.value) })}
+            <div className="field caps-row__cell">
+              <span className="field__label">{t('caps.cap')}</span>
+              <Stepper
+                value={cap.capCents}
+                onChange={(capCents) => update(i, { capCents })}
+                step={5}
+                min={0}
+                formatValue={(cents) => `€${(cents / 100).toFixed(2)}`}
+                size="sm"
               />
-            </label>
+            </div>
 
             <label className="field caps-row__cell">
-              <span className="field__label">Scope</span>
+              <span className="field__label">{t('caps.scope')}</span>
               <select
                 className="input"
                 value={cap.scope}
@@ -73,7 +74,7 @@ export function CapsEditor({ caps, onChange }: Props) {
               >
                 {CAP_SCOPE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
-                    {o.label}
+                    {t(`caps.scopeOptions.${o.value}`)}
                   </option>
                 ))}
               </select>
@@ -83,8 +84,8 @@ export function CapsEditor({ caps, onChange }: Props) {
               type="button"
               className="btn btn--icon btn--ghost-danger"
               onClick={() => removeCap(i)}
-              aria-label="Remove cap"
-              data-tooltip="Remove cap"
+              aria-label={t('caps.removeCap')}
+              data-tooltip={t('caps.removeCap')}
               data-tooltip-pos="bottom"
             >
               <Trash2 size={18} strokeWidth={2} aria-hidden="true" />
@@ -94,7 +95,7 @@ export function CapsEditor({ caps, onChange }: Props) {
       </div>
 
       <button type="button" className="row-btn row-btn--add" onClick={addCap}>
-        + Add cap
+        {t('caps.addCap')}
       </button>
     </section>
   )

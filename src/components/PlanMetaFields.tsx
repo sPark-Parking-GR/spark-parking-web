@@ -1,13 +1,13 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+import { Switch, Stepper } from '@spark/ui'
 import { VEHICLE_TYPE_OPTIONS } from '@/lib/tariff-schema'
 import { MultiSelectControl } from './MultiSelectControl'
 import { VEHICLE_ICON } from './vehicle-icons'
 import { DateTimePicker } from './pickers/DateTimePicker'
 import type { TariffDraft } from '@/lib/tariff-api'
 import type { VehicleType } from '@spark/types'
-
-const VEHICLE_OPTIONS = VEHICLE_TYPE_OPTIONS.map((o) => ({ ...o, icon: VEHICLE_ICON[o.value] }))
 
 interface Props {
   draft: TariffDraft
@@ -32,14 +32,21 @@ function localInputToIso(value: string): string | null {
 }
 
 export function PlanMetaFields({ draft, onChange }: Props) {
+  const t = useTranslations('tariffs')
+  const vehicleOptions = VEHICLE_TYPE_OPTIONS.map((o) => ({
+    value: o.value,
+    label: t(`vehicleTypes.${o.value}`),
+    icon: VEHICLE_ICON[o.value],
+  }))
+
   return (
     <section className="editor-section card">
       <div className="editor-section__head">
-        <h3 className="h-heading">Plan details</h3>
+        <h3 className="h-heading">{t('meta.heading')}</h3>
       </div>
 
       <label className="field">
-        <span className="field__label">Plan name</span>
+        <span className="field__label">{t('meta.planName')}</span>
         <input
           className="input"
           type="text"
@@ -50,7 +57,7 @@ export function PlanMetaFields({ draft, onChange }: Props) {
 
       <div className="field-grid">
         <label className="field">
-          <span className="field__label">Timezone (IANA)</span>
+          <span className="field__label">{t('meta.timezone')}</span>
           <input
             className="input"
             type="text"
@@ -62,55 +69,55 @@ export function PlanMetaFields({ draft, onChange }: Props) {
       </div>
 
       <div className="field-grid">
-        <label className="field">
-          <span className="field__label">Grace minutes</span>
-          <input
-            className="input"
-            type="number"
-            min={0}
+        <div className="field">
+          <span className="field__label">{t('meta.graceMinutes')}</span>
+          <Stepper
             value={draft.graceMinutes}
-            onChange={(e) => onChange({ graceMinutes: Number(e.target.value) })}
+            onChange={(graceMinutes) => onChange({ graceMinutes })}
+            step={5}
+            min={0}
+            size="sm"
           />
-        </label>
-        <label className="field">
-          <span className="field__label">Increment minutes</span>
-          <input
-            className="input"
-            type="number"
-            min={1}
+        </div>
+        <div className="field">
+          <span className="field__label">{t('meta.incrementMinutes')}</span>
+          <Stepper
             value={draft.incrementMinutes}
-            onChange={(e) => onChange({ incrementMinutes: Number(e.target.value) })}
+            onChange={(incrementMinutes) => onChange({ incrementMinutes })}
+            step={5}
+            min={1}
+            size="sm"
           />
-        </label>
+        </div>
       </div>
 
       <div className="field-grid">
         <div className="field">
-          <span className="field__label">Valid from</span>
+          <span className="field__label">{t('meta.validFrom')}</span>
           <DateTimePicker
             mode="datetime"
             value={isoToLocalInput(draft.validFrom)}
             onChange={(v) => onChange({ validFrom: localInputToIso(v) })}
-            placeholder="Any time"
-            ariaLabel="Valid from"
+            placeholder={t('meta.anyTime')}
+            ariaLabel={t('meta.validFrom')}
           />
         </div>
         <div className="field">
-          <span className="field__label">Valid to</span>
+          <span className="field__label">{t('meta.validTo')}</span>
           <DateTimePicker
             mode="datetime"
             value={isoToLocalInput(draft.validTo)}
             onChange={(v) => onChange({ validTo: localInputToIso(v) })}
-            placeholder="Any time"
-            ariaLabel="Valid to"
+            placeholder={t('meta.anyTime')}
+            ariaLabel={t('meta.validTo')}
           />
         </div>
       </div>
 
       <div className="field">
-        <span className="field__label">Vehicle types</span>
+        <span className="field__label">{t('meta.vehicleTypesLabel')}</span>
         <MultiSelectControl
-          options={VEHICLE_OPTIONS}
+          options={vehicleOptions}
           value={draft.vehicleTypes}
           onChange={(vehicleTypes) => onChange({ vehicleTypes: vehicleTypes as VehicleType[] })}
         />
@@ -118,26 +125,19 @@ export function PlanMetaFields({ draft, onChange }: Props) {
 
       <div className="field checkbox-group">
         <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={draft.isActive}
-            onChange={(e) => onChange({ isActive: e.target.checked })}
-          />
-          Active
+          <Switch checked={draft.isActive} onChange={(isActive) => onChange({ isActive })} />
+          {t('meta.active')}
         </label>
         <label className="checkbox-label">
-          <input
-            type="checkbox"
+          <Switch
             checked={draft.isDefault}
             disabled={draft.vehicleTypes.length > 0}
-            onChange={(e) => onChange({ isDefault: e.target.checked })}
+            onChange={(isDefault) => onChange({ isDefault })}
           />
-          Default plan for this operator
+          {t('meta.defaultPlan')}
         </label>
         {draft.vehicleTypes.length > 0 ? (
-          <p className="text-secondary editor-section__hint">
-            Leave vehicle types empty to make this plan eligible to be the default.
-          </p>
+          <p className="text-secondary editor-section__hint">{t('meta.defaultHint')}</p>
         ) : null}
       </div>
     </section>

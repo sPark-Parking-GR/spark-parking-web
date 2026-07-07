@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { TariffEditor } from '@/components/TariffEditor'
 import { DeleteTariffButton } from '@/components/DeleteTariffButton'
@@ -16,6 +17,8 @@ export default async function EditTariffPlanPage({ params }: PageProps) {
 
   const { planId } = await params
 
+  const t = await getTranslations('tariffs')
+
   let detail
   let assignments
   let plans
@@ -32,8 +35,11 @@ export default async function EditTariffPlanPage({ params }: PageProps) {
   }
 
   const description = assignments.isDefault
-    ? `Used by ${assignments.count} ${assignments.count === 1 ? 'facility' : 'facilities'} directly, plus ${assignments.implicitFacilityCount} more as the operator default.`
-    : `Used by ${assignments.count} ${assignments.count === 1 ? 'facility' : 'facilities'}.`
+    ? t('detail.descriptionDefault', {
+        count: assignments.count,
+        implicitCount: assignments.implicitFacilityCount,
+      })
+    : t('detail.description', { count: assignments.count })
 
   return (
     <>

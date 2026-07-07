@@ -1,13 +1,9 @@
+import { Bell, Search } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { SignOutButton } from '@/components/SignOutButton'
+import { LanguageSwitch } from '@/components/LanguageSwitch'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import type { AuthUser } from '@spark/types'
-
-const ROLE_LABELS: Record<AuthUser['role'], string> = {
-  guest: 'Guest',
-  user: 'User',
-  operator_staff: 'Operator staff',
-  operator_admin: 'Operator admin',
-  platform_admin: 'Platform admin',
-}
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -18,22 +14,53 @@ function initials(name: string): string {
   return ((first[0] ?? '') + (last[0] ?? '')).toUpperCase()
 }
 
-export function TopBar({ user }: { user: AuthUser }) {
+export async function TopBar({ user }: { user: AuthUser }) {
+  const t = await getTranslations('shell')
+  const tRoot = await getTranslations()
   const name = user.displayName ?? user.email
+
+  const ROLE_LABELS: Record<AuthUser['role'], string> = {
+    guest: t('roleGuest'),
+    user: t('roleUser'),
+    operator_staff: t('roleOperatorStaff'),
+    operator_admin: t('roleOperatorAdmin'),
+    platform_admin: t('rolePlatformAdmin'),
+  }
 
   return (
     <header className="topbar">
-      <span className="topbar__title h-heading">Dashboard</span>
+      <span className="topbar__titles">
+        <span className="topbar__title h-heading">{t('title')}</span>
+        <span className="topbar__subtitle">{t('subtitle')}</span>
+      </span>
       <div className="topbar__user">
+        <div className="topbar__controls">
+          <LanguageSwitch />
+          <ThemeToggle />
+        </div>
+        <div className="topbar__search">
+          <Search size={16} strokeWidth={2} className="topbar__search-icon" aria-hidden="true" />
+          <input
+            className="topbar__search-input"
+            type="search"
+            placeholder={tRoot('search')}
+            aria-label={tRoot('search')}
+            readOnly
+          />
+        </div>
+        <button type="button" className="topbar__bell" aria-label={t('notifications')}>
+          <Bell size={17} strokeWidth={2} aria-hidden="true" />
+          <span className="topbar__bell-dot" aria-hidden="true" />
+        </button>
         <span className="topbar__identity">
           <span className="topbar__name">{name}</span>
-          <span className="topbar__role text-secondary">{ROLE_LABELS[user.role]}</span>
+          <span className="topbar__role">{ROLE_LABELS[user.role]}</span>
         </span>
         <span
           className="topbar__avatar"
           data-tooltip={user.email}
           tabIndex={0}
-          aria-label={`Signed in as ${name}`}
+          aria-label={t('signedInAs', { name })}
         >
           {initials(name)}
         </span>

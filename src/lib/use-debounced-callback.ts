@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useMemo, useRef } from 'react'
 
 export function useDebouncedCallback<A extends unknown[]>(
