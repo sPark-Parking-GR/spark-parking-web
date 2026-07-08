@@ -1,28 +1,30 @@
 :root {
-  /* Electric Cerulean ramp — see colors.md */
-  --color-primary: #1094d4;
-  --color-primary-alt: #0d7fb6;
-  --color-primary-darker: #0a6a99;
-  --color-primary-light: #32a5dc;
+  /* Semantic tokens alias the theme-aware @spark/ui tokens (injected in layout.tsx)
+     so they follow light/dark. Only genuinely theme-independent values stay literal:
+     the on-ink (dark auth/tooltip) surfaces below. */
+  --color-primary: var(--pri);
+  --color-primary-alt: var(--pri2);
+  --color-primary-darker: var(--pri2);
+  --color-primary-light: var(--pri);
   --color-primary-lighter: #5fbce7;
 
-  --color-bg: #f9f8f6;
-  --color-surface: #ffffff;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
   --color-ink: #020c14;
   --color-ink-soft: #0b1a26;
   --color-on-ink: #eae3d7;
   --color-on-ink-muted: rgba(234, 227, 215, 0.62);
 
-  --color-text-main: #1f2933;
-  --color-text-secondary: #6b727a;
-  --color-border: #d2d6dc;
-  --color-success: #16a34a;
-  --color-warning: #fbbf24;
-  --color-error: #ef4444;
+  --color-text-main: var(--ink);
+  --color-text-secondary: var(--muted);
+  --color-border: var(--line);
+  --color-success: var(--ok);
+  --color-warning: var(--warn);
+  --color-error: var(--bad);
 
-  --gradient-brand: linear-gradient(135deg, #0d7fb6 0%, #1094d4 50%, #32a5dc 100%);
-  --tint-primary: rgba(16, 148, 212, 0.08);
-  --tint-primary-strong: rgba(16, 148, 212, 0.14);
+  --gradient-brand: linear-gradient(180deg, var(--pri), var(--pri2));
+  --tint-primary: var(--priSoft);
+  --tint-primary-strong: var(--priSoft);
   --ring-primary: 0 0 0 3px rgba(50, 165, 220, 0.35);
 
   --space-xs: 4px;
@@ -224,7 +226,7 @@ option {
 
 .card {
   background: var(--color-surface);
-  border: 1px solid rgba(210, 214, 220, 0.7);
+  border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   box-shadow: var(--shadow-sm);
@@ -394,20 +396,20 @@ select.input {
 }
 
 .badge--success {
-  background: #e7f6ee;
-  color: var(--color-success);
+  background: var(--okBg);
+  color: var(--ok);
 }
 .badge--warning {
-  background: #fef6e0;
-  color: #b45309;
+  background: var(--warnBg);
+  color: var(--warn);
 }
 .badge--error {
-  background: #fdecec;
-  color: var(--color-error);
+  background: var(--badBg);
+  color: var(--bad);
 }
 .badge--neutral {
-  background: #edf2f7;
-  color: var(--color-text-secondary);
+  background: var(--card2);
+  color: var(--muted);
 }
 
 /* ─── Auth (login) ────────────────────────────────────────────────────────── */
@@ -848,9 +850,8 @@ select.input {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), var(--color-surface));
-  border: 1px solid rgba(210, 214, 220, 0.7);
+  background: linear-gradient(180deg, var(--card2), var(--surface));
+  border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   box-shadow: var(--shadow-sm);
@@ -2684,7 +2685,7 @@ td.table-amount {
 
 .badge--info {
   background: var(--tint-primary-strong);
-  color: var(--color-primary-darker);
+  color: var(--pri);
 }
 
 .filter-bar {
@@ -2801,7 +2802,7 @@ td.table-amount {
   padding: var(--space-sm) var(--space-md);
   border: 1px solid rgba(16, 148, 212, 0.35);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--surface);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   box-shadow: var(--shadow-md);
@@ -2861,7 +2862,7 @@ td.table-amount {
   gap: var(--space-md);
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--surface);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow: var(--shadow-sm);
@@ -2884,7 +2885,7 @@ td.table-amount {
   gap: var(--space-xs);
   padding: 6px 10px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--surface);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow: var(--shadow-sm);
