@@ -33,6 +33,7 @@ const darkVars = cssVarsFor(colors.dark, radii, shadows.dark)
 const themeStyle = `
 :root{${lightVars}}
 :root[data-theme="dark"]{${darkVars}}
+[data-theme="dark"]{${darkVars}}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){${darkVars}} }
 :root[data-theme="light"]{${lightVars}}
 `

@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Banknote } from 'lucide-react'
+import { Banknote, ChevronRight } from 'lucide-react'
 import { AssignTariffModal } from './AssignTariffModal'
+import { VEHICLE_ICON } from './vehicle-icons'
 import { bulkFacilityAction } from '@/lib/facility-actions'
 import type { AssignTariffInput, FacilityTariffAssignment, FacilityTariffPlan } from '@/lib/api'
+import type { VehicleType } from '@spark/types'
 
 interface Props {
   facilityId: string
@@ -59,44 +60,34 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
         </div>
       ) : null}
 
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>{t('tariff.vehicleTypeCol')}</th>
-              <th>{t('tariff.tariffPlanCol')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ROWS.map((row) => {
-              const assignment = assignments.find((a) => a.vehicleType === row.vehicleType)
-              return (
-                <tr key={row.vehicleType}>
-                  <td>{row.label}</td>
-                  <td>
-                    {assignment && assignment.source !== 'none' && assignment.tariffPlanId ? (
-                      <>
-                        <Link href={`/dashboard/tariffs/${assignment.tariffPlanId}`} className="table-link">
-                          {assignment.tariffPlanName}
-                        </Link>
-                        {assignment.source === 'default' ? (
-                          <span className="badge badge--info">{t('tariff.default')}</span>
-                        ) : null}
-                      </>
-                    ) : (
-                      <span className="text-secondary">{t('tariff.noPlan')}</span>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <button type="button" className="btn btn--secondary" onClick={() => setOpen(true)}>
-        <Banknote size={15} strokeWidth={2} aria-hidden="true" />
-        {t('tariff.changePlans')}
+      <button
+        type="button"
+        className="tariff-strip"
+        onClick={() => setOpen(true)}
+        aria-label={t('tariff.changePlans')}
+      >
+        <div className="tariff-strip__icons">
+          {ROWS.map((row) => {
+            const assignment = assignments.find((a) => a.vehicleType === row.vehicleType)
+            const hasPlan = Boolean(assignment && assignment.source !== 'none' && assignment.tariffPlanId)
+            const tooltip = hasPlan ? assignment!.tariffPlanName : t('tariff.noPlan')
+            const Icon = VEHICLE_ICON[row.vehicleType.toLowerCase() as VehicleType]
+            return (
+              <span
+                key={row.vehicleType}
+                className={`tariff-strip__icon${hasPlan ? ' tariff-strip__icon--assigned' : ''}`}
+                data-tooltip={`${row.label}: ${tooltip}`}
+              >
+                <Icon size={20} strokeWidth={2} aria-hidden="true" />
+              </span>
+            )
+          })}
+        </div>
+        <span className="tariff-strip__hint">
+          <Banknote size={15} strokeWidth={2} aria-hidden="true" />
+          {t('tariff.changePlans')}
+          <ChevronRight size={16} strokeWidth={2} className="tariff-strip__chevron" aria-hidden="true" />
+        </span>
       </button>
 
       <AssignTariffModal

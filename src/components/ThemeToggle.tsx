@@ -17,12 +17,12 @@ export function ThemeToggle(): ReactElement {
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 36,
-        height: 36,
-        borderRadius: 'var(--pill)',
+        width: 34,
+        height: 34,
+        borderRadius: '999px',
         border: '1px solid var(--line)',
-        background: 'var(--surface)',
-        color: 'var(--ink)',
+        background: 'var(--card2)',
+        color: 'var(--muted)',
         cursor: 'pointer',
       }}
     >

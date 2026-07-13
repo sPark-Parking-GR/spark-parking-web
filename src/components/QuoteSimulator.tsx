@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { formatCents } from '@/lib/tariff-schema'
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
 import { Badge } from '@spark/ui'
+import { FieldInfo } from './FieldInfo'
 import type { SimulateResult } from '@/lib/tariff-api'
 import type { VehicleType } from '@spark/types'
 
@@ -38,7 +39,10 @@ export function QuoteSimulator({
 
       <div className="simulator__dates">
         <div className="field">
-          <span className="field__label">{t('simulator.startsAt')}</span>
+          <span className="field__label">
+            {t('simulator.startsAt')}
+            <FieldInfo text={t('simulator.info.startsAt')} />
+          </span>
           <DateTimePicker
             mode="datetime"
             value={startsAt}
@@ -47,7 +51,10 @@ export function QuoteSimulator({
           />
         </div>
         <div className="field">
-          <span className="field__label">{t('simulator.endsAt')}</span>
+          <span className="field__label">
+            {t('simulator.endsAt')}
+            <FieldInfo text={t('simulator.info.endsAt')} />
+          </span>
           <DateTimePicker
             mode="datetime"
             value={endsAt}
@@ -58,7 +65,10 @@ export function QuoteSimulator({
       </div>
 
       <label className="field">
-        <span className="field__label">{t('simulator.vehicleType')}</span>
+        <span className="field__label">
+          {t('simulator.vehicleType')}
+          <FieldInfo text={t('simulator.info.vehicleType')} />
+        </span>
         <select
           className="input"
           value={vehicleType}

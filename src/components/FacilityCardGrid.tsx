@@ -32,7 +32,7 @@ export async function FacilityCardGrid({ items }: Props) {
             </div>
 
             <div className="facility-card__badges">
-              <Badge variant={item.isActive ? 'ok' : 'neutral'}>
+              <Badge variant={item.isActive ? 'ok' : 'warn'}>
                 {item.isActive ? t('status.active') : t('status.inactive')}
               </Badge>
               <Badge variant={item.isVerified ? 'ok' : 'warn'}>

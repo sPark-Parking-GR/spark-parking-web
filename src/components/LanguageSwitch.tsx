@@ -29,7 +29,7 @@ export function LanguageSwitch() {
       options={OPTIONS}
       value={locale}
       onChange={handleChange}
-      size="sm"
+      size="md"
     />
   )
 }

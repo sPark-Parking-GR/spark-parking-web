@@ -52,6 +52,7 @@ export async function TopBar({ user }: { user: AuthUser }) {
           <Bell size={17} strokeWidth={2} aria-hidden="true" />
           <span className="topbar__bell-dot" aria-hidden="true" />
         </button>
+        <span className="topbar__divider" aria-hidden="true" />
         <span className="topbar__identity">
           <span className="topbar__name">{name}</span>
           <span className="topbar__role">{ROLE_LABELS[user.role]}</span>

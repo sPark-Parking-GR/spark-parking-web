@@ -6,6 +6,7 @@ import { VEHICLE_TYPE_OPTIONS } from '@/lib/tariff-schema'
 import { MultiSelectControl } from './MultiSelectControl'
 import { VEHICLE_ICON } from './vehicle-icons'
 import { DateTimePicker } from './pickers/DateTimePicker'
+import { FieldInfo } from './FieldInfo'
 import type { TariffDraft } from '@/lib/tariff-api'
 import type { VehicleType } from '@spark/types'
 
@@ -46,7 +47,10 @@ export function PlanMetaFields({ draft, onChange }: Props) {
       </div>
 
       <label className="field">
-        <span className="field__label">{t('meta.planName')}</span>
+        <span className="field__label">
+          {t('meta.planName')}
+          <FieldInfo text={t('meta.info.planName')} />
+        </span>
         <input
           className="input"
           type="text"
@@ -57,7 +61,10 @@ export function PlanMetaFields({ draft, onChange }: Props) {
 
       <div className="field-grid">
         <label className="field">
-          <span className="field__label">{t('meta.timezone')}</span>
+          <span className="field__label">
+            {t('meta.timezone')}
+            <FieldInfo text={t('meta.info.timezone')} />
+          </span>
           <input
             className="input"
             type="text"
@@ -70,7 +77,10 @@ export function PlanMetaFields({ draft, onChange }: Props) {
 
       <div className="field-grid">
         <div className="field">
-          <span className="field__label">{t('meta.graceMinutes')}</span>
+          <span className="field__label">
+            {t('meta.graceMinutes')}
+            <FieldInfo text={t('meta.info.graceMinutes')} />
+          </span>
           <Stepper
             value={draft.graceMinutes}
             onChange={(graceMinutes) => onChange({ graceMinutes })}
@@ -80,7 +90,10 @@ export function PlanMetaFields({ draft, onChange }: Props) {
           />
         </div>
         <div className="field">
-          <span className="field__label">{t('meta.incrementMinutes')}</span>
+          <span className="field__label">
+            {t('meta.incrementMinutes')}
+            <FieldInfo text={t('meta.info.incrementMinutes')} />
+          </span>
           <Stepper
             value={draft.incrementMinutes}
             onChange={(incrementMinutes) => onChange({ incrementMinutes })}
@@ -93,7 +106,10 @@ export function PlanMetaFields({ draft, onChange }: Props) {
 
       <div className="field-grid">
         <div className="field">
-          <span className="field__label">{t('meta.validFrom')}</span>
+          <span className="field__label">
+            {t('meta.validFrom')}
+            <FieldInfo text={t('meta.info.validFrom')} />
+          </span>
           <DateTimePicker
             mode="datetime"
             value={isoToLocalInput(draft.validFrom)}
@@ -103,7 +119,10 @@ export function PlanMetaFields({ draft, onChange }: Props) {
           />
         </div>
         <div className="field">
-          <span className="field__label">{t('meta.validTo')}</span>
+          <span className="field__label">
+            {t('meta.validTo')}
+            <FieldInfo text={t('meta.info.validTo')} />
+          </span>
           <DateTimePicker
             mode="datetime"
             value={isoToLocalInput(draft.validTo)}
@@ -115,7 +134,10 @@ export function PlanMetaFields({ draft, onChange }: Props) {
       </div>
 
       <div className="field">
-        <span className="field__label">{t('meta.vehicleTypesLabel')}</span>
+        <span className="field__label">
+          {t('meta.vehicleTypesLabel')}
+          <FieldInfo text={t('meta.info.vehicleTypesLabel')} />
+        </span>
         <MultiSelectControl
           options={vehicleOptions}
           value={draft.vehicleTypes}
@@ -127,6 +149,7 @@ export function PlanMetaFields({ draft, onChange }: Props) {
         <label className="checkbox-label">
           <Switch checked={draft.isActive} onChange={(isActive) => onChange({ isActive })} />
           {t('meta.active')}
+          <FieldInfo text={t('meta.info.active')} />
         </label>
         <label className="checkbox-label">
           <Switch
@@ -135,6 +158,7 @@ export function PlanMetaFields({ draft, onChange }: Props) {
             onChange={(isDefault) => onChange({ isDefault })}
           />
           {t('meta.defaultPlan')}
+          <FieldInfo text={t('meta.info.defaultPlan')} />
         </label>
         {draft.vehicleTypes.length > 0 ? (
           <p className="text-secondary editor-section__hint">{t('meta.defaultHint')}</p>

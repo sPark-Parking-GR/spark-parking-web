@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 
@@ -27,13 +28,11 @@ export function DefaultReplacementModal({
   onConfirm,
 }: Props) {
   const [selected, setSelected] = useState<string>(candidates[0]?.id ?? '')
+  const t = useTranslations('tariffs.defaultReplacement')
 
   return (
-    <Modal open={open} onClose={onClose} title="Choose a new default plan">
-      <p className="modal__text">
-        This is currently the operator&apos;s default tariff. Choose a replacement before
-        continuing, or cancel — nothing changes until you pick one.
-      </p>
+    <Modal open={open} onClose={onClose} title={t('title')}>
+      <p className="modal__text">{t('body')}</p>
 
       {error ? (
         <div className="form-banner form-banner--error" role="alert">
@@ -43,11 +42,11 @@ export function DefaultReplacementModal({
 
       {candidates.length === 0 ? (
         <div className="form-banner form-banner--warning" role="status">
-          No other active plan without vehicle-type restrictions is available. Create one first.
+          {t('noCandidates')}
         </div>
       ) : (
         <div className="field">
-          <span className="field__label">New default plan</span>
+          <span className="field__label">{t('label')}</span>
           <select
             className="input"
             value={selected}
@@ -65,7 +64,7 @@ export function DefaultReplacementModal({
 
       <div className="modal__footer">
         <button type="button" className="btn btn--secondary" onClick={onClose} disabled={pending}>
-          Cancel
+          {t('cancel')}
         </button>
         <button
           type="button"
@@ -76,10 +75,10 @@ export function DefaultReplacementModal({
           {pending ? (
             <>
               <Spinner size={15} />
-              Saving…
+              {t('saving')}
             </>
           ) : (
-            'Confirm'
+            t('confirm')
           )}
         </button>
       </div>

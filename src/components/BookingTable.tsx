@@ -30,6 +30,10 @@ function formatMoney(cents: number, currency: string): string {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(cents / 100)
 }
 
+function titleCase(value: string): string {
+  return value.charAt(0) + value.slice(1).toLowerCase()
+}
+
 export async function BookingTable({ items }: Props) {
   const t = await getTranslations('bookings')
 
@@ -59,7 +63,7 @@ export async function BookingTable({ items }: Props) {
                 <td className="table-facility">{item.facility.name}</td>
                 <td className="text-secondary">
                   <span className="mono">{item.vehiclePlate}</span>
-                  <span> · {item.vehicleType.toLowerCase()}</span>
+                  <span> · {titleCase(item.vehicleType)}</span>
                 </td>
                 <td className="text-secondary">
                   {dateFmt.format(new Date(item.startsAt))} → {dateFmt.format(new Date(item.endsAt))}

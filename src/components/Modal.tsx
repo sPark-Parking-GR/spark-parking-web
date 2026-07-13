@@ -7,10 +7,12 @@ interface Props {
   open: boolean
   onClose: () => void
   title: string
+  titleAccessory?: ReactNode
+  wide?: boolean
   children?: ReactNode
 }
 
-export function Modal({ open, onClose, title, children }: Props) {
+export function Modal({ open, onClose, title, titleAccessory, wide, children }: Props) {
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -34,9 +36,10 @@ export function Modal({ open, onClose, title, children }: Props) {
       aria-label={title}
       onMouseDown={onClose}
     >
-      <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
+      <div className={`modal${wide ? ' modal--wide' : ''}`} onMouseDown={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2 className="h-heading">{title}</h2>
+          {titleAccessory}
         </div>
         {children}
       </div>

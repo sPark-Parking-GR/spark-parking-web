@@ -3,6 +3,7 @@
 import { Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { UNIT_OPTIONS, makeKey } from '@/lib/tariff-schema'
+import { FieldInfo } from './FieldInfo'
 import type { TariffTier } from '@/lib/tariff-api'
 
 interface Props {
@@ -72,12 +73,18 @@ export function TiersEditor({ tiers, onChange }: Props) {
           return (
             <div key={tier.key} className="editor-row tiers-row">
               <label className="field tiers-row__cell">
-                <span className="field__label">{t('tiers.fromMinutes')}</span>
+                <span className="field__label">
+                  {t('tiers.fromMinutes')}
+                  <FieldInfo text={t('tiers.info.fromMinutes')} />
+                </span>
                 <input className="input" type="number" value={tier.fromMinute} readOnly disabled />
               </label>
 
               <label className="field tiers-row__cell">
-                <span className="field__label">{t('tiers.toMinutes')}</span>
+                <span className="field__label">
+                  {t('tiers.toMinutes')}
+                  <FieldInfo text={t('tiers.info.toMinutes')} />
+                </span>
                 {isLast ? (
                   <input className="input" type="text" value={t('tiers.openEnded')} readOnly disabled />
                 ) : (
@@ -92,7 +99,10 @@ export function TiersEditor({ tiers, onChange }: Props) {
               </label>
 
               <label className="field tiers-row__cell">
-                <span className="field__label">{t('tiers.unit')}</span>
+                <span className="field__label">
+                  {t('tiers.unit')}
+                  <FieldInfo text={t('tiers.info.unit')} />
+                </span>
                 <select
                   className="input"
                   value={tier.unit}
@@ -114,7 +124,10 @@ export function TiersEditor({ tiers, onChange }: Props) {
 
               {tier.unit === 'per_block' ? (
                 <label className="field tiers-row__cell">
-                  <span className="field__label">{t('tiers.blockMinutes')}</span>
+                  <span className="field__label">
+                    {t('tiers.blockMinutes')}
+                    <FieldInfo text={t('tiers.info.blockMinutes')} />
+                  </span>
                   <input
                     className="input"
                     type="number"

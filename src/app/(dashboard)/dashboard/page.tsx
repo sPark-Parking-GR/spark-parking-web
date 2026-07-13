@@ -1,12 +1,24 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Building2, CalendarCheck, Gauge, Wallet } from 'lucide-react'
+import { ProgressBar } from '@spark/ui'
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
 import { EmptyState } from '@/components/EmptyState'
+import { listFacilities } from '@/lib/api'
+import { listBookings } from '@/lib/booking-api'
+import { loadPage, requireSession } from '@/lib/dal'
+
+const STATUS_FACILITY_COUNT = 5
 
 export default async function DashboardOverviewPage() {
+  await requireSession()
   const t = await getTranslations('overview')
+
+  const [facilities, activeBookings] = await Promise.all([
+    loadPage(() => listFacilities({ take: STATUS_FACILITY_COUNT })),
+    loadPage(() => listBookings({ status: 'CHECKED_IN', take: 1 })),
+  ])
 
   return (
     <>
@@ -15,7 +27,7 @@ export default async function DashboardOverviewPage() {
       <div className="stat-grid">
         <StatCard
           label={t('stats.facilities.label')}
-          value="—"
+          value={String(facilities.total)}
           hint={t('stats.facilities.hint')}
           icon={Building2}
           tone="primary"
@@ -23,7 +35,7 @@ export default async function DashboardOverviewPage() {
         />
         <StatCard
           label={t('stats.activeBookings.label')}
-          value="—"
+          value={String(activeBookings.total)}
           hint={t('stats.activeBookings.hint')}
           icon={CalendarCheck}
           tone="success"
@@ -71,10 +83,35 @@ export default async function DashboardOverviewPage() {
             </div>
           </div>
           <div className="panel-card__body">
-            <EmptyState
-              title={t('occupancyPanel.emptyTitle')}
-              message={t('occupancyPanel.emptyMessage')}
-            />
+            {facilities.items.length === 0 ? (
+              <EmptyState
+                title={t('occupancyPanel.emptyTitle')}
+                message={t('occupancyPanel.emptyMessage')}
+              />
+            ) : (
+              <div className="facility-status-list">
+                {facilities.items.map((facility) => {
+                  const pct =
+                    facility.totalCapacity > 0
+                      ? Math.round((facility.onlineQuota / facility.totalCapacity) * 100)
+                      : 0
+                  return (
+                    <div key={facility.id} className="facility-status-row">
+                      <div className="facility-status-row__main">
+                        <div className="facility-status-row__name">{facility.name}</div>
+                        <ProgressBar pct={pct} />
+                      </div>
+                      <div className="facility-status-row__figures">
+                        <div className="facility-status-row__pct">{pct}%</div>
+                        <div className="facility-status-row__free">
+                          {t('occupancyPanel.free', { count: facility.onlineQuota })}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

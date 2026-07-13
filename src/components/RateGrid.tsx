@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { formatCents, eurosToCents } from '@/lib/tariff-schema'
+import { FieldInfo } from './FieldInfo'
 import type { TariffRate, TariffTier, TariffWindow } from '@/lib/tariff-api'
 
 interface Props {
@@ -39,7 +40,10 @@ export function RateGrid({
       </div>
 
       <label className="field rate-grid__currency">
-        <span className="field__label">{t('rateGrid.currency')}</span>
+        <span className="field__label">
+          {t('rateGrid.currency')}
+          <FieldInfo text={t('rateGrid.info.currency')} />
+        </span>
         <select className="input" value={currency} onChange={(e) => onChangeCurrency(e.target.value)}>
           {CURRENCY_OPTIONS.map((c) => (
             <option key={c} value={c}>
@@ -53,7 +57,10 @@ export function RateGrid({
         <table className="rate-grid">
           <thead>
             <tr>
-              <th>{t('rateGrid.tierWindowHeader')}</th>
+              <th className="rate-grid__corner">
+                {t('rateGrid.tierWindowHeader')}
+                <FieldInfo text={t('rateGrid.info.tierWindowHeader')} pos="right" />
+              </th>
               {windows.map((w) => (
                 <th key={w.key}>{w.label}</th>
               ))}

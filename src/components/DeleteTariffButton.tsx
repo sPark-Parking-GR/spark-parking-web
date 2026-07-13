@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import { DefaultReplacementModal } from './DefaultReplacementModal'
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function DeleteTariffButton({ planId, plans }: Props) {
+  const t = useTranslations('tariffs.delete')
   const [open, setOpen] = useState(false)
   const [count, setCount] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -59,22 +61,17 @@ export function DeleteTariffButton({ planId, plans }: Props) {
         type="button"
         className="btn btn--icon btn--ghost-danger"
         onClick={() => setOpen(true)}
-        aria-label="Delete tariff plan"
-        data-tooltip="Delete plan"
+        aria-label={t('buttonLabel')}
+        data-tooltip={t('tooltip')}
         data-tooltip-pos="bottom"
       >
         <Trash2 size={18} strokeWidth={2} aria-hidden="true" />
       </button>
 
-      <Modal open={open && !requiresReplacement} onClose={() => setOpen(false)} title="Delete tariff plan">
+      <Modal open={open && !requiresReplacement} onClose={() => setOpen(false)} title={t('title')}>
         <p className="modal__text">
-          This permanently removes the tariff plan and its pricing. This action cannot be undone.
-          {count === null ? null : count > 0 ? (
-            <>
-              {' '}
-              This will unassign the plan from {count} {count === 1 ? 'facility' : 'facilities'}.
-            </>
-          ) : null}
+          {t('body')}
+          {count !== null && count > 0 ? <> {t('affectedFacilities', { count })}</> : null}
         </p>
         {error ? (
           <div className="form-banner form-banner--error" role="alert">
@@ -83,7 +80,7 @@ export function DeleteTariffButton({ planId, plans }: Props) {
         ) : null}
         <div className="modal__footer">
           <button type="button" className="btn btn--secondary" onClick={() => setOpen(false)}>
-            Cancel
+            {t('cancel')}
           </button>
           <button
             type="button"
@@ -94,10 +91,10 @@ export function DeleteTariffButton({ planId, plans }: Props) {
             {pending ? (
               <>
                 <Spinner size={15} />
-                Deleting…
+                {t('deleting')}
               </>
             ) : (
-              'Delete plan'
+              t('confirm')
             )}
           </button>
         </div>

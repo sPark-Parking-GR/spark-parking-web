@@ -5,6 +5,7 @@ import { Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Stepper } from '@spark/ui'
 import { CAP_SCOPE_OPTIONS, makeKey } from '@/lib/tariff-schema'
+import { FieldInfo } from './FieldInfo'
 import type { TariffCap } from '@/lib/tariff-api'
 
 interface Props {
@@ -43,7 +44,10 @@ export function CapsEditor({ caps, onChange }: Props) {
         {caps.map((cap, i) => (
           <div key={rowIds[i]} className="editor-row caps-row">
             <label className="field caps-row__cell">
-              <span className="field__label">{t('caps.windowMinutes')}</span>
+              <span className="field__label">
+                {t('caps.windowMinutes')}
+                <FieldInfo text={t('caps.info.windowMinutes')} />
+              </span>
               <input
                 className="input"
                 type="number"
@@ -54,7 +58,10 @@ export function CapsEditor({ caps, onChange }: Props) {
             </label>
 
             <div className="field caps-row__cell">
-              <span className="field__label">{t('caps.cap')}</span>
+              <span className="field__label">
+                {t('caps.cap')}
+                <FieldInfo text={t('caps.info.cap')} />
+              </span>
               <Stepper
                 value={cap.capCents}
                 onChange={(capCents) => update(i, { capCents })}
@@ -66,7 +73,10 @@ export function CapsEditor({ caps, onChange }: Props) {
             </div>
 
             <label className="field caps-row__cell">
-              <span className="field__label">{t('caps.scope')}</span>
+              <span className="field__label">
+                {t('caps.scope')}
+                <FieldInfo text={t('caps.info.scope')} />
+              </span>
               <select
                 className="input"
                 value={cap.scope}

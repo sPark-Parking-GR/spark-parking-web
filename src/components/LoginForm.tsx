@@ -46,6 +46,7 @@ export function LoginForm({ from }: { from?: string }) {
           className="input"
           type="email"
           name="email"
+          placeholder="admin@centralpark.gr"
           autoComplete="email"
           required
           disabled={isPending}
@@ -59,6 +60,7 @@ export function LoginForm({ from }: { from?: string }) {
           className="input"
           type="password"
           name="password"
+          placeholder="••••••••"
           autoComplete="current-password"
           required
           disabled={isPending}
@@ -75,6 +77,8 @@ export function LoginForm({ from }: { from?: string }) {
       <button type="submit" className="btn btn--primary btn--block" disabled={isPending}>
         {isPending ? t('signingIn') : t('signIn')}
       </button>
+
+      <p className="auth-card__forgot">{t('forgot')}</p>
     </form>
   )
 }

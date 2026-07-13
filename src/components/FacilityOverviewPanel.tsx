@@ -5,16 +5,43 @@ import { StatCard } from '@/components/StatCard'
 import { SparkMark } from '@/components/SparkMark'
 import type { AdminFacility } from '@/lib/api'
 
+const WEEKDAYS = [
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+] as const
+
+function hourFraction(hhmm: string): number {
+  const [h = 0, m = 0] = hhmm.split(':').map(Number)
+  return h + m / 60
+}
+
 export async function FacilityOverviewPanel({ facility }: { facility: AdminFacility }) {
   const t = await getTranslations('facilities')
 
-  const formatHours = (facility: AdminFacility): string => {
-    if (facility.openingHours.is24h) return t('overview.open24h')
-    const schedule = facility.openingHours.schedule
-    const first = schedule ? Object.values(schedule).find(Boolean) : null
-    if (!first) return t('overview.hoursNotSet')
-    return `${first.open} – ${first.close}`
-  }
+  const hoursRows = WEEKDAYS.map((day) => {
+    const entry = facility.openingHours.is24h ? null : facility.openingHours.schedule?.[day]
+    const leftPct = facility.openingHours.is24h
+      ? 0
+      : entry
+        ? Math.min(100, (hourFraction(entry.open) / 24) * 100)
+        : 0
+    const rightPct = facility.openingHours.is24h
+      ? 0
+      : entry
+        ? Math.max(0, ((24 - hourFraction(entry.close)) / 24) * 100)
+        : 100
+    const label = facility.openingHours.is24h
+      ? t('overview.open24h')
+      : entry
+        ? `${entry.open}–${entry.close}`
+        : t('overview.closed')
+    return { day, leftPct, rightPct, label }
+  })
 
   const onlinePct =
     facility.totalCapacity > 0
@@ -23,7 +50,7 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
 
   return (
     <>
-      <Card style={{ marginBottom: 24 }}>
+      <Card padding={22} style={{ marginBottom: 24 }}>
         <div className="facility-overview__header">
           <span className="facility-overview__icon" aria-hidden="true">
             <SparkMark size={22} />
@@ -63,6 +90,25 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
 
       <div className="panel-row">
         <Card>
+          <h3 className="panel-card__title facility-overview__section-title">{t('overview.activeHours')}</h3>
+          <p className="text-secondary facility-overview__hours-sub">{t('overview.activeHoursSub')}</p>
+          <div className="facility-hours-list">
+            {hoursRows.map((row) => (
+              <div key={row.day} className="facility-hours-row">
+                <span className="facility-hours-row__day">{t(`overview.days.${row.day}`)}</span>
+                <div className="facility-hours-row__track">
+                  <div
+                    className="facility-hours-row__fill"
+                    style={{ left: `${row.leftPct}%`, right: `${row.rightPct}%` }}
+                  />
+                </div>
+                <span className="facility-hours-row__label">{row.label}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card>
           <h3 className="panel-card__title facility-overview__section-title">{t('overview.onlineAvailability')}</h3>
           <div className="facility-overview__ring">
             <ProgressRing pct={onlinePct}>
@@ -75,11 +121,6 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
               })}
             </p>
           </div>
-        </Card>
-
-        <Card>
-          <h3 className="panel-card__title facility-overview__section-title">{t('overview.activeHours')}</h3>
-          <p className="text-secondary">{formatHours(facility)}</p>
         </Card>
       </div>
 

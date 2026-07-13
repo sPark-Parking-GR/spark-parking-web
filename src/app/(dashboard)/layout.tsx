@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="dashboard-shell">
-      <Sidebar items={items} />
+      <Sidebar items={items} role={session.user.role} />
       <div className="dashboard-main">
         <TopBar user={session.user} />
         <main className="dashboard-content">{children}</main>

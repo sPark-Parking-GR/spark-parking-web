@@ -11,6 +11,7 @@ import {
   makeKey,
 } from '@/lib/tariff-schema'
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
+import { FieldInfo } from './FieldInfo'
 import type { TariffWindow } from '@/lib/tariff-api'
 
 const WEEKDAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
@@ -94,7 +95,10 @@ export function WindowsEditor({ windows, onChange }: Props) {
         {windows.map((win, i) => (
           <div key={win.key} className="editor-row windows-row">
             <label className="field windows-row__label">
-              <span className="field__label">{t('windows.label')}</span>
+              <span className="field__label">
+                {t('windows.label')}
+                <FieldInfo text={t('windows.info.label')} />
+              </span>
               <input
                 className="input"
                 type="text"
@@ -104,7 +108,10 @@ export function WindowsEditor({ windows, onChange }: Props) {
             </label>
 
             <div className="field">
-              <span className="field__label">{t('windows.days')}</span>
+              <span className="field__label">
+                {t('windows.days')}
+                <FieldInfo text={t('windows.info.days')} />
+              </span>
               <div className="weekday-chips">
                 {WEEKDAY_KEYS.map((dayKey, di) => {
                   const bit = DAY_BITS[di] ?? 0
@@ -125,7 +132,10 @@ export function WindowsEditor({ windows, onChange }: Props) {
             </div>
 
             <div className="field windows-row__time">
-              <span className="field__label">{t('windows.start')}</span>
+              <span className="field__label">
+                {t('windows.start')}
+                <FieldInfo text={t('windows.info.start')} />
+              </span>
               <DateTimePicker
                 mode="time"
                 value={minutesToHHMM(win.startMinute)}
@@ -135,7 +145,10 @@ export function WindowsEditor({ windows, onChange }: Props) {
             </div>
 
             <div className="field windows-row__time">
-              <span className="field__label">{t('windows.end')}</span>
+              <span className="field__label">
+                {t('windows.end')}
+                <FieldInfo text={t('windows.info.end')} />
+              </span>
               <DateTimePicker
                 mode="time"
                 value={minutesToHHMM(win.endMinute)}

@@ -26,7 +26,10 @@
     "exiting": "Exiting…",
     "signOutTooltip": "End your session",
     "switchToLightMode": "Switch to light mode",
-    "switchToDarkMode": "Switch to dark mode"
+    "switchToDarkMode": "Switch to dark mode",
+    "upgradeTitle": "Growth plan",
+    "upgradeSub": "Unlock dynamic pricing and API sync.",
+    "upgradeCta": "Upgrade"
   },
   "login": {
     "tagline": "Make Parking Smart",
@@ -38,7 +41,8 @@
     "signingIn": "Signing in…",
     "emailInvalid": "Enter a valid email address.",
     "passwordRequired": "Enter your password.",
-    "credentialsInvalid": "Enter a valid email and password."
+    "credentialsInvalid": "Enter a valid email and password.",
+    "forgot": "Forgot password?"
   },
   "overview": {
     "title": "Overview",
@@ -68,10 +72,11 @@
       "emptyMessage": "Revenue charts arrive once booking data is available."
     },
     "occupancyPanel": {
-      "title": "Live occupancy",
-      "subtitle": "Real-time capacity across facilities",
-      "emptyTitle": "No occupancy data yet",
-      "emptyMessage": "Live occupancy arrives once facility capacity is synced."
+      "title": "Facility status",
+      "subtitle": "Online availability across facilities",
+      "emptyTitle": "No facility data yet",
+      "emptyMessage": "Facility status arrives once facility capacity is synced.",
+      "free": "{count} free"
     },
     "recentBookings": {
       "title": "Recent bookings",
@@ -198,13 +203,25 @@
       "manageTab": "Manage"
     },
     "overview": {
+      "backToFacilities": "Facilities",
       "open24h": "Open 24 hours",
       "hoursNotSet": "Hours not set",
+      "closed": "Closed",
       "onlineAvailability": "Online availability",
       "activeHours": "Active hours",
+      "activeHoursSub": "Configured opening hours per day",
       "ringHint": "{onlineQuota} of {totalCapacity} spots configured for online booking.",
       "amenities": "Amenities",
-      "noAmenities": "No amenities listed."
+      "noAmenities": "No amenities listed.",
+      "days": {
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun"
+      }
     },
     "delete": {
       "ariaLabel": "Delete facility",
@@ -215,8 +232,6 @@
     },
     "tariff": {
       "heading": "Tariff plans",
-      "vehicleTypeCol": "Vehicle type",
-      "tariffPlanCol": "Tariff plan",
       "default": "Default",
       "noPlan": "No tariff plan",
       "changePlans": "Change tariff plans",
@@ -297,7 +312,18 @@
       "vehicleTypesLabel": "Vehicle types",
       "active": "Active",
       "defaultPlan": "Default plan for this operator",
-      "defaultHint": "Leave vehicle types empty to make this plan eligible to be the default."
+      "defaultHint": "Leave vehicle types empty to make this plan eligible to be the default.",
+      "info": {
+        "planName": "Internal name shown in plan lists and to staff — not shown to end customers.",
+        "timezone": "IANA zone (e.g. Europe/Athens) used to convert window times and weekdays to local wall-clock time.",
+        "graceMinutes": "Subtracted from the stay's duration before billing. Stays shorter than this are free; longer stays are billed for duration minus grace.",
+        "incrementMinutes": "After grace is subtracted, billable duration rounds up to the next multiple of this value — e.g. a 61-minute stay with a 15-minute increment bills as 75 minutes.",
+        "validFrom": "Plan becomes eligible for quoting and booking from this date onward. Leave empty for no start limit.",
+        "validTo": "Plan stops being eligible for quoting and booking after this date. Leave empty for no end limit.",
+        "vehicleTypesLabel": "Limits this plan to the selected vehicle types. Leave empty to price every vehicle type — required for the plan to be eligible as default.",
+        "active": "Inactive plans stay saved but can't be assigned to facilities or used for quotes.",
+        "defaultPlan": "Applied automatically to any facility with no plan explicitly assigned. Only available when vehicle types is empty."
+      }
     },
     "vehicleTypes": {
       "car": "Car",
@@ -310,7 +336,11 @@
       "hint": "Every tier × window needs a price. Empty cells are flagged and rejected on save.",
       "currency": "Currency",
       "tierWindowHeader": "Tier \\ Window",
-      "tierLabel": "T{index} · {from}–{to}m"
+      "tierLabel": "T{index} · {from}–{to}m",
+      "info": {
+        "currency": "Currency used for every price in this grid and in quotes for this plan.",
+        "tierWindowHeader": "Each cell prices one tier during one window. A stay is billed at the tier covering its cumulative duration, using the window active when that charge starts."
+      }
     },
     "caps": {
       "heading": "Caps (optional)",
@@ -323,6 +353,11 @@
       "scopeOptions": {
         "stay": "Whole stay",
         "rolling": "Rolling window"
+      },
+      "info": {
+        "windowMinutes": "Size of the repeating bucket the cap resets on (1440 = once per calendar day). Only used when scope is Rolling window.",
+        "cap": "Maximum amount charged within the cap's scope — once per stay, or once per rolling window bucket.",
+        "scope": "Whole stay caps the total once across the entire booking. Rolling window re-applies the cap on each repeating bucket above, so long stays get capped multiple times."
       }
     },
     "tiers": {
@@ -339,6 +374,12 @@
         "perMinute": "Per minute",
         "perBlock": "Per block",
         "flat": "Flat"
+      },
+      "info": {
+        "fromMinutes": "Set automatically to the previous tier's end — tiers chain contiguously with no gap or overlap.",
+        "toMinutes": "Minute where this tier ends and the next one begins. The last tier is always open-ended.",
+        "unit": "Per minute charges rate × minutes spent in this tier. Per block charges the block rate once per full or partial block. Flat charges the tier's rate once, however long the tier lasts.",
+        "blockMinutes": "Length of one billing block for a per-block tier. Any partial block still costs a full block's rate."
       }
     },
     "windows": {
@@ -361,6 +402,12 @@
         "fri": "Fri",
         "sat": "Sat",
         "sun": "Sun"
+      },
+      "info": {
+        "label": "Name shown as this window's column header in the rate grid below.",
+        "days": "Weekdays this window applies to. Selected days must be fully covered by windows with no gap or overlap across 24 hours.",
+        "start": "Local time this window begins (inclusive).",
+        "end": "Local time this window ends (exclusive). Set it earlier than start to wrap past midnight."
       }
     },
     "simulator": {
@@ -379,7 +426,31 @@
       "subtotalHeader": "Subtotal",
       "duration": "Duration",
       "billable": "Billable",
-      "total": "Total"
+      "total": "Total",
+      "info": {
+        "startsAt": "Test check-in time for this preview only — does not affect the saved plan.",
+        "endsAt": "Test check-out time for this preview only — does not affect the saved plan.",
+        "vehicleType": "Vehicle type used for this preview quote, limited to the types this plan accepts."
+      }
+    },
+    "delete": {
+      "buttonLabel": "Delete tariff plan",
+      "tooltip": "Delete plan",
+      "title": "Delete tariff plan",
+      "body": "This permanently removes the tariff plan and its pricing. This action cannot be undone.",
+      "affectedFacilities": "{count, plural, one {This will unassign the plan from # facility.} other {This will unassign the plan from # facilities.}}",
+      "cancel": "Cancel",
+      "confirm": "Delete plan",
+      "deleting": "Deleting…"
+    },
+    "defaultReplacement": {
+      "title": "Choose a new default plan",
+      "body": "This is currently the operator's default tariff. Choose a replacement before continuing, or cancel — nothing changes until you pick one.",
+      "noCandidates": "No other active plan without vehicle-type restrictions is available. Create one first.",
+      "label": "New default plan",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "saving": "Saving…"
     }
   },
   "bookings": {
@@ -464,12 +535,35 @@
     "audit": {
       "title": "Audit log",
       "description": "Every change made across your account.",
-      "activityPanel": {
-        "title": "Activity history",
-        "subtitle": "Account and facility changes over time"
-      },
+      "system": "System",
       "emptyTitle": "No activity recorded yet",
-      "emptyMessage": "A history of account and facility changes will appear here once audit logging is available."
+      "emptyMessage": "A history of account and facility changes will appear here once audit logging is available.",
+      "time": {
+        "justNow": "Just now",
+        "minutesAgo": "{count}m ago",
+        "hoursAgo": "{count}h ago",
+        "yesterday": "Yesterday",
+        "daysAgo": "{count}d ago"
+      },
+      "actions": {
+        "bookingCreated": "created a booking",
+        "bookingConfirmed": "confirmed a booking",
+        "bookingRefunded": "processed a refund",
+        "bookingCancelled": "cancelled a booking",
+        "facilityCreated": "created a facility",
+        "facilityUpdated": "updated a facility",
+        "facilityDeactivated": "paused a facility",
+        "facilityTariffAssigned": "assigned a tariff plan",
+        "facilityTariffUnassigned": "unassigned a tariff plan",
+        "facilityBulkEnable": "enabled facilities in bulk",
+        "facilityBulkDisable": "disabled facilities in bulk",
+        "facilityBulkDeploy": "deployed facilities in bulk",
+        "facilityBulkDelete": "deleted facilities in bulk",
+        "facilityBulkAssignTariff": "assigned tariffs in bulk",
+        "tariffPlanCreated": "created a tariff plan",
+        "tariffPlanUpdated": "updated a tariff plan",
+        "tariffPlanDeleted": "deleted a tariff plan"
+      }
     }
   }
 }

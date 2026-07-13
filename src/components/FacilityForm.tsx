@@ -7,18 +7,27 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { facilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
 import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actions'
 import type { FacilityActionResult } from '@/lib/facility-actions'
-import type { AdminFacility } from '@/lib/api'
+import type { AdminFacility, FacilityTariffAssignment, FacilityTariffPlan } from '@/lib/api'
 import { FacilityLocationPicker } from '@/components/FacilityLocationPicker'
 import { MultiSelectControl } from '@/components/MultiSelectControl'
 import { VEHICLE_ICON } from '@/components/vehicle-icons'
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
+import { FacilityTariffPanel } from '@/components/FacilityTariffPanel'
 
 const VEHICLE_OPTIONS = VEHICLE_TYPE_OPTIONS.map((o) => ({ ...o, icon: VEHICLE_ICON[o.value] }))
+
+interface TariffProps {
+  facilityId: string
+  assignments: FacilityTariffAssignment[]
+  defaultPlan: { id: string; name: string } | null
+  tariffPlans: FacilityTariffPlan[]
+}
 
 interface Props {
   mode: 'create' | 'edit'
   facility?: AdminFacility
   isPlatformAdmin: boolean
+  tariff?: TariffProps
 }
 
 const INITIAL_STATE: FacilityActionResult = { ok: true }
@@ -51,7 +60,7 @@ function prefillCloseTime(facility?: AdminFacility): string {
   return first ? first.close : '20:00'
 }
 
-export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
+export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props) {
   const t = useTranslations('facilities')
   const boundAction =
     mode === 'edit' && facility
@@ -120,6 +129,15 @@ export function FacilityForm({ mode, facility, isPlatformAdmin }: Props) {
             <CheckCircle2 size={18} strokeWidth={2} aria-hidden="true" />
             {t('form.changesSaved')}
           </p>
+        ) : null}
+
+        {tariff ? (
+          <FacilityTariffPanel
+            facilityId={tariff.facilityId}
+            assignments={tariff.assignments}
+            defaultPlan={tariff.defaultPlan}
+            tariffPlans={tariff.tariffPlans}
+          />
         ) : null}
 
         <section className="editor-section card">

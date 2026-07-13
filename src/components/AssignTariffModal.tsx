@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { Info } from 'lucide-react'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
+import { VEHICLE_ICON } from './vehicle-icons'
 import type { AssignTariffInput, FacilityTariffAssignment, FacilityTariffPlan, FacilityVehicleType } from '@/lib/api'
+import type { VehicleType } from '@spark/types'
 
 interface Props {
   open: boolean
@@ -116,11 +119,20 @@ export function AssignTariffModal({
     onSubmit(assignments)
   }
 
+  const helpText = isBulk ? t('assignModal.helpTextBulk') : t('assignModal.helpTextSingle')
+
   return (
-    <Modal open={open} onClose={onClose} title={title}>
-      <p className="modal__text">
-        {isBulk ? t('assignModal.helpTextBulk') : t('assignModal.helpTextSingle')}
-      </p>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={title}
+      wide
+      titleAccessory={
+        <span className="modal__info" tabIndex={0} data-tooltip={helpText}>
+          <Info size={16} strokeWidth={2} aria-label={helpText} />
+        </span>
+      }
+    >
       <p className="modal__text">{description}</p>
 
       {error ? (
@@ -129,16 +141,22 @@ export function AssignTariffModal({
         </div>
       ) : null}
 
-      <div className="editor-rows">
+      <div className="assign-rows">
         {ROWS.map((row) => {
           const options = feasiblePlans(plans, row.vehicleType)
+          const value = selection[row.vehicleType] ?? NO_CHANGE
+          const hasPlan = value !== NO_CHANGE && value !== NO_PLAN
+          const Icon = VEHICLE_ICON[row.vehicleType.toLowerCase() as VehicleType]
           return (
-            <div key={row.vehicleType} className="editor-row">
-              <label className="field">
+            <div key={row.vehicleType} className="assign-row">
+              <span className={`assign-row__icon${hasPlan ? ' assign-row__icon--assigned' : ''}`}>
+                <Icon size={18} strokeWidth={2} aria-hidden="true" />
+              </span>
+              <label className="assign-row__field">
                 <span className="field__label">{row.label}</span>
                 <select
                   className="input"
-                  value={selection[row.vehicleType] ?? NO_CHANGE}
+                  value={value}
                   onChange={(e) =>
                     setSelection((prev) => ({ ...prev, [row.vehicleType]: e.target.value }))
                   }
@@ -156,24 +174,27 @@ export function AssignTariffModal({
             </div>
           )
         })}
-
-        {isBulk ? (
-          <p className="text-secondary editor-section__hint">{t('assignModal.bulkFallbackHint')}</p>
-        ) : (
-          <div className="editor-row">
-            <div className="field">
-              <span className="field__label">{t('assignModal.allOtherVehicleTypes')}</span>
-              {defaultPlan ? (
-                <Link href={`/dashboard/tariffs/${defaultPlan.id}`} className="table-link">
-                  {defaultPlan.name}
-                </Link>
-              ) : (
-                <span className="text-secondary">{t('assignModal.noDefaultSet')}</span>
-              )}
-            </div>
-          </div>
-        )}
       </div>
+
+      {isBulk ? (
+        <p className="assign-rows__footnote">{t('assignModal.bulkFallbackHint')}</p>
+      ) : (
+        <div className="assign-row assign-row--footnote">
+          <span className="assign-row__icon assign-row__icon--muted">
+            <Info size={18} strokeWidth={2} aria-hidden="true" />
+          </span>
+          <div className="assign-row__field">
+            <span className="field__label">{t('assignModal.allOtherVehicleTypes')}</span>
+            {defaultPlan ? (
+              <Link href={`/dashboard/tariffs/${defaultPlan.id}`} className="table-link">
+                {defaultPlan.name}
+              </Link>
+            ) : (
+              <span className="text-secondary">{t('assignModal.noDefaultSet')}</span>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="modal__footer">
         <button type="button" className="btn btn--secondary" onClick={onClose} disabled={pending}>
