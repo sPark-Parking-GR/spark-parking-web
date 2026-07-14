@@ -8,10 +8,16 @@ const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/ap
 
 const EXPIRY_SKEW_MS = 30_000
 
+export interface ApiFieldError {
+  path: string
+  message: string
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    readonly errors?: ApiFieldError[],
   ) {
     super(message)
     this.name = 'ApiError'
@@ -256,8 +262,16 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   }
 
   if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as { message?: string }
-    throw new ApiError(body.message ?? `Request failed: ${response.status}`, response.status)
+    const body = (await response.json().catch(() => ({}))) as {
+      message?: string
+      errors?: ApiFieldError[]
+    }
+    const errors = Array.isArray(body.errors) ? body.errors : undefined
+    throw new ApiError(
+      body.message ?? `Request failed: ${response.status}`,
+      response.status,
+      errors,
+    )
   }
 
   if (response.status === 204) {

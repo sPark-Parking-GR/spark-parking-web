@@ -38,7 +38,13 @@ function mapApiError(err: unknown): FacilityActionResult {
     if (err.status === 403) return { ok: false, error: 'You are not allowed to set those fields.' }
     if (err.status === 404) return { ok: false, error: 'Facility not found.' }
     if (err.status === 400) {
-      return { ok: false, error: err.message || 'Invalid data. Check all fields and try again.' }
+      const detail = err.errors
+        ?.map((issue) => (issue.path ? `${issue.path}: ${issue.message}` : issue.message))
+        .join('; ')
+      return {
+        ok: false,
+        error: detail || err.message || 'Invalid data. Check all fields and try again.',
+      }
     }
   }
   return { ok: false, error: 'Something went wrong. Please try again.' }

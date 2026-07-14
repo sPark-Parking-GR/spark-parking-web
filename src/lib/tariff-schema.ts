@@ -44,6 +44,8 @@ const capSchema = z.object({
 export const tariffDraftSchema = z
   .object({
     name: z.string().trim().min(1, 'Plan name is required.'),
+    // Only honored for platform-admin callers; operator callers infer it from scope.
+    operatorId: z.string().trim().min(1).optional(),
     isActive: z.boolean(),
     isDefault: z.boolean(),
     validFrom: isoDateString.nullable(),

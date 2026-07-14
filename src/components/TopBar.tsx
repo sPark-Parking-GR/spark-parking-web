@@ -16,7 +16,6 @@ function initials(name: string): string {
 
 export async function TopBar({ user }: { user: AuthUser }) {
   const t = await getTranslations('shell')
-  const tRoot = await getTranslations()
   const name = user.displayName ?? user.email
 
   const ROLE_LABELS: Record<AuthUser['role'], string> = {
@@ -38,14 +37,14 @@ export async function TopBar({ user }: { user: AuthUser }) {
           <LanguageSwitch />
           <ThemeToggle />
         </div>
-        <div className="topbar__search">
+        <div className="topbar__search" data-tooltip={t('searchComingSoon')}>
           <Search size={16} strokeWidth={2} className="topbar__search-icon" aria-hidden="true" />
           <input
             className="topbar__search-input"
             type="search"
-            placeholder={tRoot('search')}
-            aria-label={tRoot('search')}
-            readOnly
+            placeholder={t('searchComingSoon')}
+            aria-label={t('searchComingSoon')}
+            disabled
           />
         </div>
         <button type="button" className="topbar__bell" aria-label={t('notifications')}>

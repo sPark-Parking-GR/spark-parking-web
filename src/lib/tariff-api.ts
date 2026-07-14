@@ -35,6 +35,7 @@ export interface TariffCap {
 
 export interface TariffDraft {
   name: string
+  operatorId?: string
   isActive: boolean
   isDefault: boolean
   validFrom: string | null

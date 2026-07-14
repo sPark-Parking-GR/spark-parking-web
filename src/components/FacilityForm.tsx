@@ -70,6 +70,22 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
   const [state, formAction, isPending] = useActionState(boundAction, INITIAL_STATE)
 
   const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [name, setName] = useState(() => facility?.name ?? '')
+  const [address, setAddress] = useState(() => facility?.address ?? '')
+  const [totalCapacity, setTotalCapacity] = useState(() =>
+    facility?.totalCapacity != null ? String(facility.totalCapacity) : '',
+  )
+  const [onlineQuota, setOnlineQuota] = useState(() =>
+    facility?.onlineQuota != null ? String(facility.onlineQuota) : '',
+  )
+  const [heightRestrictionCm, setHeightRestrictionCm] = useState(() =>
+    facility?.heightRestrictionCm != null ? String(facility.heightRestrictionCm) : '',
+  )
+  const [amenities, setAmenities] = useState(() => facility?.amenities.join(', ') ?? '')
+  const [cancellationPolicy, setCancellationPolicy] = useState(
+    () => facility?.cancellationPolicy ?? '',
+  )
+  const [operatorId, setOperatorId] = useState('')
   const [lat, setLat] = useState<number | null>(facility?.lat ?? null)
   const [lng, setLng] = useState<number | null>(facility?.lng ?? null)
   const [vehicleTypes, setVehicleTypes] = useState<string[]>(
@@ -151,7 +167,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 className="input"
                 type="text"
                 name="name"
-                defaultValue={facility?.name ?? ''}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
                 disabled={isPending}
               />
@@ -162,7 +179,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 className="input"
                 type="text"
                 name="address"
-                defaultValue={facility?.address ?? ''}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
                 required
                 disabled={isPending}
               />
@@ -217,7 +235,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 type="number"
                 name="totalCapacity"
                 min="1"
-                defaultValue={facility?.totalCapacity ?? ''}
+                value={totalCapacity}
+                onChange={(e) => setTotalCapacity(e.target.value)}
                 required
                 disabled={isPending}
               />
@@ -229,7 +248,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 type="number"
                 name="onlineQuota"
                 min="0"
-                defaultValue={facility?.onlineQuota ?? ''}
+                value={onlineQuota}
+                onChange={(e) => setOnlineQuota(e.target.value)}
                 required
                 disabled={isPending}
               />
@@ -256,7 +276,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
               type="number"
               name="heightRestrictionCm"
               min="1"
-              defaultValue={facility?.heightRestrictionCm ?? ''}
+              value={heightRestrictionCm}
+              onChange={(e) => setHeightRestrictionCm(e.target.value)}
               disabled={isPending}
             />
           </label>
@@ -272,7 +293,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
               className="input"
               type="text"
               name="amenities"
-              defaultValue={facility?.amenities.join(', ') ?? ''}
+              value={amenities}
+              onChange={(e) => setAmenities(e.target.value)}
               disabled={isPending}
             />
           </label>
@@ -282,7 +304,8 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
               className="input input--textarea"
               name="cancellationPolicy"
               rows={3}
-              defaultValue={facility?.cancellationPolicy ?? ''}
+              value={cancellationPolicy}
+              onChange={(e) => setCancellationPolicy(e.target.value)}
               disabled={isPending}
             />
           </label>
@@ -355,8 +378,12 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                   className="input"
                   type="text"
                   name="operatorId"
+                  value={operatorId}
+                  onChange={(e) => setOperatorId(e.target.value)}
+                  placeholder={t('form.operatorIdPlaceholder')}
                   disabled={isPending}
                 />
+                <span className="editor-section__hint">{t('form.operatorIdHint')}</span>
               </label>
             ) : null}
           </section>

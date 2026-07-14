@@ -1106,11 +1106,6 @@ select.input {
   justify-content: center;
 }
 
-.audit-caption {
-  font-size: 13px;
-  margin-bottom: var(--space-md);
-}
-
 .audit-card {
   background: var(--surface);
   border: 1px solid var(--line);

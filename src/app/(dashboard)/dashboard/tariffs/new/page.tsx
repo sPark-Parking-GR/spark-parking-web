@@ -31,11 +31,16 @@ export default async function NewTariffPlanPage() {
   if (!session.accessToken) redirect('/login')
 
   const t = await getTranslations('tariffs')
+  const isPlatformAdmin = session.user?.role === 'platform_admin'
 
   return (
     <>
       <PageHeader title={t('new.pageTitle')} />
-      <TariffEditor mode="create" plan={buildDefaultDraft(t('new.defaultName'), t('new.defaultWindowLabel'))} />
+      <TariffEditor
+        mode="create"
+        isPlatformAdmin={isPlatformAdmin}
+        plan={buildDefaultDraft(t('new.defaultName'), t('new.defaultWindowLabel'))}
+      />
     </>
   )
 }

@@ -39,7 +39,7 @@ export const facilityFormSchema = z
       .regex(timeRegex, 'Enter a valid close time (HH:MM).')
       .optional(),
     isActive: z.coerce.boolean().optional(),
-    operatorId: z.string().trim().optional(),
+    operatorId: z.string().trim().nullable().optional(),
   })
   .refine((d) => d.onlineQuota <= d.totalCapacity, {
     message: 'Online quota cannot exceed total capacity.',

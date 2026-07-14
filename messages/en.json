@@ -9,7 +9,6 @@
     "operators": "Operators",
     "audit": "Audit log"
   },
-  "search": "Search…",
   "shell": {
     "brandTag": "Admin",
     "primaryNav": "Primary",
@@ -27,6 +26,7 @@
     "signOutTooltip": "End your session",
     "switchToLightMode": "Switch to light mode",
     "switchToDarkMode": "Switch to dark mode",
+    "searchComingSoon": "Search — coming soon",
     "upgradeTitle": "Growth plan",
     "upgradeSub": "Unlock dynamic pricing and API sync.",
     "upgradeCta": "Upgrade"
@@ -186,6 +186,8 @@
       "open24h": "Open 24 hours",
       "activeVisible": "Active (visible to customers)",
       "operatorIdLabel": "Operator ID",
+      "operatorIdPlaceholder": "e.g. cmqll0p9g0000u5lwk4n67w4o",
+      "operatorIdHint": "The ParkingOperator ID this facility belongs to. See the Operators list.",
       "mapHint": "Click the map or drag the pin to set the location. The coordinates update automatically.",
       "loadingAria": "Loading facility"
     },
@@ -324,6 +326,10 @@
         "active": "Inactive plans stay saved but can't be assigned to facilities or used for quotes.",
         "defaultPlan": "Applied automatically to any facility with no plan explicitly assigned. Only available when vehicle types is empty."
       }
+    },
+    "visibility": {
+      "heading": "Visibility",
+      "operatorIdLabel": "Operator ID"
     },
     "vehicleTypes": {
       "car": "Car",

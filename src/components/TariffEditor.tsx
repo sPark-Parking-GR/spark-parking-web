@@ -31,6 +31,7 @@ interface Props {
   planId?: string
   plan?: TariffDraft
   plans?: TariffPlanListItem[]
+  isPlatformAdmin?: boolean
 }
 
 const INITIAL_STATE: TariffActionResult = { ok: true }
@@ -138,7 +139,7 @@ function ReplacementModalStatus({
   )
 }
 
-export function TariffEditor({ mode, planId, plan, plans }: Props) {
+export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = false }: Props) {
   const t = useTranslations('tariffs')
   const [draft, dispatch] = useReducer(reducer, plan as TariffDraft)
   const [newDefaultPlanId, setNewDefaultPlanId] = useState<string | undefined>(undefined)
@@ -263,6 +264,23 @@ export function TariffEditor({ mode, planId, plan, plans }: Props) {
           onChangeCurrency={(currency) => dispatch({ type: 'currency', currency })}
         />
         <CapsEditor caps={draft.caps} onChange={(caps) => dispatch({ type: 'caps', caps })} />
+
+        {mode === 'create' && isPlatformAdmin ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">{t('visibility.heading')}</h3>
+            </div>
+            <label className="field">
+              <span className="field__label">{t('visibility.operatorIdLabel')}</span>
+              <input
+                className="input"
+                type="text"
+                value={draft.operatorId ?? ''}
+                onChange={(e) => dispatch({ type: 'meta', patch: { operatorId: e.target.value || undefined } })}
+              />
+            </label>
+          </section>
+        ) : null}
 
         <div className="form-actions">
           <SubmitButton mode={mode} />

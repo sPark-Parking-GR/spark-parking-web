@@ -29,8 +29,6 @@ export default async function AuditPage({ searchParams }: PageProps) {
     <>
       <PageHeader title={t('title')} description={t('description')} />
 
-      <p className="text-secondary audit-caption">{t('description')}</p>
-
       {items.length === 0 ? (
         <div className="audit-card">
           <EmptyState title={t('emptyTitle')} message={t('emptyMessage')} />
