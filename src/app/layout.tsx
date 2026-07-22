@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter, Montserrat_Alternates } from 'next/font/google'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { colors, cssVarsFor, radii, shadows } from '@spark/ui'
 import { AppThemeProvider } from '../components/AppThemeProvider'
-import { defaultLocale, isLocale } from '../i18n/locales'
+import { resolveLocale } from '../i18n/locales'
 import './globals.css'
 
 const inter = Inter({
@@ -40,8 +40,8 @@ const themeStyle = `
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
-  const stored = cookieStore.get('spark-lang')?.value
-  const locale = isLocale(stored) ? stored : defaultLocale
+  const headerStore = await headers()
+  const locale = resolveLocale(cookieStore.get('spark-lang')?.value, headerStore.get('accept-language'))
   const messages = (await import(`../../messages/${locale}.json`)).default
 
   return (
