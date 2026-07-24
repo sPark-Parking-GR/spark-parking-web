@@ -2330,8 +2330,8 @@ select.input {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 16px;
-  padding: var(--space-md);
-  box-shadow: none;
+  padding: 22px;
+  box-shadow: var(--shadow);
 }
 
 .editor-section > .field:last-child,
@@ -2352,7 +2352,7 @@ select.input {
 }
 
 .editor-section__hint {
-  font-size: 13px;
+  font-size: 12px;
   margin-top: 2px;
   color: var(--muted);
 }
@@ -2546,6 +2546,7 @@ select.input {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 20px;
+  box-shadow: var(--shadow);
 }
 
 .simulator__head {
@@ -2571,7 +2572,7 @@ select.input {
 }
 
 .simulator__hint {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted);
 }
 
@@ -2620,14 +2621,14 @@ select.input {
   color: var(--muted);
 }
 
-.sim-summary__total {
+.sim-summary .sim-summary__total {
   margin-top: var(--space-xs);
   padding: 10px 12px;
   border-top: none;
   border-radius: 12px;
   background: var(--priSoft);
   font-weight: 800;
-  font-size: 18px;
+  font-size: 20px;
   color: var(--pri);
 }
 
@@ -3639,11 +3640,6 @@ td.table-amount {
   height: 44px;
   flex-shrink: 0;
   border-radius: 12px;
-  background: linear-gradient(160deg, var(--pri), var(--pri2));
-}
-
-.facility-card__icon svg {
-  filter: brightness(0) invert(1);
 }
 
 .facility-card__identity {
