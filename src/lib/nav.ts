@@ -6,6 +6,7 @@ export type NavIcon =
   | 'tariffs'
   | 'bookings'
   | 'operators'
+  | 'onboarding'
   | 'analytics'
   | 'audit'
 
@@ -27,6 +28,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Tariffs', href: '/dashboard/tariffs', icon: 'tariffs', description: 'Pricing plans, rates and caps', roles: OPERATOR_ADMIN_ROLES },
   { label: 'Bookings', href: '/dashboard/bookings', icon: 'bookings', description: 'Active and past customer bookings', roles: OPERATOR_ROLES },
   { label: 'Operators', href: '/dashboard/operators', icon: 'operators', description: 'Platform operator accounts', roles: PLATFORM_ADMIN_ROLES },
+  { label: 'Onboarding', href: '/dashboard/onboarding', icon: 'onboarding', description: 'Invite new operator businesses onto sPark', roles: PLATFORM_ADMIN_ROLES },
   { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', description: 'Revenue and occupancy insights', roles: PLATFORM_ADMIN_ROLES },
   { label: 'Audit log', href: '/dashboard/audit', icon: 'audit', description: 'Security and change history', roles: PLATFORM_ADMIN_ROLES },
 ]

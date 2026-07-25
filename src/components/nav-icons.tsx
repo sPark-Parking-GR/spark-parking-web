@@ -4,6 +4,7 @@ import {
   Receipt,
   CalendarClock,
   Users,
+  UserPlus,
   BarChart3,
   ScrollText,
 } from 'lucide-react'
@@ -16,6 +17,7 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   tariffs: Receipt,
   bookings: CalendarClock,
   operators: Users,
+  onboarding: UserPlus,
   analytics: BarChart3,
   audit: ScrollText,
 }

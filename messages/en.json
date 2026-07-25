@@ -44,6 +44,100 @@
     "credentialsInvalid": "Enter a valid email and password.",
     "forgot": "Forgot password?"
   },
+  "acceptInvite": {
+    "tagline": "Make Parking Smart",
+    "title": "Set your password",
+    "context": "You're setting up <b>{businessName}</b>'s sPark account ({email}).",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm password",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooLong": "Password must be at most 128 characters.",
+    "passwordsMismatch": "Passwords do not match.",
+    "genericError": "Enter a valid password.",
+    "submit": "Set password",
+    "submitting": "Setting up…",
+    "goToLogin": "Go to sign in",
+    "invalidTitle": "Invalid invite link",
+    "invalidMessage": "This invite link doesn't exist. Ask the platform to send a new one.",
+    "invalidGenericMessage": "We couldn't load this invite. Please try again shortly.",
+    "expiredTitle": "Invite expired",
+    "expiredMessage": "This invite has expired or is no longer valid. Contact the platform for a new invite."
+  },
+  "onboarding": {
+    "title": "Onboard Operators",
+    "description": "Invite new parking-facility businesses onto sPark.",
+    "form": {
+      "heading": "Send an invite",
+      "businessNameLabel": "Business name",
+      "emailLabel": "Email",
+      "sendInvite": "Send invite",
+      "sending": "Sending…",
+      "sent": "Invite sent."
+    },
+    "table": {
+      "businessName": "Business",
+      "email": "Email",
+      "status": "Status",
+      "expiresAt": "Expires",
+      "createdAt": "Sent",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "empty": {
+      "title": "No invites yet",
+      "message": "Send your first operator invite to get started."
+    },
+    "actions": {
+      "cancel": "Cancel"
+    },
+    "revoke": {
+      "trigger": "Revoke",
+      "confirm": "Revoke invite",
+      "revoking": "Revoking…",
+      "modalTitle": "Revoke invite",
+      "modalText": "This withdraws the invite before it's accepted. The recipient's link will stop working immediately."
+    },
+    "operators": {
+      "title": "Operators",
+      "description": "Manage access for onboarded parking-facility businesses.",
+      "empty": {
+        "title": "No operators yet",
+        "message": "Operators appear here once an invite is sent."
+      }
+    },
+    "operatorTable": {
+      "name": "Business",
+      "status": "Status",
+      "facilities": "Facilities",
+      "members": "Members",
+      "createdAt": "Created",
+      "actions": "Actions"
+    },
+    "operatorStatus": {
+      "pending": "Pending",
+      "verified": "Verified",
+      "suspended": "Suspended"
+    },
+    "suspend": {
+      "trigger": "Suspend",
+      "confirm": "Suspend operator",
+      "suspending": "Suspending…",
+      "modalTitle": "Suspend operator",
+      "modalText": "This immediately blocks every admin and staff account under this business, including active sessions. They can be reactivated at any time."
+    },
+    "reactivate": {
+      "trigger": "Reactivate",
+      "confirm": "Reactivate operator",
+      "reactivating": "Reactivating…",
+      "modalTitle": "Reactivate operator",
+      "modalText": "This restores access for every admin and staff account under this business."
+    }
+  },
   "overview": {
     "title": "Overview",
     "description": "A snapshot of your parking operations.",
@@ -93,7 +187,8 @@
       "count": "{count, plural, one {# facility} other {# facilities}}",
       "emptyTitle": "No facilities found",
       "emptyFiltered": "No facilities match your search or filters.",
-      "emptyDefault": "Create your first facility to get started."
+      "emptyDefault": "Create your first facility to get started.",
+      "facilityLimitReached": "Your account is limited to one facility. Contact the platform to change this."
     },
     "actions": {
       "newFacility": "New facility",

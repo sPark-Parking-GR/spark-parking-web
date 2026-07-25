@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Plus, AlertCircle } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
@@ -27,6 +27,7 @@ interface PageProps {
     verified?: string
     kind?: string
     view?: string
+    facilityLimit?: string
   }>
 }
 
@@ -68,22 +69,37 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
     </>
   )
 
+  // One-facility-per-operator cap: only meaningful for an operator's own view.
+  // A platform_admin isn't scoped to a single operator, so the button always shows for them.
+  const canCreateFacility = isPlatformAdmin || (await loadPage(() => listFacilities({ take: 1 }))).total === 0
+
   const header = (
     <PageHeader
       title={t('list.title')}
       actions={
-        <Link href="/dashboard/facilities/new" className="btn btn--primary">
-          <Plus size={16} strokeWidth={2.25} aria-hidden="true" />
-          {t('actions.newFacility')}
-        </Link>
+        canCreateFacility ? (
+          <Link href="/dashboard/facilities/new" className="btn btn--primary">
+            <Plus size={16} strokeWidth={2.25} aria-hidden="true" />
+            {t('actions.newFacility')}
+          </Link>
+        ) : undefined
       }
     />
   )
+
+  const limitBanner =
+    params.facilityLimit === '1' ? (
+      <p className="form-banner form-banner--warning" role="alert">
+        <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
+        {t('list.facilityLimitReached')}
+      </p>
+    ) : null
 
   if (isMap) {
     return (
       <>
         {header}
+        {limitBanner}
         {toolbar}
         <FacilityMapView filters={{ q: q || undefined, isActive, isVerified, kind }} />
       </>
@@ -112,6 +128,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
   return (
     <>
       {header}
+      {limitBanner}
       {toolbar}
       <div className="table-toolbar table-toolbar--count">
         <span className="text-secondary table-toolbar__count">
