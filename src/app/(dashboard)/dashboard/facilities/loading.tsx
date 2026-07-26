@@ -1,7 +1,12 @@
 import { PageHeader } from '@/components/PageHeader'
 import { Skeleton, TableSkeleton } from '@/components/Skeleton'
+import { FacilityCardGridSkeleton } from '@/components/FacilityCardGridSkeleton'
+import { getSession } from '@/lib/session'
 
-export default function Loading() {
+export default async function Loading() {
+  const session = await getSession()
+  const isPlatformAdmin = session.user?.role === 'platform_admin'
+
   return (
     <>
       <PageHeader title="Facilities" />
@@ -14,7 +19,7 @@ export default function Loading() {
         <Skeleton width={150} height={40} radius={12} />
         <Skeleton width={150} height={40} radius={12} />
       </div>
-      <TableSkeleton rows={8} columns={8} />
+      {isPlatformAdmin ? <TableSkeleton rows={8} columns={8} /> : <FacilityCardGridSkeleton />}
     </>
   )
 }

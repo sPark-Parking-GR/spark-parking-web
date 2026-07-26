@@ -1,11 +1,12 @@
 'use client'
 
-import { useCallback, useState, useTransition } from 'react'
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
   APIProvider,
   Map,
   AdvancedMarker,
+  useMap,
   type MapCameraChangedEvent,
 } from '@vis.gl/react-google-maps'
 import { Power, PowerOff, Rocket, X } from 'lucide-react'
@@ -27,6 +28,31 @@ interface Filters {
 
 interface Props {
   filters: Filters
+}
+
+// Zooms/pans exactly once, the first time real data arrives, to fit every facility
+// currently in view — after that the user's own pan/zoom takes over untouched.
+function AutoFitBounds({ positions }: { positions: { lat: number; lng: number }[] }) {
+  const map = useMap()
+  const hasFitted = useRef(false)
+
+  useEffect(() => {
+    if (hasFitted.current || !map || positions.length === 0) return
+    hasFitted.current = true
+
+    const only = positions.length === 1 ? positions[0] : undefined
+    if (only) {
+      map.setCenter(only)
+      map.setZoom(15)
+      return
+    }
+
+    const bounds = new google.maps.LatLngBounds()
+    positions.forEach((p) => bounds.extend(p))
+    map.fitBounds(bounds, 48)
+  }, [map, positions])
+
+  return null
 }
 
 function pinClass(point: AdminMapPoint): string {
@@ -90,6 +116,13 @@ export function FacilityMapView({ filters }: Props) {
     )
   }
 
+  const fitPositions =
+    data?.mode === 'points'
+      ? data.points.map((p) => ({ lat: p.lat, lng: p.lng }))
+      : data?.mode === 'clusters'
+        ? data.clusters.map((c) => ({ lat: c.lat, lng: c.lng }))
+        : []
+
   return (
     <div className="map-view">
       <APIProvider apiKey={apiKey}>
@@ -102,6 +135,7 @@ export function FacilityMapView({ filters }: Props) {
           clickableIcons={false}
           onCameraChanged={onCamera}
         >
+          <AutoFitBounds positions={fitPositions} />
           {data?.mode === 'points'
             ? data.points.map((p) => (
                 <AdvancedMarker

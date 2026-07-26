@@ -6,7 +6,9 @@ import { GoogleLocationPicker } from '@/components/maps/GoogleLocationPicker'
 export interface LocationPickerProps {
   lat: number | null
   lng: number | null
+  address?: string
   onChange?: (lat: number, lng: number) => void
+  onAddressChange?: (address: string) => void
   readOnly?: boolean
 }
 

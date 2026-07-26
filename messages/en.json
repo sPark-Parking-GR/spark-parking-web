@@ -35,6 +35,7 @@
     "tagline": "Make Parking Smart",
     "title": "Sign in to your dashboard",
     "forbiddenMessage": "This account does not have access to the admin dashboard. Sign in with an operator or platform administrator account.",
+    "restrictedMessage": "Your account no longer has access to the dashboard. Contact sPark support if you believe this is a mistake.",
     "emailLabel": "Email",
     "passwordLabel": "Password",
     "signIn": "Sign in",
@@ -136,6 +137,24 @@
       "reactivating": "Reactivating…",
       "modalTitle": "Reactivate operator",
       "modalText": "This restores access for every admin and staff account under this business."
+    },
+    "detail": {
+      "back": "Back to operators",
+      "facilities": {
+        "title": "Facilities",
+        "empty": "No facilities yet."
+      },
+      "plans": {
+        "title": "Tariff plans",
+        "empty": "No tariff plans yet."
+      },
+      "members": {
+        "title": "Members",
+        "empty": "No members yet.",
+        "email": "Email",
+        "role": "Role",
+        "joined": "Joined"
+      }
     }
   },
   "overview": {

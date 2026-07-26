@@ -403,6 +403,23 @@ option {
   background: var(--bg);
 }
 
+.input--error {
+  border-color: var(--bad);
+}
+
+.input--error:focus {
+  border-color: var(--bad);
+  box-shadow: 0 0 0 3px var(--badBg);
+}
+
+.field__error {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bad);
+}
+
 select.input {
   -webkit-appearance: none;
   appearance: none;
@@ -421,6 +438,51 @@ select.input {
 .input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.address-autocomplete {
+  position: relative;
+}
+
+.address-autocomplete__list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.address-autocomplete__option {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.address-autocomplete__option:hover,
+.address-autocomplete__option.is-highlighted {
+  background: var(--priSoft);
+}
+
+.address-autocomplete__main {
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.address-autocomplete__secondary {
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .field-grid {
@@ -1786,12 +1848,67 @@ select.input {
   gap: var(--space-sm);
 }
 
+.facility-map__wrap {
+  position: relative;
+}
+
 .facility-map__canvas {
   width: 100%;
   height: 480px;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--color-border);
+}
+
+.facility-map__locate-wrap {
+  /* Sits below Google's own top-right fullscreen control, clear of it either way. */
+  position: absolute;
+  top: 56px;
+  right: 10px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* Fixed white, independent of the app's light/dark theme — matches Google's own
+   map controls (fullscreen, zoom, pegman), which never follow the page theme either. */
+.facility-map__locate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 2px;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  transition: background var(--dur) var(--ease);
+}
+
+.facility-map__locate-btn:hover:not(:disabled) {
+  background: #ebebeb;
+}
+
+.facility-map__locate-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.facility-map__locate-error {
+  max-width: 220px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--badBg);
+  color: var(--bad);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp var(--dur) var(--ease) both;
 }
 
 .facility-map__hint {
@@ -1959,13 +2076,30 @@ select.input {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
+  row-gap: var(--space-sm);
   gap: var(--space-md);
   margin-top: 4px;
 }
 
+.opening-hours-row .checkbox-label {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* One wrap unit: the Opens/Closes pair moves and wraps together, never splitting
+   across rows from each other. */
+.opening-hours-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .opening-hours-time-field {
-  margin-bottom: 0;
+  flex: 1 1 140px;
   min-width: 140px;
+  margin-bottom: 0;
 }
 
 .input--textarea {
@@ -2810,7 +2944,9 @@ select.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: var(--space-md);
+  row-gap: var(--space-sm);
   width: 100%;
   padding: var(--space-md);
   background: var(--card2);
@@ -2833,6 +2969,7 @@ select.input {
 
 .tariff-strip__icons {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-sm);
 }
 
@@ -2868,6 +3005,7 @@ select.input {
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
+  white-space: nowrap;
   font-size: 13px;
   font-weight: 500;
   color: var(--muted);

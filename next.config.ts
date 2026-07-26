@@ -5,7 +5,9 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // BFF dashboard: the browser only talks to this Next origin, so connect-src stays
 // 'self' apart from the Google Maps JS API, which the facility location picker loads
-// client-side (script + tile/metadata fetches + Roboto webfont).
+// client-side (script + tile/metadata fetches + Roboto webfont). places.googleapis.com
+// is a separate origin from maps.googleapis.com — the Places API (New) autocomplete/
+// place-details RPCs go there, not through the classic Maps REST endpoints.
 // 'unsafe-inline'/'unsafe-eval' (dev only) cover Next's hydration bootstrap;
 // 'wasm-unsafe-eval' lets the Maps vector renderer compile its WASM in prod.
 // frame-ancestors 'none' blocks clickjacking.
@@ -15,7 +17,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://maps.googleapis.com https://maps.gstatic.com",
+  "connect-src 'self' https://maps.googleapis.com https://maps.gstatic.com https://places.googleapis.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -27,7 +29,9 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  // geolocation=(self): the facility location picker's "use my location" button needs it;
+  // camera/microphone stay fully disabled since nothing in the app uses them.
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
   ...(isProd
     ? [
         {

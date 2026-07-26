@@ -26,6 +26,10 @@ export async function loadPage<T>(loader: () => Promise<T>, opts: LoadOptions = 
       const target = opts.redirects?.[err.status]
       if (target) redirect(target)
       if (err.status === 404 || opts.notFoundOn?.includes(err.status)) notFound()
+      // Unhandled 403 (e.g. the operator's account was suspended mid-session) must not
+      // silently resolve to an empty page — that hides the real reason and lets callers
+      // like the facility-cap check misread "request failed" as "genuinely zero rows".
+      if (err.status === 403) redirect('/login?error=restricted')
     }
   }
   return new Promise<T>((resolve) => {resolve({ items: [], total: 0, skip: 0, take: 0 } as unknown as T)})

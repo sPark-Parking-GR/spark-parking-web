@@ -4,12 +4,26 @@ const VEHICLE_TYPES = ['car', 'motorcycle', 'van', 'truck'] as const
 
 const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/
 
+// FormData reports an untouched number input as '' (not absent), which Number('') coerces
+// to 0 — a silent Null Island default rather than a validation error. Normalize the empty
+// string to undefined first so z.coerce's required check fires instead.
+const emptyToUndefined = (v: unknown) => (v === '' || v === null ? undefined : v)
+
 export const facilityFormSchema = z
   .object({
     name: z.string().trim().min(1, 'Name is required.'),
     address: z.string().trim().min(1, 'Address is required.'),
-    lat: z.coerce.number({ invalid_type_error: 'Latitude must be a number.' }).min(-90).max(90),
-    lng: z.coerce.number({ invalid_type_error: 'Longitude must be a number.' }).min(-180).max(180),
+    // z.coerce runs before the required-vs-invalid-type check, turning a missing value into
+    // NaN rather than leaving it undefined — so this always lands on invalid_type_error,
+    // never required_error. Word it for the real cause: no pin placed yet.
+    lat: z.preprocess(
+      emptyToUndefined,
+      z.coerce.number({ invalid_type_error: 'Set a location on the map.' }).min(-90).max(90),
+    ),
+    lng: z.preprocess(
+      emptyToUndefined,
+      z.coerce.number({ invalid_type_error: 'Set a location on the map.' }).min(-180).max(180),
+    ),
     totalCapacity: z.coerce
       .number({ invalid_type_error: 'Total capacity must be a number.' })
       .int()

@@ -1,17 +1,18 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 interface SkeletonProps {
   width?: string | number
   height?: string | number
   radius?: string | number
   className?: string
+  style?: CSSProperties
 }
 
-export function Skeleton({ width, height = '1em', radius = 6, className }: SkeletonProps) {
+export function Skeleton({ width, height = '1em', radius = 6, className, style }: SkeletonProps) {
   return (
     <span
       className={`skeleton${className ? ` ${className}` : ''}`}
-      style={{ width, height, borderRadius: radius }}
+      style={{ width, height, borderRadius: radius, ...style }}
       aria-hidden="true"
     />
   )

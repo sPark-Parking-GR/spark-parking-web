@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Badge } from '@spark/ui'
 import type { BadgeVariant } from '@spark/ui'
@@ -44,7 +45,11 @@ export async function OperatorsTable({ items }: Props) {
             const badge = STATUS_BADGE[item.status]
             return (
               <tr key={item.id}>
-                <td className="table-facility">{item.name}</td>
+                <td className="table-facility">
+                  <Link href={`/dashboard/onboarding/${item.id}`} className="table-link">
+                    {item.name}
+                  </Link>
+                </td>
                 <td>
                   <Badge variant={badge.variant}>{t(badge.labelKey)}</Badge>
                 </td>

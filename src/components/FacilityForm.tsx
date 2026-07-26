@@ -9,6 +9,7 @@ import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actio
 import type { FacilityActionResult } from '@/lib/facility-actions'
 import type { AdminFacility, FacilityTariffAssignment, FacilityTariffPlan } from '@/lib/api'
 import { FacilityLocationPicker } from '@/components/FacilityLocationPicker'
+import { FacilityAddressInput } from '@/components/FacilityAddressInput'
 import { MultiSelectControl } from '@/components/MultiSelectControl'
 import { VEHICLE_ICON } from '@/components/vehicle-icons'
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
@@ -70,6 +71,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
   const [state, formAction, isPending] = useActionState(boundAction, INITIAL_STATE)
 
   const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<string, string>>>({})
   const [name, setName] = useState(() => facility?.name ?? '')
   const [address, setAddress] = useState(() => facility?.address ?? '')
   const [totalCapacity, setTotalCapacity] = useState(() =>
@@ -123,9 +125,20 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
     const result = facilityFormSchema.safeParse(raw)
     if (!result.success) {
       e.preventDefault()
+      const errors: Partial<Record<string, string>> = {}
+      for (const issue of result.error.issues) {
+        const key = String(issue.path[0] ?? '')
+        if (key && !errors[key]) errors[key] = issue.message
+      }
+      setFieldErrors(errors)
       return
     }
+    setFieldErrors({})
     setHasSubmitted(true)
+  }
+
+  function fieldError(name: string): string | undefined {
+    return fieldErrors[name]
   }
 
   const showVisibilitySection =
@@ -164,7 +177,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
             <label className="field">
               <span className="field__label">{t('form.nameLabel')}</span>
               <input
-                className="input"
+                className={`input${fieldError('name') ? ' input--error' : ''}`}
                 type="text"
                 name="name"
                 value={name}
@@ -172,18 +185,26 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 required
                 disabled={isPending}
               />
+              {fieldError('name') ? <span className="field__error">{fieldError('name')}</span> : null}
             </label>
             <label className="field">
               <span className="field__label">{t('form.addressLabel')}</span>
-              <input
-                className="input"
-                type="text"
+              <FacilityAddressInput
                 name="address"
+                className={`input${fieldError('address') ? ' input--error' : ''}`}
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={setAddress}
+                onPlaceSelected={(result) => {
+                  setAddress(result.address)
+                  setLat(result.lat)
+                  setLng(result.lng)
+                }}
                 required
                 disabled={isPending}
               />
+              {fieldError('address') ? (
+                <span className="field__error">{fieldError('address')}</span>
+              ) : null}
             </label>
           </div>
         </section>
@@ -197,7 +218,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
             <label className="field">
               <span className="field__label">{t('form.latitudeLabel')}</span>
               <input
-                className="input"
+                className={`input${fieldError('lat') ? ' input--error' : ''}`}
                 type="number"
                 name="lat"
                 step="any"
@@ -206,11 +227,12 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 required
                 disabled={isPending}
               />
+              {fieldError('lat') ? <span className="field__error">{fieldError('lat')}</span> : null}
             </label>
             <label className="field">
               <span className="field__label">{t('form.longitudeLabel')}</span>
               <input
-                className="input"
+                className={`input${fieldError('lng') ? ' input--error' : ''}`}
                 type="number"
                 name="lng"
                 step="any"
@@ -219,6 +241,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 required
                 disabled={isPending}
               />
+              {fieldError('lng') ? <span className="field__error">{fieldError('lng')}</span> : null}
             </label>
           </div>
         </section>
@@ -231,7 +254,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
             <label className="field">
               <span className="field__label">{t('form.totalCapacityLabel')}</span>
               <input
-                className="input"
+                className={`input${fieldError('totalCapacity') ? ' input--error' : ''}`}
                 type="number"
                 name="totalCapacity"
                 min="1"
@@ -240,11 +263,14 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 required
                 disabled={isPending}
               />
+              {fieldError('totalCapacity') ? (
+                <span className="field__error">{fieldError('totalCapacity')}</span>
+              ) : null}
             </label>
             <label className="field">
               <span className="field__label">{t('form.onlineQuotaLabel')}</span>
               <input
-                className="input"
+                className={`input${fieldError('onlineQuota') ? ' input--error' : ''}`}
                 type="number"
                 name="onlineQuota"
                 min="0"
@@ -253,6 +279,9 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 required
                 disabled={isPending}
               />
+              {fieldError('onlineQuota') ? (
+                <span className="field__error">{fieldError('onlineQuota')}</span>
+              ) : null}
             </label>
           </div>
 
@@ -267,6 +296,9 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
             {vehicleTypes.map((value) => (
               <input key={value} type="hidden" name="vehicleTypes" value={value} />
             ))}
+            {fieldError('vehicleTypes') ? (
+              <span className="field__error">{fieldError('vehicleTypes')}</span>
+            ) : null}
           </div>
 
           <label className="field">
@@ -326,27 +358,29 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
               />
               {t('form.open24h')}
             </label>
-            <div className="field opening-hours-time-field">
-              <span className="field__label">{t('form.opens')}</span>
-              <DateTimePicker
-                mode="time"
-                name="openTime"
-                value={openTime}
-                onChange={setOpenTime}
-                disabled={isPending || is24h}
-                ariaLabel={t('form.openingTimeAria')}
-              />
-            </div>
-            <div className="field opening-hours-time-field">
-              <span className="field__label">{t('form.closes')}</span>
-              <DateTimePicker
-                mode="time"
-                name="closeTime"
-                value={closeTime}
-                onChange={setCloseTime}
-                disabled={isPending || is24h}
-                ariaLabel={t('form.closingTimeAria')}
-              />
+            <div className="opening-hours-times">
+              <div className="field opening-hours-time-field">
+                <span className="field__label">{t('form.opens')}</span>
+                <DateTimePicker
+                  mode="time"
+                  name="openTime"
+                  value={openTime}
+                  onChange={setOpenTime}
+                  disabled={isPending || is24h}
+                  ariaLabel={t('form.openingTimeAria')}
+                />
+              </div>
+              <div className="field opening-hours-time-field">
+                <span className="field__label">{t('form.closes')}</span>
+                <DateTimePicker
+                  mode="time"
+                  name="closeTime"
+                  value={closeTime}
+                  onChange={setCloseTime}
+                  disabled={isPending || is24h}
+                  ariaLabel={t('form.closingTimeAria')}
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -398,10 +432,12 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
         <FacilityLocationPicker
           lat={lat}
           lng={lng}
+          address={address}
           onChange={(nextLat, nextLng) => {
             setLat(nextLat)
             setLng(nextLng)
           }}
+          onAddressChange={setAddress}
         />
         <p className="facility-map__hint">{t('form.mapHint')}</p>
       </aside>

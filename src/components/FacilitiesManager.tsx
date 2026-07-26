@@ -354,7 +354,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                         <Banknote size={17} strokeWidth={2} aria-hidden="true" />
                       </button>
                       <Link
-                        href={`/dashboard/facilities/${item.id}`}
+                        href={`/dashboard/facilities/${item.id}?tab=manage`}
                         className="btn btn--icon btn--ghost"
                         aria-label={t('actions.edit')}
                         data-tooltip={t('table.tooltipEdit')}
@@ -392,6 +392,11 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
             <p className="modal__text">
               {CONFIRM_COPY[confirm.action].body(confirm.ids.length)}
             </p>
+            {error ? (
+              <p className="form-banner form-banner--error" role="alert">
+                {error}
+              </p>
+            ) : null}
             <div className="modal__footer">
               <button
                 type="button"

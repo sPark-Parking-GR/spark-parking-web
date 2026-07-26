@@ -82,7 +82,19 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
             <Plus size={16} strokeWidth={2.25} aria-hidden="true" />
             {t('actions.newFacility')}
           </Link>
-        ) : undefined
+        ) : (
+          <button
+            type="button"
+            className="btn btn--primary"
+            disabled
+            aria-disabled="true"
+            data-tooltip={t('list.facilityLimitReached')}
+            data-tooltip-pos="bottom"
+          >
+            <Plus size={16} strokeWidth={2.25} aria-hidden="true" />
+            {t('actions.newFacility')}
+          </button>
+        )
       }
     />
   )

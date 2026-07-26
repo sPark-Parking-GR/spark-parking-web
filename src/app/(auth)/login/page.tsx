@@ -5,7 +5,7 @@ import { LoginForm } from '@/components/LoginForm'
 import { SparkMark } from '@/components/SparkMark'
 
 interface LoginPageProps {
-  searchParams: Promise<{ from?: string; error?: string }>
+  searchParams: Promise<{ from?: string; error?: 'forbidden' | 'restricted' }>
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -37,6 +37,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         {error === 'forbidden' ? (
           <p className="auth-alert" role="alert">
             {t('forbiddenMessage')}
+          </p>
+        ) : null}
+        {error === 'restricted' ? (
+          <p className="auth-alert" role="alert">
+            {t('restrictedMessage')}
           </p>
         ) : null}
 

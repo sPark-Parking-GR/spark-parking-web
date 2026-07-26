@@ -19,12 +19,50 @@ export interface OperatorSummary {
 
 export type OperatorActionResult = { ok: true } | { ok: false; error: string }
 
+export interface OperatorFacilitySummary {
+  id: string
+  name: string
+  address: string
+  isActive: boolean
+  isVerified: boolean
+  kind: string
+}
+
+export interface OperatorPlanSummary {
+  id: string
+  name: string
+  isActive: boolean
+  isDefault: boolean
+}
+
+export interface OperatorMemberSummary {
+  userId: string
+  email: string
+  role: string
+  createdAt: string
+}
+
+export interface OperatorDetail extends OperatorSummary {
+  facilities: OperatorFacilitySummary[]
+  plans: OperatorPlanSummary[]
+  members: OperatorMemberSummary[]
+}
+
 export async function listOperatorsAction(): Promise<OperatorSummary[]> {
   try {
     return await apiFetch<OperatorSummary[]>('/operators')
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     return []
+  }
+}
+
+export async function getOperatorDetailAction(id: string): Promise<OperatorDetail | null> {
+  try {
+    return await apiFetch<OperatorDetail>(`/operators/${id}`)
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    return null
   }
 }
 
