@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
-import { facilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
+import { buildFacilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
 import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actions'
 import type { FacilityActionResult } from '@/lib/facility-actions'
 import type { AdminFacility, FacilityTariffAssignment, FacilityTariffPlan } from '@/lib/api'
@@ -63,6 +63,7 @@ function prefillCloseTime(facility?: AdminFacility): string {
 
 export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props) {
   const t = useTranslations('facilities')
+  const isBusiness = mode === 'create' || facility?.kind === 'BUSINESS'
   const boundAction =
     mode === 'edit' && facility
       ? updateFacilityAction.bind(null, facility.id)
@@ -122,7 +123,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
       isActive: fd.get('isActive'),
       operatorId: fd.get('operatorId'),
     }
-    const result = facilityFormSchema.safeParse(raw)
+    const result = buildFacilityFormSchema(isBusiness).safeParse(raw)
     if (!result.success) {
       e.preventDefault()
       const errors: Partial<Record<string, string>> = {}
@@ -160,7 +161,11 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
           </p>
         ) : null}
 
-        {tariff ? (
+        {mode === 'edit' && facility ? (
+          <input type="hidden" name="kind" value={facility.kind} />
+        ) : null}
+
+        {isBusiness && tariff ? (
           <FacilityTariffPanel
             facilityId={tariff.facilityId}
             assignments={tariff.assignments}
@@ -246,144 +251,150 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
           </div>
         </section>
 
-        <section className="editor-section card">
-          <div className="editor-section__head">
-            <h3 className="h-heading">{t('form.capacityVehicles')}</h3>
-          </div>
-          <div className="field-grid">
+        {isBusiness ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">{t('form.capacityVehicles')}</h3>
+            </div>
+            <div className="field-grid">
+              <label className="field">
+                <span className="field__label">{t('form.totalCapacityLabel')}</span>
+                <input
+                  className={`input${fieldError('totalCapacity') ? ' input--error' : ''}`}
+                  type="number"
+                  name="totalCapacity"
+                  min="1"
+                  value={totalCapacity}
+                  onChange={(e) => setTotalCapacity(e.target.value)}
+                  required
+                  disabled={isPending}
+                />
+                {fieldError('totalCapacity') ? (
+                  <span className="field__error">{fieldError('totalCapacity')}</span>
+                ) : null}
+              </label>
+              <label className="field">
+                <span className="field__label">{t('form.onlineQuotaLabel')}</span>
+                <input
+                  className={`input${fieldError('onlineQuota') ? ' input--error' : ''}`}
+                  type="number"
+                  name="onlineQuota"
+                  min="0"
+                  value={onlineQuota}
+                  onChange={(e) => setOnlineQuota(e.target.value)}
+                  required
+                  disabled={isPending}
+                />
+                {fieldError('onlineQuota') ? (
+                  <span className="field__error">{fieldError('onlineQuota')}</span>
+                ) : null}
+              </label>
+            </div>
+
+            <div className="field">
+              <span className="field__label">{t('form.vehicleTypesLabel')}</span>
+              <MultiSelectControl
+                options={VEHICLE_OPTIONS}
+                value={vehicleTypes}
+                onChange={setVehicleTypes}
+                disabled={isPending}
+              />
+              {vehicleTypes.map((value) => (
+                <input key={value} type="hidden" name="vehicleTypes" value={value} />
+              ))}
+              {fieldError('vehicleTypes') ? (
+                <span className="field__error">{fieldError('vehicleTypes')}</span>
+              ) : null}
+            </div>
+
             <label className="field">
-              <span className="field__label">{t('form.totalCapacityLabel')}</span>
+              <span className="field__label">{t('form.heightRestrictionLabel')}</span>
               <input
-                className={`input${fieldError('totalCapacity') ? ' input--error' : ''}`}
+                className="input"
                 type="number"
-                name="totalCapacity"
+                name="heightRestrictionCm"
                 min="1"
-                value={totalCapacity}
-                onChange={(e) => setTotalCapacity(e.target.value)}
-                required
+                value={heightRestrictionCm}
+                onChange={(e) => setHeightRestrictionCm(e.target.value)}
                 disabled={isPending}
               />
-              {fieldError('totalCapacity') ? (
-                <span className="field__error">{fieldError('totalCapacity')}</span>
-              ) : null}
+            </label>
+          </section>
+        ) : null}
+
+        {isBusiness ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">{t('form.policyAmenities')}</h3>
+            </div>
+            <label className="field">
+              <span className="field__label">{t('form.amenitiesLabel')}</span>
+              <input
+                className="input"
+                type="text"
+                name="amenities"
+                value={amenities}
+                onChange={(e) => setAmenities(e.target.value)}
+                disabled={isPending}
+              />
             </label>
             <label className="field">
-              <span className="field__label">{t('form.onlineQuotaLabel')}</span>
-              <input
-                className={`input${fieldError('onlineQuota') ? ' input--error' : ''}`}
-                type="number"
-                name="onlineQuota"
-                min="0"
-                value={onlineQuota}
-                onChange={(e) => setOnlineQuota(e.target.value)}
-                required
+              <span className="field__label">{t('form.cancellationPolicyLabel')}</span>
+              <textarea
+                className="input input--textarea"
+                name="cancellationPolicy"
+                rows={3}
+                value={cancellationPolicy}
+                onChange={(e) => setCancellationPolicy(e.target.value)}
                 disabled={isPending}
               />
-              {fieldError('onlineQuota') ? (
-                <span className="field__error">{fieldError('onlineQuota')}</span>
-              ) : null}
             </label>
-          </div>
+          </section>
+        ) : null}
 
-          <div className="field">
-            <span className="field__label">{t('form.vehicleTypesLabel')}</span>
-            <MultiSelectControl
-              options={VEHICLE_OPTIONS}
-              value={vehicleTypes}
-              onChange={setVehicleTypes}
-              disabled={isPending}
-            />
-            {vehicleTypes.map((value) => (
-              <input key={value} type="hidden" name="vehicleTypes" value={value} />
-            ))}
-            {fieldError('vehicleTypes') ? (
-              <span className="field__error">{fieldError('vehicleTypes')}</span>
-            ) : null}
-          </div>
-
-          <label className="field">
-            <span className="field__label">{t('form.heightRestrictionLabel')}</span>
-            <input
-              className="input"
-              type="number"
-              name="heightRestrictionCm"
-              min="1"
-              value={heightRestrictionCm}
-              onChange={(e) => setHeightRestrictionCm(e.target.value)}
-              disabled={isPending}
-            />
-          </label>
-        </section>
-
-        <section className="editor-section card">
-          <div className="editor-section__head">
-            <h3 className="h-heading">{t('form.policyAmenities')}</h3>
-          </div>
-          <label className="field">
-            <span className="field__label">{t('form.amenitiesLabel')}</span>
-            <input
-              className="input"
-              type="text"
-              name="amenities"
-              value={amenities}
-              onChange={(e) => setAmenities(e.target.value)}
-              disabled={isPending}
-            />
-          </label>
-          <label className="field">
-            <span className="field__label">{t('form.cancellationPolicyLabel')}</span>
-            <textarea
-              className="input input--textarea"
-              name="cancellationPolicy"
-              rows={3}
-              value={cancellationPolicy}
-              onChange={(e) => setCancellationPolicy(e.target.value)}
-              disabled={isPending}
-            />
-          </label>
-        </section>
-
-        <section className="editor-section card">
-          <div className="editor-section__head">
-            <h3 className="h-heading">{t('form.openingHours')}</h3>
-          </div>
-          <input type="hidden" name="is24h" value={is24h ? 'true' : 'false'} />
-          <div className="opening-hours-row">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={is24h}
-                onChange={(e) => setIs24h(e.target.checked)}
-                disabled={isPending}
-              />
-              {t('form.open24h')}
-            </label>
-            <div className="opening-hours-times">
-              <div className="field opening-hours-time-field">
-                <span className="field__label">{t('form.opens')}</span>
-                <DateTimePicker
-                  mode="time"
-                  name="openTime"
-                  value={openTime}
-                  onChange={setOpenTime}
-                  disabled={isPending || is24h}
-                  ariaLabel={t('form.openingTimeAria')}
+        {isBusiness ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">{t('form.openingHours')}</h3>
+            </div>
+            <input type="hidden" name="is24h" value={is24h ? 'true' : 'false'} />
+            <div className="opening-hours-row">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={is24h}
+                  onChange={(e) => setIs24h(e.target.checked)}
+                  disabled={isPending}
                 />
-              </div>
-              <div className="field opening-hours-time-field">
-                <span className="field__label">{t('form.closes')}</span>
-                <DateTimePicker
-                  mode="time"
-                  name="closeTime"
-                  value={closeTime}
-                  onChange={setCloseTime}
-                  disabled={isPending || is24h}
-                  ariaLabel={t('form.closingTimeAria')}
-                />
+                {t('form.open24h')}
+              </label>
+              <div className="opening-hours-times">
+                <div className="field opening-hours-time-field">
+                  <span className="field__label">{t('form.opens')}</span>
+                  <DateTimePicker
+                    mode="time"
+                    name="openTime"
+                    value={openTime}
+                    onChange={setOpenTime}
+                    disabled={isPending || is24h}
+                    ariaLabel={t('form.openingTimeAria')}
+                  />
+                </div>
+                <div className="field opening-hours-time-field">
+                  <span className="field__label">{t('form.closes')}</span>
+                  <DateTimePicker
+                    mode="time"
+                    name="closeTime"
+                    value={closeTime}
+                    onChange={setCloseTime}
+                    disabled={isPending || is24h}
+                    ariaLabel={t('form.closingTimeAria')}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
         {showVisibilitySection ? (
           <section className="editor-section card">

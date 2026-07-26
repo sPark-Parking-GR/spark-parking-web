@@ -13,7 +13,7 @@ import {
   ApiError,
   AuthRequiredError,
 } from './api'
-import { facilityFormSchema } from './facility-schema'
+import { buildFacilityFormSchema, facilityFormSchema } from './facility-schema'
 import type {
   AdminMapResponse,
   AssignTariffInput,
@@ -162,7 +162,12 @@ export async function updateFacilityAction(
     isActive: formData.get('isActive'),
   }
 
-  const parsed = facilityFormSchema.safeParse(raw)
+  // Non-business facilities are catalog-only: the form omits the booking sections, so their
+  // fields must stay absent from the payload rather than be sent as fabricated defaults.
+  const kind = formData.get('kind')
+  const isBusiness = kind === 'BUSINESS' || kind === null
+
+  const parsed = buildFacilityFormSchema(isBusiness).safeParse(raw)
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid input.' }
   }
@@ -189,14 +194,18 @@ export async function updateFacilityAction(
     address,
     lat,
     lng,
-    totalCapacity,
-    onlineQuota,
-    vehicleTypes,
-    heightRestrictionCm: heightRestrictionCm ?? null,
-    openingHours: buildOpeningHours(is24h, openTime ?? undefined, closeTime ?? undefined),
-    amenities: amenities ? amenities.split(',').map((s) => s.trim()).filter(Boolean) : [],
-    cancellationPolicy: cancellationPolicy ?? '',
     isActive: isActive ?? false,
+    ...(totalCapacity !== undefined ? { totalCapacity } : {}),
+    ...(onlineQuota !== undefined ? { onlineQuota } : {}),
+    ...(vehicleTypes && vehicleTypes.length > 0 ? { vehicleTypes } : {}),
+    ...(isBusiness && heightRestrictionCm !== undefined ? { heightRestrictionCm } : {}),
+    ...(amenities !== undefined
+      ? { amenities: amenities.split(',').map((s) => s.trim()).filter(Boolean) }
+      : {}),
+    ...(cancellationPolicy !== undefined ? { cancellationPolicy } : {}),
+    ...(isBusiness
+      ? { openingHours: buildOpeningHours(is24h, openTime ?? undefined, closeTime ?? undefined) }
+      : {}),
   }
 
   try {

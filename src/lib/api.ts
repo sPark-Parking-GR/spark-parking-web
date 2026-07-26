@@ -114,6 +114,7 @@ export interface AdminMapResponse {
 export interface AdminFacility {
   id: string
   operatorId: string
+  kind: FacilityKind
   name: string
   address: string
   lat: number

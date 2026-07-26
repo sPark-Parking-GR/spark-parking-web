@@ -25,20 +25,22 @@ export default async function EditFacilityPage({ params, searchParams }: PagePro
   const activeTab = tab === 'manage' ? 'manage' : 'overview'
 
   let facility
-  let tariffPlans
-  let assignments
-  let defaultPlan
+  let tariff
   try {
-    let plansResult
-    let assignmentsResult
-    ;[facility, plansResult, assignmentsResult] = await Promise.all([
-      getFacilityForEdit(id),
-      listTariffPlans(),
-      getFacilityTariffAssignments(id),
-    ])
-    tariffPlans = plansResult.items
-    assignments = assignmentsResult.assignments
-    defaultPlan = assignmentsResult.defaultPlan
+    facility = await getFacilityForEdit(id)
+    // Tariffs only apply to bookable facilities; catalog-only kinds skip both requests.
+    if (facility.kind === 'BUSINESS') {
+      const [plansResult, assignmentsResult] = await Promise.all([
+        listTariffPlans(),
+        getFacilityTariffAssignments(id),
+      ])
+      tariff = {
+        facilityId: id,
+        assignments: assignmentsResult.assignments,
+        defaultPlan: assignmentsResult.defaultPlan,
+        tariffPlans: plansResult.items,
+      }
+    }
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     if (err instanceof ApiError && (err.status === 404 || err.status === 403)) notFound()
@@ -65,7 +67,7 @@ export default async function EditFacilityPage({ params, searchParams }: PagePro
           mode="edit"
           facility={facility}
           isPlatformAdmin={isPlatformAdmin}
-          tariff={{ facilityId: id, assignments, defaultPlan, tariffPlans }}
+          tariff={tariff}
         />
       ) : (
         <FacilityOverviewPanel facility={facility} />
