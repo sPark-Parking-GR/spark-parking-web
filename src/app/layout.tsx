@@ -22,7 +22,7 @@ const montserratAlternates = Montserrat_Alternates({
 })
 
 export const metadata: Metadata = {
-  title: 'sPark Admin',
+  title: 'sPark Portal',
   description: 'Operator and platform administration for sPark.',
   icons: { icon: '/icon.png', apple: '/icon.png' },
 }
