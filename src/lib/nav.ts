@@ -11,10 +11,8 @@ export type NavIcon =
   | 'audit'
 
 export interface NavItem {
-  label: string
   href: string
   icon: NavIcon
-  description: string
   roles: UserRole[]
 }
 
@@ -23,14 +21,14 @@ const OPERATOR_ADMIN_ROLES: UserRole[] = ['operator_admin', 'platform_admin']
 const PLATFORM_ADMIN_ROLES: UserRole[] = ['platform_admin']
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: 'Overview', href: '/dashboard', icon: 'overview', description: 'Snapshot of your parking operations', roles: OPERATOR_ROLES },
-  { label: 'Facilities', href: '/dashboard/facilities', icon: 'facilities', description: 'Manage your parking facilities and locations', roles: OPERATOR_ADMIN_ROLES },
-  { label: 'Tariffs', href: '/dashboard/tariffs', icon: 'tariffs', description: 'Pricing plans, rates and caps', roles: OPERATOR_ADMIN_ROLES },
-  { label: 'Bookings', href: '/dashboard/bookings', icon: 'bookings', description: 'Active and past customer bookings', roles: OPERATOR_ROLES },
-  { label: 'Operators', href: '/dashboard/operators', icon: 'operators', description: 'Platform operator accounts', roles: PLATFORM_ADMIN_ROLES },
-  { label: 'Onboarding', href: '/dashboard/onboarding', icon: 'onboarding', description: 'Invite new operator businesses onto sPark', roles: PLATFORM_ADMIN_ROLES },
-  { label: 'Analytics', href: '/dashboard/analytics', icon: 'analytics', description: 'Revenue and occupancy insights', roles: PLATFORM_ADMIN_ROLES },
-  { label: 'Audit log', href: '/dashboard/audit', icon: 'audit', description: 'Security and change history', roles: PLATFORM_ADMIN_ROLES },
+  { href: '/dashboard', icon: 'overview', roles: OPERATOR_ROLES },
+  { href: '/dashboard/facilities', icon: 'facilities', roles: OPERATOR_ADMIN_ROLES },
+  { href: '/dashboard/tariffs', icon: 'tariffs', roles: OPERATOR_ADMIN_ROLES },
+  { href: '/dashboard/bookings', icon: 'bookings', roles: OPERATOR_ROLES },
+  { href: '/dashboard/operators', icon: 'operators', roles: PLATFORM_ADMIN_ROLES },
+  { href: '/dashboard/onboarding', icon: 'onboarding', roles: PLATFORM_ADMIN_ROLES },
+  { href: '/dashboard/analytics', icon: 'analytics', roles: PLATFORM_ADMIN_ROLES },
+  { href: '/dashboard/audit', icon: 'audit', roles: PLATFORM_ADMIN_ROLES },
 ]
 
 export function navForRole(role: UserRole): NavItem[] {

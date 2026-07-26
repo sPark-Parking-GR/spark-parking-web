@@ -33,7 +33,14 @@ export class AuthRequiredError extends Error {
 
 export type FacilityKind = 'BUSINESS' | 'FREE_PUBLIC' | 'RESTRICTED' | 'UNKNOWN'
 export type FacilitySource = 'OSM' | 'GOOGLE' | 'MANUAL' | null
-export type BulkFacilityAction = 'enable' | 'disable' | 'deploy' | 'delete' | 'assignTariff'
+export type BulkFacilityAction =
+  | 'enable'
+  | 'disable'
+  | 'deploy'
+  | 'publish'
+  | 'unpublish'
+  | 'delete'
+  | 'assignTariff'
 
 // Prisma VehicleType enum casing, used only by the facility tariff-assignment endpoints.
 // Distinct from the lowercase @spark/types VehicleType used elsewhere (tariff plans, quotes).

@@ -158,7 +158,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
           {isPlatformAdmin ? (
             <FacilitiesManager items={items} tariffPlans={tariffPlans} />
           ) : (
-            <FacilityCardGrid items={items} />
+            <FacilityCardGrid items={items} role={session.user.role} />
           )}
           <Pagination skip={skip} take={PAGE_SIZE} total={total} buildHref={buildHref} sticky />
         </>

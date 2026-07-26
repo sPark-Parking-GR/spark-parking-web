@@ -3509,7 +3509,8 @@ td.table-amount {
 .map-view__legend {
   position: absolute;
   top: var(--space-sm);
-  left: var(--space-sm);
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: var(--space-md);
   padding: var(--space-xs) var(--space-sm);
@@ -3782,6 +3783,34 @@ td.table-amount {
   border-color: var(--pri);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+}
+
+.facility-card-tile {
+  position: relative;
+}
+
+.facility-card-tile.is-selected .facility-card {
+  border-color: var(--pri);
+  box-shadow: var(--shadow-md);
+}
+
+.facility-card__select {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.facility-card-tile:hover .facility-card__select,
+.facility-card-tile:focus-within .facility-card__select,
+.facility-card__select:has(input:checked) {
+  opacity: 1;
 }
 
 .facility-card__header {
