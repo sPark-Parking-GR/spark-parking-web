@@ -23,7 +23,17 @@ export function Pagination({ skip, take, total, buildHref, sticky = false }: Pro
       style={{ background: 'none' }}
       aria-label="Pagination"
     >
-      <section style={{ display: 'flex', alignItems: 'center', gap: '2rem' , justifyContent: 'center', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-lg)', backgroundColor: "var(--color-bg)"}}>
+      <section
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '2rem',
+          justifyContent: 'center',
+          padding: '0.75rem 1.5rem',
+          borderRadius: 'var(--radius-lg)',
+          backgroundColor: 'var(--color-bg)',
+        }}
+      >
         {hasPrev ? (
           <Link
             href={buildHref(Math.max(0, skip - take))}

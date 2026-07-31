@@ -13,7 +13,12 @@ interface Props {
   delay?: number
 }
 
-export function SearchInput({ param = 'q', placeholder = 'Search…', resetParams = ['skip'], delay = 350 }: Props) {
+export function SearchInput({
+  param = 'q',
+  placeholder = 'Search…',
+  resetParams = ['skip'],
+  delay = 350,
+}: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()

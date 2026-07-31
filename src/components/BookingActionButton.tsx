@@ -36,7 +36,7 @@ export function BookingActionButton({ id, kind }: { id: string; kind: Kind }) {
       </button>
       {state && !state.ok ? (
         <span className="booking-action__error" role="alert">
-          {state.error}
+          {t(`errors.${state.errorKey}`)}
         </span>
       ) : null}
     </form>

@@ -32,10 +32,15 @@ export async function loadPage<T>(loader: () => Promise<T>, opts: LoadOptions = 
       if (err.status === 403) redirect('/login?error=restricted')
     }
   }
-  return new Promise<T>((resolve) => {resolve({ items: [], total: 0, skip: 0, take: 0 } as unknown as T)})
+  return new Promise<T>((resolve) => {
+    resolve({ items: [], total: 0, skip: 0, take: 0 } as unknown as T)
+  })
 }
 
-export function buildQuery(base: string, params: Record<string, string | number | undefined>): string {
+export function buildQuery(
+  base: string,
+  params: Record<string, string | number | undefined>,
+): string {
   const sp = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === '' || value === 0) continue

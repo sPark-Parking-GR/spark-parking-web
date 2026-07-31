@@ -36,7 +36,10 @@ export function Modal({ open, onClose, title, titleAccessory, wide, children }: 
       aria-label={title}
       onMouseDown={onClose}
     >
-      <div className={`modal${wide ? ' modal--wide' : ''}`} onMouseDown={(e) => e.stopPropagation()}>
+      <div
+        className={`modal${wide ? ' modal--wide' : ''}`}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         <div className="modal__head">
           <h2 className="h-heading">{title}</h2>
           {titleAccessory}

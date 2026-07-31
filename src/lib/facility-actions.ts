@@ -28,26 +28,40 @@ import type { OpeningHours } from '@spark/types'
 
 const FACILITIES_PATH = '/dashboard/facilities'
 
-export type FacilityActionResult = { ok: true } | { ok: false; error: string }
+export type FacilityErrorKey =
+  | 'errors.forbidden'
+  | 'errors.notFound'
+  | 'errors.invalidData'
+  | 'errors.genericError'
+  | 'errors.invalidInput'
+  | 'errors.selectAtLeastOne'
+  | 'errors.tariffPlanNotFound'
+  | 'errors.facilityOrTariffNotFound'
+  | 'errors.mapLoadFailed'
+
+export type FacilityActionResult =
+  | { ok: true }
+  | { ok: false; errorKey: FacilityErrorKey | string; detail?: string }
 
 function mapApiError(err: unknown): FacilityActionResult {
   if (err instanceof AuthRequiredError) {
     redirect('/login')
   }
   if (err instanceof ApiError) {
-    if (err.status === 403) return { ok: false, error: 'You are not allowed to set those fields.' }
-    if (err.status === 404) return { ok: false, error: 'Facility not found.' }
+    if (err.status === 403) return { ok: false, errorKey: 'errors.forbidden' }
+    if (err.status === 404) return { ok: false, errorKey: 'errors.notFound' }
     if (err.status === 400) {
       const detail = err.errors
         ?.map((issue) => (issue.path ? `${issue.path}: ${issue.message}` : issue.message))
         .join('; ')
       return {
         ok: false,
-        error: detail || err.message || 'Invalid data. Check all fields and try again.',
+        errorKey: 'errors.invalidData',
+        detail: detail || err.message || undefined,
       }
     }
   }
-  return { ok: false, error: 'Something went wrong. Please try again.' }
+  return { ok: false, errorKey: 'errors.genericError' }
 }
 
 function buildOpeningHours(
@@ -95,7 +109,7 @@ export async function createFacilityAction(
 
   const parsed = facilityFormSchema.safeParse(raw)
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid input.' }
+    return { ok: false, errorKey: parsed.error.issues[0]?.message ?? 'errors.invalidInput' }
   }
 
   const {
@@ -125,7 +139,12 @@ export async function createFacilityAction(
     vehicleTypes,
     heightRestrictionCm: heightRestrictionCm ?? null,
     openingHours: buildOpeningHours(is24h, openTime ?? undefined, closeTime ?? undefined),
-    amenities: amenities ? amenities.split(',').map((s) => s.trim()).filter(Boolean) : [],
+    amenities: amenities
+      ? amenities
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [],
     cancellationPolicy: cancellationPolicy ?? '',
     ...(operatorId ? { operatorId } : {}),
   }
@@ -169,7 +188,7 @@ export async function updateFacilityAction(
 
   const parsed = buildFacilityFormSchema(isBusiness).safeParse(raw)
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid input.' }
+    return { ok: false, errorKey: parsed.error.issues[0]?.message ?? 'errors.invalidInput' }
   }
 
   const {
@@ -200,7 +219,12 @@ export async function updateFacilityAction(
     ...(vehicleTypes && vehicleTypes.length > 0 ? { vehicleTypes } : {}),
     ...(isBusiness && heightRestrictionCm !== undefined ? { heightRestrictionCm } : {}),
     ...(amenities !== undefined
-      ? { amenities: amenities.split(',').map((s) => s.trim()).filter(Boolean) }
+      ? {
+          amenities: amenities
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean),
+        }
       : {}),
     ...(cancellationPolicy !== undefined ? { cancellationPolicy } : {}),
     ...(isBusiness
@@ -224,7 +248,7 @@ export async function bulkFacilityAction(
   ids: string[],
   assignments?: AssignTariffInput[],
 ): Promise<FacilityActionResult & { affected?: number }> {
-  if (ids.length === 0) return { ok: false, error: 'Select at least one facility.' }
+  if (ids.length === 0) return { ok: false, errorKey: 'errors.selectAtLeastOne' }
 
   try {
     const { affected } = await bulkFacilities(ids, action, assignments)
@@ -232,7 +256,7 @@ export async function bulkFacilityAction(
     return { ok: true, affected }
   } catch (err) {
     if (action === 'assignTariff' && err instanceof ApiError && err.status === 404) {
-      return { ok: false, error: 'Tariff plan not found.' }
+      return { ok: false, errorKey: 'errors.tariffPlanNotFound' }
     }
     return mapApiError(err)
   }
@@ -258,7 +282,7 @@ export async function assignTariffAction(
     await assignFacilityTariff(facilityId, vehicleType, tariffPlanId)
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
-      return { ok: false, error: 'Facility or tariff plan not found.' }
+      return { ok: false, errorKey: 'errors.facilityOrTariffNotFound' }
     }
     return mapApiError(err)
   }
@@ -270,7 +294,7 @@ export async function assignTariffAction(
 
 export type MapFacilitiesResult =
   | { ok: true; data: AdminMapResponse }
-  | { ok: false; error: string }
+  | { ok: false; errorKey: 'errors.mapLoadFailed' }
 
 export async function fetchMapFacilitiesAction(params: {
   north: number
@@ -287,7 +311,7 @@ export async function fetchMapFacilitiesAction(params: {
     return { ok: true, data }
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
-    return { ok: false, error: 'Could not load map data.' }
+    return { ok: false, errorKey: 'errors.mapLoadFailed' }
   }
 }
 

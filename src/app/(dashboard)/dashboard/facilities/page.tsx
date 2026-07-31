@@ -71,7 +71,8 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
 
   // One-facility-per-operator cap: only meaningful for an operator's own view.
   // A platform_admin isn't scoped to a single operator, so the button always shows for them.
-  const canCreateFacility = isPlatformAdmin || (await loadPage(() => listFacilities({ take: 1 }))).total === 0
+  const canCreateFacility =
+    isPlatformAdmin || (await loadPage(() => listFacilities({ take: 1 }))).total === 0
 
   const header = (
     <PageHeader

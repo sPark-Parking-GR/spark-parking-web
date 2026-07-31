@@ -236,7 +236,10 @@ export function FacilityMapView({ filters }: Props) {
                 {t('actions.enable')}
               </button>
             )}
-            <Link href={`/dashboard/facilities/${selected.id}`} className="btn btn--secondary btn--sm">
+            <Link
+              href={`/dashboard/facilities/${selected.id}`}
+              className="btn btn--secondary btn--sm"
+            >
               {t('actions.edit')}
             </Link>
           </div>

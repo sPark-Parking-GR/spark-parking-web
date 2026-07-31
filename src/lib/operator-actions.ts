@@ -17,7 +17,16 @@ export interface OperatorSummary {
   createdAt: string
 }
 
-export type OperatorActionResult = { ok: true } | { ok: false; error: string }
+export type OperatorErrorKey =
+  | 'errors.invalidOperator'
+  | 'errors.suspendForbidden'
+  | 'errors.reactivateForbidden'
+  | 'errors.operatorNotFound'
+  | 'errors.genericError'
+
+export type OperatorActionResult =
+  | { ok: true }
+  | { ok: false; errorKey: OperatorErrorKey; detail?: string }
 
 export interface OperatorFacilitySummary {
   id: string
@@ -69,20 +78,21 @@ export async function getOperatorDetailAction(id: string): Promise<OperatorDetai
 async function transitionOperator(
   id: string,
   path: 'suspend' | 'reactivate',
-  errors: { forbidden: string },
+  errors: { forbiddenKey: OperatorErrorKey },
 ): Promise<OperatorActionResult> {
-  if (!id) return { ok: false, error: 'Invalid operator.' }
+  if (!id) return { ok: false, errorKey: 'errors.invalidOperator' }
 
   try {
     await apiFetch(`/operators/${id}/${path}`, { method: 'POST' })
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     if (err instanceof ApiError) {
-      if (err.status === 403) return { ok: false, error: errors.forbidden }
-      if (err.status === 404) return { ok: false, error: 'Operator not found.' }
-      if (err.status === 409) return { ok: false, error: err.message }
+      if (err.status === 403) return { ok: false, errorKey: errors.forbiddenKey }
+      if (err.status === 404) return { ok: false, errorKey: 'errors.operatorNotFound' }
+      if (err.status === 409)
+        return { ok: false, errorKey: 'errors.genericError', detail: err.message }
     }
-    return { ok: false, error: 'Something went wrong. Please try again.' }
+    return { ok: false, errorKey: 'errors.genericError' }
   }
 
   revalidatePath(ONBOARDING_PATH)
@@ -95,7 +105,7 @@ export async function suspendOperatorAction(
 ): Promise<OperatorActionResult> {
   const id = String(formData.get('id'))
   return transitionOperator(id, 'suspend', {
-    forbidden: 'You are not allowed to suspend operators.',
+    forbiddenKey: 'errors.suspendForbidden',
   })
 }
 
@@ -105,6 +115,6 @@ export async function reactivateOperatorAction(
 ): Promise<OperatorActionResult> {
   const id = String(formData.get('id'))
   return transitionOperator(id, 'reactivate', {
-    forbidden: 'You are not allowed to reactivate operators.',
+    forbiddenKey: 'errors.reactivateForbidden',
   })
 }

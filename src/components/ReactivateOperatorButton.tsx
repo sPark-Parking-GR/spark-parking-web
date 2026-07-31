@@ -46,7 +46,7 @@ export function ReactivateOperatorButton({ id }: Props) {
         <p className="modal__text">{t('reactivate.modalText')}</p>
         {!state.ok ? (
           <p className="form-banner form-banner--error" role="alert">
-            {state.error}
+            {state.detail ?? t(state.errorKey)}
           </p>
         ) : null}
         <form action={formAction} className="modal__footer">

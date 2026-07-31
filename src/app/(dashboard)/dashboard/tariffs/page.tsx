@@ -51,7 +51,9 @@ export default async function TariffsPage({ searchParams }: PageProps) {
         <SearchInput placeholder={t('list.searchPlaceholder')} />
       </div>
       <div className="table-toolbar table-toolbar--count">
-        <span className="text-secondary table-toolbar__count">{t('list.count', { count: total })}</span>
+        <span className="text-secondary table-toolbar__count">
+          {t('list.count', { count: total })}
+        </span>
       </div>
 
       {items.length === 0 ? (

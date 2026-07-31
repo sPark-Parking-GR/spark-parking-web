@@ -27,7 +27,13 @@ export function TooltipLayer() {
       const text = el.getAttribute('data-tooltip')
       if (!text) return
       anchor.current = el
-      setTip({ text, pos: el.getAttribute('data-tooltip-pos') ?? 'top', x: -9999, y: -9999, show: true })
+      setTip({
+        text,
+        pos: el.getAttribute('data-tooltip-pos') ?? 'top',
+        x: -9999,
+        y: -9999,
+        show: true,
+      })
     }
 
     function leave(e: Event) {

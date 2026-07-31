@@ -35,7 +35,7 @@ export function SetPasswordForm({ token }: { token: string }) {
       }
 
       const result = await acceptInviteAction(token, parsed.data)
-      return { error: result.error, loginHint: result.loginHint }
+      return { error: result.detail ?? t(result.errorKey), loginHint: result.loginHint }
     },
     INITIAL_STATE,
   )

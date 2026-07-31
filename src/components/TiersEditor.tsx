@@ -18,7 +18,7 @@ function normalize(tiers: TariffTier[]): TariffTier[] {
   let cursor = 0
   return tiers.map((tier, i) => {
     const isLast = i === tiers.length - 1
-    const toMinute = isLast ? null : tier.toMinute ?? cursor + 60
+    const toMinute = isLast ? null : (tier.toMinute ?? cursor + 60)
     const next: TariffTier = { ...tier, fromMinute: cursor, toMinute }
     if (toMinute !== null) cursor = toMinute
     return next
@@ -86,7 +86,13 @@ export function TiersEditor({ tiers, onChange }: Props) {
                   <FieldInfo text={t('tiers.info.toMinutes')} />
                 </span>
                 {isLast ? (
-                  <input className="input" type="text" value={t('tiers.openEnded')} readOnly disabled />
+                  <input
+                    className="input"
+                    type="text"
+                    value={t('tiers.openEnded')}
+                    readOnly
+                    disabled
+                  />
                 ) : (
                   <input
                     className="input"
@@ -110,7 +116,7 @@ export function TiersEditor({ tiers, onChange }: Props) {
                     const unit = e.target.value as TariffTier['unit']
                     update(i, {
                       unit,
-                      blockMinutes: unit === 'per_block' ? tier.blockMinutes ?? 60 : null,
+                      blockMinutes: unit === 'per_block' ? (tier.blockMinutes ?? 60) : null,
                     })
                   }}
                 >

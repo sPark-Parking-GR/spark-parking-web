@@ -5,7 +5,7 @@ import { formatCents } from '@/lib/tariff-schema'
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
 import { Badge } from '@spark/ui'
 import { FieldInfo } from './FieldInfo'
-import type { SimulateResult } from '@/lib/tariff-api'
+import type { SimulateActionResult } from '@/lib/tariff-actions'
 import type { VehicleType } from '@spark/types'
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
   endsAt: string
   vehicleType: VehicleType
   vehicleTypes: VehicleType[]
-  result: SimulateResult | null
+  result: SimulateActionResult | null
   pending: boolean
   onChange: (patch: { startsAt?: string; endsAt?: string; vehicleType?: VehicleType }) => void
 }
@@ -127,7 +127,7 @@ export function QuoteSimulator({
         </div>
       ) : (
         <p className="simulator__warning" role="status">
-          {result.error}
+          {result.detail ?? t(result.errorKey)}
         </p>
       )}
     </aside>

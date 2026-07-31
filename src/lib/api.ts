@@ -326,9 +326,7 @@ export function bulkFacilities(
 export function getFacilityTariffAssignments(
   facilityId: string,
 ): Promise<FacilityTariffAssignmentsResponse> {
-  return apiFetch<FacilityTariffAssignmentsResponse>(
-    `/facilities/${facilityId}/tariff-assignments`,
-  )
+  return apiFetch<FacilityTariffAssignmentsResponse>(`/facilities/${facilityId}/tariff-assignments`)
 }
 
 export function assignFacilityTariff(

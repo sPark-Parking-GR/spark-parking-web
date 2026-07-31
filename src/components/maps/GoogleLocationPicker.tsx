@@ -85,7 +85,15 @@ interface MapInnerProps {
 // Rendered inside APIProvider so it can load the geocoding library alongside the map —
 // owns the one Geocoder instance and every handler that needs it (click, drag, locate-me,
 // address->pin sync), rather than splitting that state across sibling components.
-function MapInner({ lat, lng, address, mapId, onChange, onAddressChange, readOnly }: MapInnerProps) {
+function MapInner({
+  lat,
+  lng,
+  address,
+  mapId,
+  onChange,
+  onAddressChange,
+  readOnly,
+}: MapInnerProps) {
   const hasPosition = lat !== null && lng !== null
   const position = hasPosition ? { lat, lng } : null
 

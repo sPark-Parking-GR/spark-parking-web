@@ -7,7 +7,12 @@ import { FacilityForm } from '@/components/FacilityForm'
 import { DeleteFacilityButton } from '@/components/DeleteFacilityButton'
 import { FacilityDetailTabs } from '@/components/FacilityDetailTabs'
 import { FacilityOverviewPanel } from '@/components/FacilityOverviewPanel'
-import { getFacilityForEdit, getFacilityTariffAssignments, ApiError, AuthRequiredError } from '@/lib/api'
+import {
+  getFacilityForEdit,
+  getFacilityTariffAssignments,
+  ApiError,
+  AuthRequiredError,
+} from '@/lib/api'
 import { listTariffPlans } from '@/lib/tariff-api'
 import { getSession } from '@/lib/session'
 
@@ -57,10 +62,7 @@ export default async function EditFacilityPage({ params, searchParams }: PagePro
         {t('overview.backToFacilities')}
       </Link>
 
-      <PageHeader
-        title={facility.name}
-        titleAccessory={<DeleteFacilityButton id={id} />}
-      />
+      <PageHeader title={facility.name} titleAccessory={<DeleteFacilityButton id={id} />} />
       <FacilityDetailTabs active={activeTab} />
       {activeTab === 'manage' ? (
         <FacilityForm

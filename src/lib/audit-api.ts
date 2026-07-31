@@ -18,7 +18,10 @@ export interface AuditLogListResponse {
   take: number
 }
 
-export function listAuditLog(params: { skip?: number; take?: number }): Promise<AuditLogListResponse> {
+export function listAuditLog(params: {
+  skip?: number
+  take?: number
+}): Promise<AuditLogListResponse> {
   const query = new URLSearchParams()
   if (params.skip !== undefined) query.set('skip', String(params.skip))
   if (params.take !== undefined) query.set('take', String(params.take))

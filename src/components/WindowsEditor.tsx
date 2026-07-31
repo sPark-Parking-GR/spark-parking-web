@@ -55,7 +55,8 @@ export function WindowsEditor({ windows, onChange }: Props) {
   function toggleDay(index: number, bit: number) {
     const current = windows[index]
     if (!current) return
-    const nextMask = (current.dayMask & bit) === bit ? current.dayMask & ~bit : current.dayMask | bit
+    const nextMask =
+      (current.dayMask & bit) === bit ? current.dayMask & ~bit : current.dayMask | bit
     update(index, { dayMask: nextMask })
   }
 

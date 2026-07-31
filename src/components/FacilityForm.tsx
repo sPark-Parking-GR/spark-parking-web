@@ -14,6 +14,8 @@ import { MultiSelectControl } from '@/components/MultiSelectControl'
 import { VEHICLE_ICON } from '@/components/vehicle-icons'
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
 import { FacilityTariffPanel } from '@/components/FacilityTariffPanel'
+import { OperatorPicker } from '@/components/OperatorPicker'
+import type { OperatorSummary } from '@/lib/operator-actions'
 
 const VEHICLE_OPTIONS = VEHICLE_TYPE_OPTIONS.map((o) => ({ ...o, icon: VEHICLE_ICON[o.value] }))
 
@@ -29,6 +31,7 @@ interface Props {
   facility?: AdminFacility
   isPlatformAdmin: boolean
   tariff?: TariffProps
+  operators?: OperatorSummary[]
 }
 
 const INITIAL_STATE: FacilityActionResult = { ok: true }
@@ -38,7 +41,11 @@ function SubmitButton({ mode }: { mode: 'create' | 'edit' }) {
   const { pending } = useFormStatus()
   return (
     <button type="submit" className="btn btn--primary" disabled={pending}>
-      {pending ? t('form.saving') : mode === 'create' ? t('form.createFacility') : t('form.saveChanges')}
+      {pending
+        ? t('form.saving')
+        : mode === 'create'
+          ? t('form.createFacility')
+          : t('form.saveChanges')}
     </button>
   )
 }
@@ -61,8 +68,9 @@ function prefillCloseTime(facility?: AdminFacility): string {
   return first ? first.close : '20:00'
 }
 
-export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props) {
+export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operators }: Props) {
   const t = useTranslations('facilities')
+  const tOperatorStatus = useTranslations('onboarding')
   const isBusiness = mode === 'create' || facility?.kind === 'BUSINESS'
   const boundAction =
     mode === 'edit' && facility
@@ -89,6 +97,11 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
     () => facility?.cancellationPolicy ?? '',
   )
   const [operatorId, setOperatorId] = useState('')
+  const operatorOptions = (operators ?? []).map((o) => ({
+    id: o.id,
+    name: o.name,
+    subtitle: `${t('form.operatorFacilityCount', { count: o.facilityCount })} · ${tOperatorStatus(`operatorStatus.${o.status.toLowerCase()}`)}`,
+  }))
   const [lat, setLat] = useState<number | null>(facility?.lat ?? null)
   const [lng, setLng] = useState<number | null>(facility?.lng ?? null)
   const [vehicleTypes, setVehicleTypes] = useState<string[]>(
@@ -139,11 +152,11 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
   }
 
   function fieldError(name: string): string | undefined {
-    return fieldErrors[name]
+    const key = fieldErrors[name]
+    return key ? t(key) : undefined
   }
 
-  const showVisibilitySection =
-    mode === 'edit' || (mode === 'create' && isPlatformAdmin)
+  const showVisibilitySection = mode === 'edit' || (mode === 'create' && isPlatformAdmin)
 
   return (
     <div className="facility-form-layout">
@@ -151,7 +164,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
         {state && !state.ok ? (
           <p className="form-banner form-banner--error" role="alert">
             <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-            {state.error}
+            {state.detail ?? t(state.errorKey)}
           </p>
         ) : null}
         {state && state.ok && mode === 'edit' && hasSubmitted && !isPending ? (
@@ -190,7 +203,9 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
                 required
                 disabled={isPending}
               />
-              {fieldError('name') ? <span className="field__error">{fieldError('name')}</span> : null}
+              {fieldError('name') ? (
+                <span className="field__error">{fieldError('name')}</span>
+              ) : null}
             </label>
             <label className="field">
               <span className="field__label">{t('form.addressLabel')}</span>
@@ -419,16 +434,21 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff }: Props)
             {mode === 'create' && isPlatformAdmin ? (
               <label className="field">
                 <span className="field__label">{t('form.operatorIdLabel')}</span>
-                <input
-                  className="input"
-                  type="text"
-                  name="operatorId"
+                <OperatorPicker
+                  operators={operatorOptions}
                   value={operatorId}
-                  onChange={(e) => setOperatorId(e.target.value)}
+                  onChange={setOperatorId}
                   placeholder={t('form.operatorIdPlaceholder')}
+                  noResultsLabel={t('form.operatorNoMatches')}
                   disabled={isPending}
+                  className={`input${fieldError('operatorId') ? ' input--error' : ''}`}
                 />
-                <span className="editor-section__hint">{t('form.operatorIdHint')}</span>
+                <input type="hidden" name="operatorId" value={operatorId} />
+                {fieldError('operatorId') ? (
+                  <span className="field__error">{fieldError('operatorId')}</span>
+                ) : (
+                  <span className="editor-section__hint">{t('form.operatorIdHint')}</span>
+                )}
               </label>
             ) : null}
           </section>

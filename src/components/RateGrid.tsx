@@ -44,7 +44,11 @@ export function RateGrid({
           {t('rateGrid.currency')}
           <FieldInfo text={t('rateGrid.info.currency')} />
         </span>
-        <select className="input" value={currency} onChange={(e) => onChangeCurrency(e.target.value)}>
+        <select
+          className="input"
+          value={currency}
+          onChange={(e) => onChangeCurrency(e.target.value)}
+        >
           {CURRENCY_OPTIONS.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -86,7 +90,9 @@ export function RateGrid({
                         inputMode="decimal"
                         value={cell ? formatCents(cell.priceCents) : ''}
                         placeholder="—"
-                        onChange={(e) => onChangeRate(tier.key, w.key, eurosToCents(e.target.value))}
+                        onChange={(e) =>
+                          onChangeRate(tier.key, w.key, eurosToCents(e.target.value))
+                        }
                       />
                     </td>
                   )

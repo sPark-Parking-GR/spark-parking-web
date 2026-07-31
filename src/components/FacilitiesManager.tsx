@@ -93,7 +93,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
     startTransition(async () => {
       const res = await bulkFacilityAction(action, ids)
       if (!res.ok) {
-        setError(res.error)
+        setError(res.detail ?? t(res.errorKey))
         return
       }
       setSelected(new Set())
@@ -137,7 +137,11 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
         setAssignError(t('errors.loadAssignmentsFailed'))
         setAssignTarget({ ids, initialAssignments: null, defaultPlan: null })
       } else {
-        setAssignTarget({ ids, initialAssignments: result.assignments, defaultPlan: result.defaultPlan })
+        setAssignTarget({
+          ids,
+          initialAssignments: result.assignments,
+          defaultPlan: result.defaultPlan,
+        })
       }
     } finally {
       setAssignLoading(false)
@@ -150,7 +154,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
     startTransition(async () => {
       const res = await bulkFacilityAction('assignTariff', assignTarget.ids, assignments)
       if (!res.ok) {
-        setAssignError(res.error)
+        setAssignError(res.detail ?? t(res.errorKey))
         return
       }
       setSelected(new Set())
@@ -220,11 +224,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               {t('actions.delete')}
             </button>
           </div>
-          <button
-            type="button"
-            className="bulk-bar__clear"
-            onClick={() => setSelected(new Set())}
-          >
+          <button type="button" className="bulk-bar__clear" onClick={() => setSelected(new Set())}>
             {t('actions.clear')}
           </button>
         </div>
@@ -261,7 +261,10 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               return (
                 <tr key={item.id} className={isSelected ? 'is-selected' : undefined}>
                   <td className="table__check">
-                    <label className="checkbox-label" aria-label={t('table.selectOne', { name: item.name })}>
+                    <label
+                      className="checkbox-label"
+                      aria-label={t('table.selectOne', { name: item.name })}
+                    >
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -270,10 +273,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                     </label>
                   </td>
                   <td>
-                    <Link
-                      href={`/dashboard/facilities/${item.id}`}
-                      className="table-link"
-                    >
+                    <Link href={`/dashboard/facilities/${item.id}`} className="table-link">
                       {item.name}
                     </Link>
                     <span className="table__sub">{item.address}</span>
@@ -389,28 +389,20 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
       >
         {confirm ? (
           <>
-            <p className="modal__text">
-              {CONFIRM_COPY[confirm.action].body(confirm.ids.length)}
-            </p>
+            <p className="modal__text">{CONFIRM_COPY[confirm.action].body(confirm.ids.length)}</p>
             {error ? (
               <p className="form-banner form-banner--error" role="alert">
                 {error}
               </p>
             ) : null}
             <div className="modal__footer">
-              <button
-                type="button"
-                className="btn btn--secondary"
-                onClick={() => setConfirm(null)}
-              >
+              <button type="button" className="btn btn--secondary" onClick={() => setConfirm(null)}>
                 {t('actions.cancel')}
               </button>
               <button
                 type="button"
                 className={
-                  CONFIRM_COPY[confirm.action].danger
-                    ? 'btn btn--danger-solid'
-                    : 'btn btn--primary'
+                  CONFIRM_COPY[confirm.action].danger ? 'btn btn--danger-solid' : 'btn btn--primary'
                 }
                 disabled={pending}
                 onClick={() => execute(confirm.action, confirm.ids)}

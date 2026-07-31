@@ -14,7 +14,7 @@ import { RateGrid } from './RateGrid'
 import { CapsEditor } from './CapsEditor'
 import { QuoteSimulator } from './QuoteSimulator'
 import { DefaultReplacementModal } from './DefaultReplacementModal'
-import type { TariffActionResult } from '@/lib/tariff-actions'
+import type { TariffActionResult, SimulateActionResult } from '@/lib/tariff-actions'
 import type {
   TariffCap,
   TariffDraft,
@@ -22,7 +22,6 @@ import type {
   TariffRate,
   TariffTier,
   TariffWindow,
-  SimulateResult,
 } from '@/lib/tariff-api'
 import type { VehicleType } from '@spark/types'
 
@@ -106,7 +105,11 @@ function SubmitButton({ mode }: { mode: 'create' | 'edit' }) {
   const t = useTranslations('tariffs')
   return (
     <button type="submit" className="btn btn--primary" disabled={pending}>
-      {pending ? t('editor.saving') : mode === 'create' ? t('editor.createPlan') : t('editor.saveChanges')}
+      {pending
+        ? t('editor.saving')
+        : mode === 'create'
+          ? t('editor.createPlan')
+          : t('editor.saveChanges')}
     </button>
   )
 }
@@ -177,15 +180,15 @@ export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = fals
   const [endsAt, setEndsAt] = useState(simWindow.endsAt)
   const [vehicleType, setVehicleType] = useState<VehicleType>(draft.vehicleTypes[0] ?? 'car')
 
-  const [simResult, setSimResult] = useState<SimulateResult | null>(null)
+  const [simResult, setSimResult] = useState<SimulateActionResult | null>(null)
   const [simPending, setSimPending] = useState(false)
 
   const clientValidation = useMemo(() => {
     const parsed = tariffDraftSchema.safeParse(draft)
     return parsed.success
       ? { ok: true as const, issues: [] as string[] }
-      : { ok: false as const, issues: parsed.error.issues.map((i) => i.message) }
-  }, [draft])
+      : { ok: false as const, issues: parsed.error.issues.map((i) => t(i.message)) }
+  }, [draft, t])
 
   // WHY: the simulated vehicle must remain one the plan still accepts.
   useEffect(() => {
@@ -206,7 +209,7 @@ export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = fals
           if (id === runId.current) setSimResult(res)
         })
         .catch(() => {
-          if (id === runId.current) setSimResult({ ok: false, error: t('editor.simulationError') })
+          if (id === runId.current) setSimResult({ ok: false, errorKey: 'editor.simulationError' })
         })
         .finally(() => {
           if (id === runId.current) setSimPending(false)
@@ -232,7 +235,7 @@ export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = fals
         {state && !state.ok && !state.requiresDefaultReplacement ? (
           <p className="form-banner form-banner--error" role="alert">
             <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-            {state.error}
+            {state.detail ?? t(state.errorKey)}
           </p>
         ) : null}
 
@@ -251,7 +254,10 @@ export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = fals
         ) : null}
 
         <PlanMetaFields draft={draft} onChange={(patch) => dispatch({ type: 'meta', patch })} />
-        <WindowsEditor windows={draft.windows} onChange={(windows) => dispatch({ type: 'windows', windows })} />
+        <WindowsEditor
+          windows={draft.windows}
+          onChange={(windows) => dispatch({ type: 'windows', windows })}
+        />
         <TiersEditor tiers={draft.tiers} onChange={(tiers) => dispatch({ type: 'tiers', tiers })} />
         <RateGrid
           tiers={draft.tiers}
@@ -276,7 +282,9 @@ export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = fals
                 className="input"
                 type="text"
                 value={draft.operatorId ?? ''}
-                onChange={(e) => dispatch({ type: 'meta', patch: { operatorId: e.target.value || undefined } })}
+                onChange={(e) =>
+                  dispatch({ type: 'meta', patch: { operatorId: e.target.value || undefined } })
+                }
               />
             </label>
           </section>
@@ -306,7 +314,7 @@ export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = fals
       <ReplacementModalStatus
         open={showReplacementModal}
         candidates={replacementCandidates}
-        error={!state.ok && newDefaultPlanId ? state.error : null}
+        error={!state.ok && newDefaultPlanId ? (state.detail ?? t(state.errorKey)) : null}
         onClose={() => setNewDefaultPlanId(undefined)}
         onConfirm={handleReplacementConfirm}
       />

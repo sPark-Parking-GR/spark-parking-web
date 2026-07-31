@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useActionState } from 'react'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
@@ -12,29 +13,35 @@ const INITIAL_STATE: LoginState = { error: null }
 export function LoginForm({ from }: { from?: string }) {
   const t = useTranslations('login')
 
-  const [state, formAction, isPending] = useActionState(async (_prev: LoginState, formData: FormData): Promise<LoginState> => {
-    const credentialsSchema = z.object({
-      email: z.string().trim().email(t('emailInvalid')),
-      password: z.string().min(1, t('passwordRequired')),
-    })
+  const [state, formAction, isPending] = useActionState(
+    async (_prev: LoginState, formData: FormData): Promise<LoginState> => {
+      const credentialsSchema = z.object({
+        email: z.string().trim().email(t('emailInvalid')),
+        password: z.string().min(1, t('passwordRequired')),
+      })
 
-    const parsed = credentialsSchema.safeParse({
-      email: formData.get('email'),
-      password: formData.get('password'),
-    })
+      const parsed = credentialsSchema.safeParse({
+        email: formData.get('email'),
+        password: formData.get('password'),
+      })
 
-    if (!parsed.success) {
-      return { error: parsed.error.issues[0]?.message ?? t('credentialsInvalid') }
-    }
+      if (!parsed.success) {
+        return { error: parsed.error.issues[0]?.message ?? t('credentialsInvalid') }
+      }
 
-    const fromField = formData.get('from')
-    const result = await signInAction(parsed.data, typeof fromField === 'string' ? fromField : undefined)
-    if (!result.ok) {
-      return { error: result.error }
-    }
+      const fromField = formData.get('from')
+      const result = await signInAction(
+        parsed.data,
+        typeof fromField === 'string' ? fromField : undefined,
+      )
+      if (!result.ok) {
+        return { error: t(result.errorKey) }
+      }
 
-    return { error: null }
-  }, INITIAL_STATE)
+      return { error: null }
+    },
+    INITIAL_STATE,
+  )
 
   return (
     <form action={formAction} className="auth-form" noValidate>
@@ -78,7 +85,9 @@ export function LoginForm({ from }: { from?: string }) {
         {isPending ? t('signingIn') : t('signIn')}
       </button>
 
-      <p className="auth-card__forgot">{t('forgot')}</p>
+      <p className="auth-card__forgot">
+        <Link href="/forgot-password">{t('forgot')}</Link>
+      </p>
     </form>
   )
 }

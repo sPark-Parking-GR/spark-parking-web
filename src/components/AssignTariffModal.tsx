@@ -7,7 +7,12 @@ import { Info } from 'lucide-react'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import { VEHICLE_ICON } from './vehicle-icons'
-import type { AssignTariffInput, FacilityTariffAssignment, FacilityTariffPlan, FacilityVehicleType } from '@/lib/api'
+import type {
+  AssignTariffInput,
+  FacilityTariffAssignment,
+  FacilityTariffPlan,
+  FacilityVehicleType,
+} from '@/lib/api'
 import type { VehicleType } from '@spark/types'
 
 interface Props {
@@ -28,7 +33,9 @@ const NO_PLAN = '__no_plan__'
 
 const VEHICLE_TYPES: FacilityVehicleType[] = ['CAR', 'MOTORCYCLE', 'VAN', 'TRUCK']
 
-function rowsFor(t: ReturnType<typeof useTranslations>): { vehicleType: FacilityVehicleType; label: string }[] {
+function rowsFor(
+  t: ReturnType<typeof useTranslations>,
+): { vehicleType: FacilityVehicleType; label: string }[] {
   return [
     { vehicleType: 'CAR', label: t('vehicleTypes.car') },
     { vehicleType: 'MOTORCYCLE', label: t('vehicleTypes.motorcycle') },
@@ -37,13 +44,15 @@ function rowsFor(t: ReturnType<typeof useTranslations>): { vehicleType: Facility
   ]
 }
 
-function feasiblePlans(plans: FacilityTariffPlan[], vehicleType: FacilityVehicleType): FacilityTariffPlan[] {
+function feasiblePlans(
+  plans: FacilityTariffPlan[],
+  vehicleType: FacilityVehicleType,
+): FacilityTariffPlan[] {
   // Plan.vehicleTypes comes from the tariff-plan wire contract (lowercase, e.g. "car"),
   // while facility-assignment vehicle types are uppercase ("CAR") — normalize to compare.
   return plans.filter(
     (p) =>
-      p.vehicleTypes.length === 0 ||
-      p.vehicleTypes.some((v) => v.toUpperCase() === vehicleType),
+      p.vehicleTypes.length === 0 || p.vehicleTypes.some((v) => v.toUpperCase() === vehicleType),
   )
 }
 
@@ -200,7 +209,12 @@ export function AssignTariffModal({
         <button type="button" className="btn btn--secondary" onClick={onClose} disabled={pending}>
           {t('actions.cancel')}
         </button>
-        <button type="button" className="btn btn--primary" disabled={pending} onClick={handleSubmit}>
+        <button
+          type="button"
+          className="btn btn--primary"
+          disabled={pending}
+          onClick={handleSubmit}
+        >
           {pending ? (
             <>
               <Spinner size={15} />

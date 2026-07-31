@@ -10,7 +10,7 @@ const isoDateString = z
   .string()
   .trim()
   .min(1)
-  .refine((v) => !Number.isNaN(Date.parse(v)), 'Enter a valid date.')
+  .refine((v) => !Number.isNaN(Date.parse(v)), 'validation.dateInvalid')
 
 const tierSchema = z.object({
   key: z.string().min(1),
@@ -22,7 +22,7 @@ const tierSchema = z.object({
 
 const windowSchema = z.object({
   key: z.string().min(1),
-  label: z.string().trim().min(1, 'Window label is required.'),
+  label: z.string().trim().min(1, 'validation.windowLabelRequired'),
   dayMask: z.number().int().min(0).max(127),
   startMinute: z.number().int().min(0).max(1439),
   endMinute: z.number().int().min(0).max(1440),
@@ -31,45 +31,53 @@ const windowSchema = z.object({
 const rateSchema = z.object({
   tierKey: z.string().min(1),
   windowKey: z.string().min(1),
-  priceCents: z.number().int().min(0, 'Price must be 0 or greater.'),
+  priceCents: z.number().int().min(0, 'validation.priceMin'),
   currency: z.string().trim().min(1),
 })
 
 const capSchema = z.object({
-  windowMinutes: z.number().int().positive('Cap window must be greater than 0.'),
-  capCents: z.number().int().min(0, 'Cap amount must be 0 or greater.'),
+  windowMinutes: z.number().int().positive('validation.capWindowMin'),
+  capCents: z.number().int().min(0, 'validation.capAmountMin'),
   scope: z.enum(CAP_SCOPES),
 })
 
 export const tariffDraftSchema = z
   .object({
-    name: z.string().trim().min(1, 'Plan name is required.'),
+    name: z.string().trim().min(1, 'validation.planNameRequired'),
     // Only honored for platform-admin callers; operator callers infer it from scope.
     operatorId: z.string().trim().min(1).optional(),
     isActive: z.boolean(),
     isDefault: z.boolean(),
     validFrom: isoDateString.nullable(),
     validTo: isoDateString.nullable(),
-    timezone: z.string().trim().min(1, 'Timezone is required.'),
-    graceMinutes: z.number().int().min(0, 'Grace minutes must be 0 or greater.'),
-    incrementMinutes: z.number().int().positive('Increment minutes must be at least 1.'),
+    timezone: z.string().trim().min(1, 'validation.timezoneRequired'),
+    graceMinutes: z.number().int().min(0, 'validation.graceMinutesMin'),
+    incrementMinutes: z.number().int().positive('validation.incrementMinutesMin'),
     // Empty means "prices every vehicle type" — required for a default-eligible plan.
     vehicleTypes: z.array(z.enum(VEHICLE_TYPES)),
-    tiers: z.array(tierSchema).min(1, 'Add at least one tier.'),
-    windows: z.array(windowSchema).min(1, 'Add at least one window.'),
+    tiers: z.array(tierSchema).min(1, 'validation.tiersRequired'),
+    windows: z.array(windowSchema).min(1, 'validation.windowsRequired'),
     rates: z.array(rateSchema),
     caps: z.array(capSchema),
   })
   .superRefine((draft, ctx) => {
-    if (draft.validFrom && draft.validTo && Date.parse(draft.validFrom) >= Date.parse(draft.validTo)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['validTo'], message: 'Valid-to must be after valid-from.' })
+    if (
+      draft.validFrom &&
+      draft.validTo &&
+      Date.parse(draft.validFrom) >= Date.parse(draft.validTo)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['validTo'],
+        message: 'validation.validToAfterValidFrom',
+      })
     }
 
     if (draft.isDefault && draft.vehicleTypes.length > 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['isDefault'],
-        message: 'A default plan cannot restrict vehicle types.',
+        message: 'validation.defaultPlanNoVehicleRestriction',
       })
     }
 
@@ -78,13 +86,13 @@ export const tariffDraftSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['tiers'],
-        message: 'There must be exactly one open-ended tier (no upper bound).',
+        message: 'validation.exactlyOneOpenEndedTier',
       })
     } else if (draft.tiers[draft.tiers.length - 1]?.toMinute !== null) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['tiers'],
-        message: 'The open-ended tier must be the last tier.',
+        message: 'validation.openEndedTierMustBeLast',
       })
     }
 
@@ -94,7 +102,7 @@ export const tariffDraftSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['tiers', i, 'fromMinute'],
-          message: 'Tiers must tile the duration axis contiguously with no gaps or overlaps.',
+          message: 'validation.tiersMustBeContiguous',
         })
       }
       if (tier.toMinute !== null) {
@@ -102,7 +110,7 @@ export const tariffDraftSchema = z
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['tiers', i, 'toMinute'],
-            message: 'Tier end must be after its start.',
+            message: 'validation.tierEndAfterStart',
           })
         }
         cursor = tier.toMinute
@@ -111,7 +119,7 @@ export const tariffDraftSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['tiers', i, 'blockMinutes'],
-          message: 'Per-block tiers need a positive block size.',
+          message: 'validation.perBlockNeedsBlockSize',
         })
       }
     })
@@ -122,7 +130,7 @@ export const tariffDraftSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['windows', i, 'key'],
-          message: 'Window keys must be unique.',
+          message: 'validation.windowKeysUnique',
         })
       }
       windowKeys.add(w.key)
@@ -134,7 +142,7 @@ export const tariffDraftSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['rates'],
-        message: 'Every tier × window cell needs a price. The rate grid is incomplete.',
+        message: 'validation.rateGridIncomplete',
       })
     } else {
       for (const tier of draft.tiers) {
@@ -143,7 +151,7 @@ export const tariffDraftSchema = z
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               path: ['rates'],
-              message: 'Every tier × window cell needs a price. The rate grid is incomplete.',
+              message: 'validation.rateGridIncomplete',
             })
           }
         }

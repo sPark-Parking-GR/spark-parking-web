@@ -20,7 +20,15 @@ function buildDefaultDraft(name: string, windowLabel: string): TariffDraft {
     incrementMinutes: 60,
     vehicleTypes: ['car'],
     tiers: [{ key: tierKey, fromMinute: 0, toMinute: null, unit: 'per_block', blockMinutes: 60 }],
-    windows: [{ key: windowKey, label: windowLabel, dayMask: ALL_DAYS_MASK, startMinute: 0, endMinute: 1440 }],
+    windows: [
+      {
+        key: windowKey,
+        label: windowLabel,
+        dayMask: ALL_DAYS_MASK,
+        startMinute: 0,
+        endMinute: 1440,
+      },
+    ],
     rates: [{ tierKey, windowKey, priceCents: 0, currency: 'EUR' }],
     caps: [],
   }

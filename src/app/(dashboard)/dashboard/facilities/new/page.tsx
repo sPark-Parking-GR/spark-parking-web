@@ -5,6 +5,7 @@ import { FacilityForm } from '@/components/FacilityForm'
 import { getSession } from '@/lib/session'
 import { listFacilities } from '@/lib/api'
 import { loadPage } from '@/lib/dal'
+import { listOperatorsAction } from '@/lib/operator-actions'
 
 export default async function NewFacilityPage() {
   const t = await getTranslations('facilities')
@@ -22,10 +23,12 @@ export default async function NewFacilityPage() {
     }
   }
 
+  const operators = isPlatformAdmin ? await listOperatorsAction() : undefined
+
   return (
     <>
       <PageHeader title={t('actions.newFacility')} />
-      <FacilityForm mode="create" isPlatformAdmin={isPlatformAdmin} />
+      <FacilityForm mode="create" isPlatformAdmin={isPlatformAdmin} operators={operators} />
     </>
   )
 }

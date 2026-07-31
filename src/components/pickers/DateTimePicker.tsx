@@ -103,7 +103,9 @@ export function DateTimePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <span className={`picker-trigger__value${display ? '' : ' picker-trigger__value--placeholder'}`}>
+        <span
+          className={`picker-trigger__value${display ? '' : ' picker-trigger__value--placeholder'}`}
+        >
           {display || placeholder || 'Select…'}
         </span>
         <Icon size={16} strokeWidth={2} className="picker-trigger__icon" aria-hidden="true" />
@@ -117,12 +119,20 @@ export function DateTimePicker({
           {showTime ? (
             <div className="picker-pop__time">
               {mode === 'datetime' ? <span className="picker-pop__label">Time</span> : null}
-              <TimeColumns hour={base.getHours()} minute={base.getMinutes()} onChange={selectTime} />
+              <TimeColumns
+                hour={base.getHours()}
+                minute={base.getMinutes()}
+                onChange={selectTime}
+              />
             </div>
           ) : null}
         </div>
         <div className="picker-pop__footer">
-          <button type="button" className="btn btn--secondary btn--sm" onClick={() => setOpen(false)}>
+          <button
+            type="button"
+            className="btn btn--secondary btn--sm"
+            onClick={() => setOpen(false)}
+          >
             Done
           </button>
         </div>

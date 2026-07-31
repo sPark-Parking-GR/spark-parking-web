@@ -17,7 +17,10 @@ function detectLocaleFromHeader(acceptLanguage: string | null): Locale | undefin
   return undefined
 }
 
-export function resolveLocale(cookieValue: string | undefined, acceptLanguage: string | null): Locale {
+export function resolveLocale(
+  cookieValue: string | undefined,
+  acceptLanguage: string | null,
+): Locale {
   if (isLocale(cookieValue)) return cookieValue
   return detectLocaleFromHeader(acceptLanguage) ?? defaultLocale
 }

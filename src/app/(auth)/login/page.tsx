@@ -5,11 +5,15 @@ import { LoginForm } from '@/components/LoginForm'
 import { SparkMark } from '@/components/SparkMark'
 
 interface LoginPageProps {
-  searchParams: Promise<{ from?: string; error?: 'forbidden' | 'restricted' }>
+  searchParams: Promise<{
+    from?: string
+    error?: 'forbidden' | 'restricted'
+    reset?: 'success'
+  }>
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { from, error } = await searchParams
+  const { from, error, reset } = await searchParams
   const t = await getTranslations('login')
 
   return (
@@ -42,6 +46,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         {error === 'restricted' ? (
           <p className="auth-alert" role="alert">
             {t('restrictedMessage')}
+          </p>
+        ) : null}
+        {reset === 'success' ? (
+          <p className="auth-card__context" role="status">
+            {t('resetSuccess')}
           </p>
         ) : null}
 

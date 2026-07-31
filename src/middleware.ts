@@ -22,5 +22,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  matcher: ['/((?!login|invite|_next/static|_next/image|favicon.ico|api/auth|.*\\..*).*)'],
+  matcher: [
+    '/((?!login|invite|forgot-password|reset-password|_next/static|_next/image|favicon.ico|api/auth|.*\\..*).*)',
+  ],
 }

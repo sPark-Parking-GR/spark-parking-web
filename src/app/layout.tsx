@@ -41,7 +41,10 @@ const themeStyle = `
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
   const headerStore = await headers()
-  const locale = resolveLocale(cookieStore.get('spark-lang')?.value, headerStore.get('accept-language'))
+  const locale = resolveLocale(
+    cookieStore.get('spark-lang')?.value,
+    headerStore.get('accept-language'),
+  )
   const messages = (await import(`../../messages/${locale}.json`)).default
 
   return (

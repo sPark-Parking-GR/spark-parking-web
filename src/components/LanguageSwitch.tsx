@@ -24,12 +24,5 @@ export function LanguageSwitch() {
     })
   }
 
-  return (
-    <SegmentedControl
-      options={OPTIONS}
-      value={locale}
-      onChange={handleChange}
-      size="md"
-    />
-  )
+  return <SegmentedControl options={OPTIONS} value={locale} onChange={handleChange} size="md" />
 }

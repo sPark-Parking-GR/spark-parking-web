@@ -14,7 +14,11 @@ export function formatRelativeTime(iso: string, t: Translator): string {
   if (days === 1) return t('time.yesterday')
   if (days < 7) return t('time.daysAgo', { count: days })
 
-  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date)
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
 }
 
 const ACTION_LABEL_KEYS: Record<string, string> = {
@@ -49,7 +53,8 @@ export function actionLabel(t: Translator, action: string): string {
 export type AuditTone = 'primary' | 'success' | 'warning' | 'danger'
 
 export function actionTone(action: string): AuditTone {
-  if (/deleted|deactivated|cancelled|unassigned|bulk\.delete|bulk\.disable/.test(action)) return 'danger'
+  if (/deleted|deactivated|cancelled|unassigned|bulk\.delete|bulk\.disable/.test(action))
+    return 'danger'
   if (/created|confirmed|assigned|bulk\.enable|bulk\.deploy/.test(action)) return 'success'
   if (/updated|refunded/.test(action)) return 'warning'
   return 'primary'

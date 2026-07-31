@@ -34,12 +34,7 @@ export function InviteForm() {
   )
 
   return (
-    <form
-      ref={formRef}
-      action={formAction}
-      onSubmit={() => setHasSubmitted(true)}
-      noValidate
-    >
+    <form ref={formRef} action={formAction} onSubmit={() => setHasSubmitted(true)} noValidate>
       <section className="editor-section card">
         <div className="editor-section__head">
           <h3 className="h-heading">{t('form.heading')}</h3>
@@ -48,7 +43,7 @@ export function InviteForm() {
         {hasSubmitted && !isPending && !state.ok ? (
           <p className="form-banner form-banner--error" role="alert">
             <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-            {state.error}
+            {state.detail ?? t(state.errorKey)}
           </p>
         ) : null}
         {hasSubmitted && !isPending && state.ok ? (

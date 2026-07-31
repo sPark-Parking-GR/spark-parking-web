@@ -73,8 +73,19 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
         </div>
 
         <div className="stat-grid facility-overview__stats">
-          <StatCard label={t('stats.totalSpots')} value={String(facility.totalCapacity)} icon={Car} tone="primary" />
-          <StatCard label={t('stats.onlineQuota')} value={String(facility.onlineQuota)} icon={Car} tone="success" index={1} />
+          <StatCard
+            label={t('stats.totalSpots')}
+            value={String(facility.totalCapacity)}
+            icon={Car}
+            tone="primary"
+          />
+          <StatCard
+            label={t('stats.onlineQuota')}
+            value={String(facility.onlineQuota)}
+            icon={Car}
+            tone="success"
+            index={1}
+          />
           <StatCard
             label={t('stats.vehicleTypes')}
             value={
@@ -90,8 +101,12 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
 
       <div className="panel-row">
         <Card>
-          <h3 className="panel-card__title facility-overview__section-title">{t('overview.activeHours')}</h3>
-          <p className="text-secondary facility-overview__hours-sub">{t('overview.activeHoursSub')}</p>
+          <h3 className="panel-card__title facility-overview__section-title">
+            {t('overview.activeHours')}
+          </h3>
+          <p className="text-secondary facility-overview__hours-sub">
+            {t('overview.activeHoursSub')}
+          </p>
           <div className="facility-hours-list">
             {hoursRows.map((row) => (
               <div key={row.day} className="facility-hours-row">
@@ -109,7 +124,9 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
         </Card>
 
         <Card>
-          <h3 className="panel-card__title facility-overview__section-title">{t('overview.onlineAvailability')}</h3>
+          <h3 className="panel-card__title facility-overview__section-title">
+            {t('overview.onlineAvailability')}
+          </h3>
           <div className="facility-overview__ring">
             <ProgressRing pct={onlinePct}>
               <span className="facility-overview__ring-value">{onlinePct}%</span>
@@ -125,7 +142,9 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
       </div>
 
       <Card style={{ marginTop: 24 }}>
-        <h3 className="panel-card__title facility-overview__section-title">{t('overview.amenities')}</h3>
+        <h3 className="panel-card__title facility-overview__section-title">
+          {t('overview.amenities')}
+        </h3>
         {facility.amenities.length === 0 ? (
           <p className="text-secondary">{t('overview.noAmenities')}</p>
         ) : (

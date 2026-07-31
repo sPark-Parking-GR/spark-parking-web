@@ -11,31 +11,40 @@ import {
   getTariffAssignments,
 } from './tariff-api'
 import { tariffDraftSchema } from './tariff-schema'
-import type { SimulateRequest, SimulateResult, PlanAssignments } from './tariff-api'
+import type { SimulateRequest, SimulateQuote, PlanAssignments } from './tariff-api'
 
 const TARIFFS_PATH = '/dashboard/tariffs'
 
 export type TariffActionResult =
   | { ok: true }
-  | { ok: false; error: string; requiresDefaultReplacement?: boolean }
+  | { ok: false; errorKey: string; detail?: string; requiresDefaultReplacement?: boolean }
 
 function mapApiError(err: unknown): TariffActionResult {
   if (err instanceof AuthRequiredError) {
     redirect('/login')
   }
   if (err instanceof ApiError) {
-    if (err.status === 403) return { ok: false, error: 'You are not allowed to manage this plan.' }
-    if (err.status === 404) return { ok: false, error: 'Tariff plan not found.' }
+    if (err.status === 403) return { ok: false, errorKey: 'errors.forbidden' }
+    if (err.status === 404) return { ok: false, errorKey: 'errors.notFound' }
     if (err.status === 409) {
-      return { ok: false, error: err.message, requiresDefaultReplacement: true }
+      return {
+        ok: false,
+        errorKey: 'errors.genericError',
+        detail: err.message,
+        requiresDefaultReplacement: true,
+      }
     }
     // WHY: 400 from the pricing engine carries a safe, operator-facing schedule
     // validation message (e.g. "windows do not cover 24h") — surface it verbatim.
     if (err.status === 400) {
-      return { ok: false, error: err.message || 'Invalid tariff configuration. Check the schedule and rate grid.' }
+      return {
+        ok: false,
+        errorKey: 'errors.scheduleInvalid',
+        detail: err.message || undefined,
+      }
     }
   }
-  return { ok: false, error: 'Something went wrong. Please try again.' }
+  return { ok: false, errorKey: 'errors.genericError' }
 }
 
 export async function saveTariffPlanAction(
@@ -46,19 +55,19 @@ export async function saveTariffPlanAction(
 ): Promise<TariffActionResult> {
   const rawDraft = formData.get('draft')
   if (typeof rawDraft !== 'string') {
-    return { ok: false, error: 'Missing draft payload.' }
+    return { ok: false, errorKey: 'errors.missingDraft' }
   }
 
   let json: unknown
   try {
     json = JSON.parse(rawDraft)
   } catch {
-    return { ok: false, error: 'Draft payload is not valid JSON.' }
+    return { ok: false, errorKey: 'errors.invalidJson' }
   }
 
   const parsed = tariffDraftSchema.safeParse(json)
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid tariff configuration.' }
+    return { ok: false, errorKey: parsed.error.issues[0]?.message ?? 'errors.invalidConfig' }
   }
 
   try {
@@ -102,26 +111,35 @@ export async function getTariffAssignmentsAction(planId: string): Promise<PlanAs
   }
 }
 
-export async function simulateTariffAction(body: SimulateRequest): Promise<SimulateResult> {
+export type SimulateActionResult =
+  | { ok: true; quote: SimulateQuote }
+  | { ok: false; errorKey: string; detail?: string }
+
+export async function simulateTariffAction(body: SimulateRequest): Promise<SimulateActionResult> {
   const parsed = tariffDraftSchema.safeParse(body.draft)
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Fix the tariff configuration to preview a quote.' }
+    return {
+      ok: false,
+      errorKey: parsed.error.issues[0]?.message ?? 'errors.fixConfigToPreview',
+    }
   }
 
   if (Number.isNaN(Date.parse(body.startsAt)) || Number.isNaN(Date.parse(body.endsAt))) {
-    return { ok: false, error: 'Enter a valid start and end time.' }
+    return { ok: false, errorKey: 'errors.invalidWindow' }
   }
   if (Date.parse(body.startsAt) >= Date.parse(body.endsAt)) {
-    return { ok: false, error: 'End time must be after start time.' }
+    return { ok: false, errorKey: 'errors.endBeforeStart' }
   }
 
   try {
-    return await simulateTariff({ ...body, draft: parsed.data })
+    const result = await simulateTariff({ ...body, draft: parsed.data })
+    if (result.ok) return { ok: true, quote: result.quote }
+    return { ok: false, errorKey: 'errors.quoteFailed', detail: result.error }
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     if (err instanceof ApiError) {
-      return { ok: false, error: err.message || 'Could not compute a quote.' }
+      return { ok: false, errorKey: 'errors.quoteFailed', detail: err.message || undefined }
     }
-    return { ok: false, error: 'Could not compute a quote.' }
+    return { ok: false, errorKey: 'errors.quoteFailed' }
   }
 }

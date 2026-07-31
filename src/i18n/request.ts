@@ -5,7 +5,10 @@ import { resolveLocale } from './locales'
 export default getRequestConfig(async () => {
   const cookieStore = await cookies()
   const headerStore = await headers()
-  const locale = resolveLocale(cookieStore.get('spark-lang')?.value, headerStore.get('accept-language'))
+  const locale = resolveLocale(
+    cookieStore.get('spark-lang')?.value,
+    headerStore.get('accept-language'),
+  )
 
   return {
     locale,

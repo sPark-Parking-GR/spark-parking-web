@@ -40,7 +40,7 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
     startTransition(async () => {
       const res = await bulkFacilityAction('assignTariff', [facilityId], rows)
       if (!res.ok) {
-        setError(res.error)
+        setError(res.detail ?? t(res.errorKey))
         return
       }
       setOpen(false)
@@ -69,7 +69,9 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
         <div className="tariff-strip__icons">
           {ROWS.map((row) => {
             const assignment = assignments.find((a) => a.vehicleType === row.vehicleType)
-            const hasPlan = Boolean(assignment && assignment.source !== 'none' && assignment.tariffPlanId)
+            const hasPlan = Boolean(
+              assignment && assignment.source !== 'none' && assignment.tariffPlanId,
+            )
             const tooltip = hasPlan ? assignment!.tariffPlanName : t('tariff.noPlan')
             const Icon = VEHICLE_ICON[row.vehicleType.toLowerCase() as VehicleType]
             return (
@@ -86,7 +88,12 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
         <span className="tariff-strip__hint">
           <Banknote size={15} strokeWidth={2} aria-hidden="true" />
           {t('tariff.changePlans')}
-          <ChevronRight size={16} strokeWidth={2} className="tariff-strip__chevron" aria-hidden="true" />
+          <ChevronRight
+            size={16}
+            strokeWidth={2}
+            className="tariff-strip__chevron"
+            aria-hidden="true"
+          />
         </span>
       </button>
 

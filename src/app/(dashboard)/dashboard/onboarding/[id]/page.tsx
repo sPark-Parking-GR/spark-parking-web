@@ -19,7 +19,11 @@ const OPERATOR_STATUS_VARIANT: Record<OperatorStatus, BadgeVariant> = {
   SUSPENDED: 'bad',
 }
 
-const dateFmt = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+const dateFmt = new Intl.DateTimeFormat('en-GB', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+})
 
 export default async function OperatorDetailPage({ params }: PageProps) {
   const session = await requireSession()
@@ -122,7 +126,9 @@ export default async function OperatorDetailPage({ params }: PageProps) {
                         <Link href={`/dashboard/tariffs/${p.id}`} className="table-link">
                           {p.name}
                         </Link>
-                        {p.isDefault ? <Badge variant="neutral">{tTariffs('table.default')}</Badge> : null}
+                        {p.isDefault ? (
+                          <Badge variant="neutral">{tTariffs('table.default')}</Badge>
+                        ) : null}
                       </td>
                       <td>
                         {p.isActive ? (

@@ -104,9 +104,7 @@ export interface SimulateRequest {
   vehicleType: VehicleType
 }
 
-export type SimulateResult =
-  | { ok: true; quote: SimulateQuote }
-  | { ok: false; error: string }
+export type SimulateResult = { ok: true; quote: SimulateQuote } | { ok: false; error: string }
 
 const PLANS_PATH = '/tariff-plans'
 

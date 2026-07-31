@@ -20,6 +20,15 @@
       "audit": "Security and change history"
     }
   },
+  "dateRange": {
+    "ariaLabel": "Date range",
+    "presets": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "12m": "12 months"
+    }
+  },
   "shell": {
     "brandTag": "Admin",
     "primaryNav": "Primary",
@@ -54,7 +63,37 @@
     "emailInvalid": "Enter a valid email address.",
     "passwordRequired": "Enter your password.",
     "credentialsInvalid": "Enter a valid email and password.",
-    "forgot": "Forgot password?"
+    "forgot": "Forgot password?",
+    "resetSuccess": "Password updated. Sign in with your new password.",
+    "invalidCredentials": "Invalid email or password.",
+    "signInFailed": "Unable to sign in right now. Please try again.",
+    "notAuthorized": "This account is not authorized to access the dashboard."
+  },
+  "forgotPassword": {
+    "tagline": "Make Parking Smart",
+    "title": "Reset your password",
+    "subtitle": "Enter the email address on your account and we'll send you a link to reset your password.",
+    "emailLabel": "Email",
+    "emailInvalid": "Enter a valid email address.",
+    "submit": "Send reset link",
+    "submitting": "Sending…",
+    "genericError": "Something went wrong. Please try again.",
+    "confirmation": "If an account exists for that email, we've sent a link to reset your password.",
+    "backToLogin": "Back to sign in"
+  },
+  "resetPassword": {
+    "tagline": "Make Parking Smart",
+    "title": "Set a new password",
+    "passwordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooLong": "Password must be at most 128 characters.",
+    "passwordsMismatch": "Passwords do not match.",
+    "genericError": "Something went wrong. Please try again.",
+    "invalidToken": "This link is invalid or has expired.",
+    "submit": "Update password",
+    "submitting": "Updating…",
+    "requestNewLink": "Request a new link"
   },
   "acceptInvite": {
     "tagline": "Make Parking Smart",
@@ -73,7 +112,12 @@
     "invalidMessage": "This invite link doesn't exist. Ask the platform to send a new one.",
     "invalidGenericMessage": "We couldn't load this invite. Please try again shortly.",
     "expiredTitle": "Invite expired",
-    "expiredMessage": "This invite has expired or is no longer valid. Contact the platform for a new invite."
+    "expiredMessage": "This invite has expired or is no longer valid. Contact the platform for a new invite.",
+    "alreadyUsed": "This invite was already used.",
+    "expired": "This invite has expired. Ask the platform to send a new one.",
+    "invalidLink": "This invite link is invalid.",
+    "unreachable": "Unable to reach the server right now. Please try again.",
+    "somethingWentWrong": "Something went wrong. Please try again."
   },
   "onboarding": {
     "title": "Onboard Operators",
@@ -166,6 +210,24 @@
         "role": "Role",
         "joined": "Joined"
       }
+    },
+    "errors": {
+      "sendInviteForbidden": "You are not allowed to send invites.",
+      "invalidData": "Invalid data. Check all fields.",
+      "genericError": "Something went wrong. Please try again.",
+      "invalidInvite": "Invalid invite.",
+      "revokeForbidden": "You are not allowed to revoke invites.",
+      "inviteNotFound": "Invite not found.",
+      "invalidOperator": "Invalid operator.",
+      "suspendForbidden": "You are not allowed to suspend operators.",
+      "reactivateForbidden": "You are not allowed to reactivate operators.",
+      "operatorNotFound": "Operator not found.",
+      "invalidInput": "Invalid input."
+    },
+    "validation": {
+      "businessNameRequired": "Business name is required.",
+      "businessNameTooLong": "Business name must be at most 200 characters.",
+      "emailInvalid": "Enter a valid email address."
     }
   },
   "overview": {
@@ -180,27 +242,28 @@
         "label": "Active bookings",
         "hint": "Bookings currently in progress across all facilities."
       },
-      "revenueToday": {
-        "label": "Revenue today",
-        "hint": "Confirmed revenue collected since midnight."
+      "revenue": {
+        "label": "Revenue",
+        "hint": "Net revenue collected in the selected period."
       },
       "avgOccupancy": {
         "label": "Avg occupancy",
-        "hint": "Average space occupancy across all facilities."
+        "hint": "Share of bookable capacity used across the selected period."
       }
     },
     "revenuePanel": {
-      "title": "Revenue · last 7 days",
-      "subtitle": "Daily confirmed revenue trend",
+      "title": "Revenue",
+      "subtitle": "Confirmed revenue trend for the selected period",
+      "chartLabel": "Revenue by period",
       "emptyTitle": "No revenue data yet",
       "emptyMessage": "Revenue charts arrive once booking data is available."
     },
     "occupancyPanel": {
-      "title": "Facility status",
-      "subtitle": "Online availability across facilities",
-      "emptyTitle": "No facility data yet",
-      "emptyMessage": "Facility status arrives once facility capacity is synced.",
-      "free": "{count} free"
+      "title": "Occupancy",
+      "subtitle": "How much of your bookable capacity was used",
+      "emptyTitle": "No occupancy data yet",
+      "emptyMessage": "Occupancy appears once facilities have online capacity and bookings.",
+      "detail": "{booked} of {capacity} booked"
     },
     "recentBookings": {
       "title": "Recent bookings",
@@ -208,6 +271,10 @@
       "viewAll": "View all →",
       "emptyTitle": "No recent bookings",
       "emptyMessage": "Recent activity will appear here once bookings start coming in."
+    },
+    "errors": {
+      "mixedCurrency": "This period mixes multiple currencies and can't be combined. Narrow the date range.",
+      "unknown": "Couldn't load analytics right now. Try again shortly."
     }
   },
   "facilities": {
@@ -276,7 +343,16 @@
     },
     "errors": {
       "tooManySelected": "You can act on at most 500 facilities at once. Narrow your selection.",
-      "loadAssignmentsFailed": "Could not load current tariff assignments."
+      "loadAssignmentsFailed": "Could not load current tariff assignments.",
+      "forbidden": "You are not allowed to set those fields.",
+      "notFound": "Facility not found.",
+      "invalidData": "Invalid data. Check all fields and try again.",
+      "genericError": "Something went wrong. Please try again.",
+      "invalidInput": "Invalid input.",
+      "selectAtLeastOne": "Select at least one facility.",
+      "tariffPlanNotFound": "Tariff plan not found.",
+      "facilityOrTariffNotFound": "Facility or tariff plan not found.",
+      "mapLoadFailed": "Could not load map data."
     },
     "filters": {
       "statusAria": "Filter by status",
@@ -314,9 +390,11 @@
       "closingTimeAria": "Closing time",
       "open24h": "Open 24 hours",
       "activeVisible": "Active (visible to customers)",
-      "operatorIdLabel": "Operator ID",
-      "operatorIdPlaceholder": "e.g. cmqll0p9g0000u5lwk4n67w4o",
-      "operatorIdHint": "The ParkingOperator ID this facility belongs to. See the Operators list.",
+      "operatorIdLabel": "Operator",
+      "operatorIdPlaceholder": "Search operators by name…",
+      "operatorIdHint": "The operator this facility belongs to.",
+      "operatorFacilityCount": "{count, plural, one {# facility} other {# facilities}}",
+      "operatorNoMatches": "No operators match.",
       "mapHint": "Click the map or drag the pin to set the location. The coordinates update automatically.",
       "loadingAria": "Loading facility"
     },
@@ -385,6 +463,20 @@
       "noDefaultSet": "No default set",
       "bulkFallbackHint": "Vehicle types left unassigned will fall back to each facility's own operator default plan.",
       "assign": "Assign"
+    },
+    "validation": {
+      "nameRequired": "Name is required.",
+      "addressRequired": "Address is required.",
+      "locationRequired": "Set a location on the map.",
+      "totalCapacityInvalidType": "Total capacity must be a number.",
+      "totalCapacityMin": "Total capacity must be at least 1.",
+      "onlineQuotaInvalidType": "Online quota must be a number.",
+      "onlineQuotaMin": "Online quota must be 0 or greater.",
+      "onlineQuotaExceedsCapacity": "Online quota cannot exceed total capacity.",
+      "vehicleTypesRequired": "Select at least one vehicle type.",
+      "heightRestrictionInvalidType": "Height restriction must be a number.",
+      "openTimeInvalid": "Enter a valid open time (HH:MM).",
+      "closeTimeInvalid": "Enter a valid close time (HH:MM)."
     }
   },
   "tariffs": {
@@ -586,6 +678,41 @@
       "cancel": "Cancel",
       "confirm": "Confirm",
       "saving": "Saving…"
+    },
+    "errors": {
+      "forbidden": "You are not allowed to manage this plan.",
+      "notFound": "Tariff plan not found.",
+      "genericError": "Something went wrong. Please try again.",
+      "scheduleInvalid": "Invalid tariff configuration. Check the schedule and rate grid.",
+      "missingDraft": "Missing draft payload.",
+      "invalidJson": "Draft payload is not valid JSON.",
+      "invalidConfig": "Invalid tariff configuration.",
+      "fixConfigToPreview": "Fix the tariff configuration to preview a quote.",
+      "invalidWindow": "Enter a valid start and end time.",
+      "endBeforeStart": "End time must be after start time.",
+      "quoteFailed": "Could not compute a quote."
+    },
+    "validation": {
+      "dateInvalid": "Enter a valid date.",
+      "windowLabelRequired": "Window label is required.",
+      "priceMin": "Price must be 0 or greater.",
+      "capWindowMin": "Cap window must be greater than 0.",
+      "capAmountMin": "Cap amount must be 0 or greater.",
+      "planNameRequired": "Plan name is required.",
+      "timezoneRequired": "Timezone is required.",
+      "graceMinutesMin": "Grace minutes must be 0 or greater.",
+      "incrementMinutesMin": "Increment minutes must be at least 1.",
+      "tiersRequired": "Add at least one tier.",
+      "windowsRequired": "Add at least one window.",
+      "validToAfterValidFrom": "Valid-to must be after valid-from.",
+      "defaultPlanNoVehicleRestriction": "A default plan cannot restrict vehicle types.",
+      "exactlyOneOpenEndedTier": "There must be exactly one open-ended tier (no upper bound).",
+      "openEndedTierMustBeLast": "The open-ended tier must be the last tier.",
+      "tiersMustBeContiguous": "Tiers must tile the duration axis contiguously with no gaps or overlaps.",
+      "tierEndAfterStart": "Tier end must be after its start.",
+      "perBlockNeedsBlockSize": "Per-block tiers need a positive block size.",
+      "windowKeysUnique": "Window keys must be unique.",
+      "rateGridIncomplete": "Every tier × window cell needs a price. The rate grid is incomplete."
     }
   },
   "bookings": {
@@ -593,9 +720,14 @@
     "description": "Track reservations and run check-in / check-out.",
     "filters": {
       "all": "All",
+      "pendingPayment": "Pending payment",
       "confirmed": "Confirmed",
       "checkedIn": "Checked in",
-      "checkedOut": "Checked out"
+      "checkedOut": "Checked out",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "refundPending": "Refund pending",
+      "refunded": "Refunded"
     },
     "searchPlaceholder": "Search access code or plate…",
     "count": "{count, plural, one {# booking} other {# bookings}}",
@@ -626,7 +758,57 @@
     "actions": {
       "checkIn": "Check in",
       "checkOut": "Check out",
-      "working": "Working…"
+      "working": "Working…",
+      "cancel": "Cancel"
+    },
+    "detail": {
+      "back": "Back to bookings",
+      "sections": {
+        "overview": "Overview",
+        "payment": "Payment & refund",
+        "timeline": "Status history"
+      },
+      "fields": {
+        "facility": "Facility",
+        "customer": "Customer",
+        "vehicle": "Vehicle",
+        "window": "Window",
+        "accessCode": "Access code",
+        "quotedPrice": "Quoted price",
+        "finalPrice": "Final price",
+        "adjustment": "Price adjustment"
+      },
+      "noAdjustment": "No adjustment",
+      "payment": {
+        "PENDING_PAYMENT": "Awaiting payment capture.",
+        "CONFIRMED": "Paid in full.",
+        "CHECKED_IN": "Paid in full.",
+        "CHECKED_OUT": "Paid in full — final price settled at check-out.",
+        "CANCELLED": "Cancelled before payment was captured.",
+        "EXPIRED": "Quote expired before payment was captured.",
+        "REFUND_PENDING": "Refund in progress — the provider call is still outstanding.",
+        "REFUNDED": "Refunded in full."
+      },
+      "timeline": {
+        "empty": "No status changes recorded yet.",
+        "automatic": "Automatic",
+        "changedBy": "Changed by staff · {id}"
+      },
+      "cancel": {
+        "button": "Cancel booking",
+        "modalTitle": "Cancel this booking?",
+        "modalText": "This cancels the booking immediately. If it was paid, a refund is requested from the payment provider. This cannot be undone.",
+        "confirm": "Cancel booking",
+        "cancelling": "Cancelling…"
+      }
+    },
+    "errors": {
+      "forbidden": "You are not allowed to manage this booking.",
+      "notFound": "Booking not found.",
+      "invalidState": "Booking is no longer in a state that allows this action.",
+      "refundFailed": "The refund could not be completed right now. The booking is marked refund-pending — try cancelling again to retry.",
+      "genericError": "Something went wrong. Please try again.",
+      "missingId": "Missing booking id."
     }
   },
   "insights": {
@@ -636,20 +818,21 @@
       "stats": {
         "totalRevenue": {
           "label": "Total revenue",
-          "hint": "Confirmed revenue collected across all facilities."
+          "hint": "Net revenue collected across all facilities in the selected period."
         },
         "bookings": {
           "label": "Bookings",
-          "hint": "Total bookings completed across all facilities."
+          "hint": "Total bookings completed across all facilities in the selected period."
         },
         "avgTicket": {
           "label": "Avg. ticket",
-          "hint": "Average revenue per booking across all facilities."
+          "hint": "Average revenue per booking in the selected period."
         }
       },
       "revenuePanel": {
-        "title": "Revenue · last 12 months",
-        "subtitle": "Monthly revenue trend",
+        "title": "Revenue",
+        "subtitle": "Revenue trend for the selected period",
+        "chartLabel": "Revenue by period",
         "emptyTitle": "No revenue data yet",
         "emptyMessage": "The revenue chart will populate once analytics reporting is available."
       },
@@ -657,7 +840,16 @@
         "title": "Top facilities",
         "subtitle": "Ranked by revenue",
         "emptyTitle": "No facility data yet",
-        "emptyMessage": "Facility rankings will appear once revenue data is available."
+        "emptyMessage": "Facility rankings will appear once revenue data is available.",
+        "table": {
+          "facility": "Facility",
+          "bookings": "Bookings",
+          "revenue": "Revenue"
+        }
+      },
+      "errors": {
+        "mixedCurrency": "This period mixes multiple currencies and can't be combined. Narrow the date range.",
+        "unknown": "Couldn't load analytics right now. Try again shortly."
       }
     },
     "operators": {

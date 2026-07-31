@@ -17,7 +17,13 @@ const signInSchema = z.object({
 
 export type SignInInput = z.infer<typeof signInSchema>
 
-export type SignInResult = { ok: true } | { ok: false; error: string }
+export type SignInErrorKey =
+  | 'credentialsInvalid'
+  | 'invalidCredentials'
+  | 'signInFailed'
+  | 'notAuthorized'
+
+export type SignInResult = { ok: true } | { ok: false; errorKey: SignInErrorKey }
 
 // Only same-origin absolute paths are honored. Protocol-relative (`//host`),
 // backslash-smuggled (`/\host`) and non-rooted values fall back to the home page,
@@ -31,7 +37,7 @@ function safeReturnPath(from: string | undefined): string {
 export async function signInAction(input: SignInInput, from?: string): Promise<SignInResult> {
   const parsed = signInSchema.safeParse(input)
   if (!parsed.success) {
-    return { ok: false, error: 'Enter a valid email and password.' }
+    return { ok: false, errorKey: 'credentialsInvalid' }
   }
 
   let result: AuthResult
@@ -44,16 +50,16 @@ export async function signInAction(input: SignInInput, from?: string): Promise<S
     })
 
     if (!response.ok) {
-      return { ok: false, error: 'Invalid email or password.' }
+      return { ok: false, errorKey: 'invalidCredentials' }
     }
 
     result = (await response.json()) as AuthResult
   } catch {
-    return { ok: false, error: 'Unable to sign in right now. Please try again.' }
+    return { ok: false, errorKey: 'signInFailed' }
   }
 
   if (!isDashboardRole(result.session.user.role)) {
-    return { ok: false, error: 'This account is not authorized to access the dashboard.' }
+    return { ok: false, errorKey: 'notAuthorized' }
   }
 
   await setSession({

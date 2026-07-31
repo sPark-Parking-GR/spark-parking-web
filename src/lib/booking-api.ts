@@ -32,6 +32,45 @@ export interface BookingListResponse {
   take: number
 }
 
+export interface BookingStatusHistoryEntry {
+  id: string
+  bookingId: string
+  status: BookingStatus
+  note: string | null
+  changedBy: string | null
+  changedAt: string
+}
+
+// Mirrors BookingService#getBooking exactly: the raw Booking row (no payment/refund
+// relation included) plus facility and statusHistory. Payment and refund state must be
+// read off `status` — there is no nested payment/refund object in this response.
+export interface BookingDetail {
+  id: string
+  facilityId: string
+  userId: string
+  vehicleId: string | null
+  vehiclePlate: string
+  vehicleType: string
+  startsAt: string
+  endsAt: string
+  quotedPriceCents: number
+  finalPriceCents: number | null
+  priceAdjustmentCents: number | null
+  currency: string
+  status: BookingStatus
+  accessCode: string
+  qrSecret: string | null
+  tariffPlanId: string | null
+  tariffPlanVersion: number | null
+  sourceChannel: 'WEB' | 'MOBILE' | 'API'
+  idempotencyKey: string | null
+  expiresAt: string | null
+  createdAt: string
+  updatedAt: string
+  facility: { id: string; name: string; address: string }
+  statusHistory: BookingStatusHistoryEntry[]
+}
+
 export function listBookings(params: {
   skip?: number
   take?: number
@@ -49,10 +88,18 @@ export function listBookings(params: {
   return apiFetch<BookingListResponse>(`/bookings${qs ? `?${qs}` : ''}`)
 }
 
+export function getBooking(id: string): Promise<BookingDetail> {
+  return apiFetch<BookingDetail>(`/bookings/${id}`)
+}
+
 export function checkInBooking(id: string): Promise<void> {
   return apiFetch<void>(`/bookings/${id}/check-in`, { method: 'POST' })
 }
 
 export function checkOutBooking(id: string): Promise<void> {
   return apiFetch<void>(`/bookings/${id}/check-out`, { method: 'POST' })
+}
+
+export function cancelBooking(id: string): Promise<void> {
+  return apiFetch<void>(`/bookings/${id}`, { method: 'DELETE' })
 }

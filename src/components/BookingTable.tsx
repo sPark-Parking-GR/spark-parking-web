@@ -1,37 +1,12 @@
+import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { Badge } from '@spark/ui'
-import type { BadgeVariant } from '@spark/ui'
 import { BookingActionButton } from './BookingActionButton'
-import type { BookingListItem, BookingStatus } from '@/lib/booking-api'
+import { BookingStatusBadge } from './BookingStatusBadge'
+import { STATUS_BADGE, formatBookingDate, formatMoney, titleCase } from '@/lib/booking-format'
+import type { BookingListItem } from '@/lib/booking-api'
 
 interface Props {
   items: BookingListItem[]
-}
-
-const STATUS_BADGE: Record<BookingStatus, { labelKey: string; variant: BadgeVariant }> = {
-  PENDING_PAYMENT: { labelKey: 'status.pendingPayment', variant: 'warn' },
-  CONFIRMED: { labelKey: 'status.confirmed', variant: 'ok' },
-  CHECKED_IN: { labelKey: 'status.checkedIn', variant: 'ok' },
-  CHECKED_OUT: { labelKey: 'status.checkedOut', variant: 'neutral' },
-  CANCELLED: { labelKey: 'status.cancelled', variant: 'bad' },
-  EXPIRED: { labelKey: 'status.expired', variant: 'bad' },
-  REFUND_PENDING: { labelKey: 'status.refundPending', variant: 'warn' },
-  REFUNDED: { labelKey: 'status.refunded', variant: 'neutral' },
-}
-
-const dateFmt = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-})
-
-function formatMoney(cents: number, currency: string): string {
-  return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(cents / 100)
-}
-
-function titleCase(value: string): string {
-  return value.charAt(0) + value.slice(1).toLowerCase()
 }
 
 export async function BookingTable({ items }: Props) {
@@ -58,7 +33,12 @@ export async function BookingTable({ items }: Props) {
             return (
               <tr key={item.id}>
                 <td>
-                  <span className="mono table-code">{item.accessCode}</span>
+                  <Link
+                    href={`/dashboard/bookings/${item.id}`}
+                    className="table-link mono table-code"
+                  >
+                    {item.accessCode}
+                  </Link>
                 </td>
                 <td className="table-facility">{item.facility.name}</td>
                 <td className="text-secondary">
@@ -66,11 +46,11 @@ export async function BookingTable({ items }: Props) {
                   <span> · {titleCase(item.vehicleType)}</span>
                 </td>
                 <td className="text-secondary">
-                  {dateFmt.format(new Date(item.startsAt))} → {dateFmt.format(new Date(item.endsAt))}
+                  {formatBookingDate(item.startsAt)} → {formatBookingDate(item.endsAt)}
                 </td>
                 <td className="table-amount">{formatMoney(price, item.currency)}</td>
                 <td>
-                  <Badge variant={badge.variant}>{t(badge.labelKey)}</Badge>
+                  <BookingStatusBadge status={item.status} label={t(badge.labelKey)} />
                 </td>
                 <td>
                   {item.status === 'CONFIRMED' ? (

@@ -33,24 +33,51 @@ export type InviteValidationResult =
   | { ok: true; data: InviteValidation }
   | { ok: false; status: number }
 
-export type SendInviteResult = { ok: true } | { ok: false; error: string }
+export type SendInviteErrorKey =
+  | 'errors.sendInviteForbidden'
+  | 'errors.invalidData'
+  | 'errors.genericError'
+  | string
 
-export type InviteActionResult = { ok: true } | { ok: false; error: string }
+export type SendInviteResult =
+  | { ok: true }
+  | { ok: false; errorKey: SendInviteErrorKey; detail?: string }
 
-export type AcceptInviteResult = { ok: false; error: string; loginHint?: boolean }
+export type InviteActionResult =
+  | { ok: true }
+  | {
+      ok: false
+      errorKey:
+        | 'errors.invalidInvite'
+        | 'errors.revokeForbidden'
+        | 'errors.inviteNotFound'
+        | 'errors.genericError'
+      detail?: string
+    }
+
+export type AcceptInviteResult = {
+  ok: false
+  errorKey: string
+  detail?: string
+  loginHint?: boolean
+}
 
 const sendInviteSchema = z.object({
-  businessName: z.string().trim().min(1).max(200),
-  email: z.string().trim().email(),
+  businessName: z
+    .string()
+    .trim()
+    .min(1, 'validation.businessNameRequired')
+    .max(200, 'validation.businessNameTooLong'),
+  email: z.string().trim().email('validation.emailInvalid'),
 })
 
 const setPasswordSchema = z
   .object({
-    password: z.string().min(8).max(128),
+    password: z.string().min(8, 'passwordTooShort').max(128, 'passwordTooLong'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match.',
+    message: 'passwordsMismatch',
     path: ['confirmPassword'],
   })
 
@@ -63,7 +90,7 @@ export async function sendInviteAction(
     email: formData.get('email'),
   })
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid input.' }
+    return { ok: false, errorKey: parsed.error.issues[0]?.message ?? 'errors.invalidInput' }
   }
 
   try {
@@ -74,15 +101,19 @@ export async function sendInviteAction(
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     if (err instanceof ApiError) {
-      if (err.status === 403) return { ok: false, error: 'You are not allowed to send invites.' }
+      if (err.status === 403) return { ok: false, errorKey: 'errors.sendInviteForbidden' }
       if (err.status === 400) {
         const detail = err.errors
           ?.map((issue) => (issue.path ? `${issue.path}: ${issue.message}` : issue.message))
           .join('; ')
-        return { ok: false, error: detail || err.message || 'Invalid data. Check all fields.' }
+        return {
+          ok: false,
+          errorKey: 'errors.invalidData',
+          detail: detail || err.message || undefined,
+        }
       }
     }
-    return { ok: false, error: 'Something went wrong. Please try again.' }
+    return { ok: false, errorKey: 'errors.genericError' }
   }
 
   revalidatePath(ONBOARDING_PATH)
@@ -103,18 +134,19 @@ export async function revokeInviteAction(
   formData: FormData,
 ): Promise<InviteActionResult> {
   const id = String(formData.get('id'))
-  if (!id) return { ok: false, error: 'Invalid invite.' }
+  if (!id) return { ok: false, errorKey: 'errors.invalidInvite' }
 
   try {
     await apiFetch(`/invites/${id}/revoke`, { method: 'POST' })
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     if (err instanceof ApiError) {
-      if (err.status === 403) return { ok: false, error: 'You are not allowed to revoke invites.' }
-      if (err.status === 404) return { ok: false, error: 'Invite not found.' }
-      if (err.status === 409) return { ok: false, error: err.message }
+      if (err.status === 403) return { ok: false, errorKey: 'errors.revokeForbidden' }
+      if (err.status === 404) return { ok: false, errorKey: 'errors.inviteNotFound' }
+      if (err.status === 409)
+        return { ok: false, errorKey: 'errors.genericError', detail: err.message }
     }
-    return { ok: false, error: 'Something went wrong. Please try again.' }
+    return { ok: false, errorKey: 'errors.genericError' }
   }
 
   revalidatePath(ONBOARDING_PATH)
@@ -142,7 +174,7 @@ export async function acceptInviteAction(
 ): Promise<AcceptInviteResult> {
   const parsed = setPasswordSchema.safeParse(input)
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid password.' }
+    return { ok: false, errorKey: parsed.error.issues[0]?.message ?? 'genericError' }
   }
 
   let response: Response
@@ -154,24 +186,24 @@ export async function acceptInviteAction(
       cache: 'no-store',
     })
   } catch {
-    return { ok: false, error: 'Unable to reach the server right now. Please try again.' }
+    return { ok: false, errorKey: 'unreachable' }
   }
 
   if (!response.ok) {
     if (response.status === 409) {
-      return { ok: false, error: 'This invite was already used.', loginHint: true }
+      return { ok: false, errorKey: 'alreadyUsed', loginHint: true }
     }
     if (response.status === 410) {
-      return { ok: false, error: 'This invite has expired. Ask the platform to send a new one.' }
+      return { ok: false, errorKey: 'expired' }
     }
     if (response.status === 404) {
-      return { ok: false, error: 'This invite link is invalid.' }
+      return { ok: false, errorKey: 'invalidLink' }
     }
     if (response.status === 400) {
       const body = (await response.json().catch(() => ({}))) as { message?: string }
-      return { ok: false, error: body.message ?? 'Enter a valid password.' }
+      return { ok: false, errorKey: 'genericError', detail: body.message }
     }
-    return { ok: false, error: 'Something went wrong. Please try again.' }
+    return { ok: false, errorKey: 'somethingWentWrong' }
   }
 
   const result = (await response.json()) as AuthResult

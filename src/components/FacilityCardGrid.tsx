@@ -46,7 +46,7 @@ export function FacilityCardGrid({ items, role }: Props) {
     startTransition(async () => {
       const res = await bulkFacilityAction(action, ids)
       if (!res.ok) {
-        setError(res.error)
+        setError(res.detail ?? t(res.errorKey))
         return
       }
       setSelected(new Set())
@@ -136,20 +136,13 @@ export function FacilityCardGrid({ items, role }: Props) {
           const kind = KIND_META[item.kind]
           const isSelected = selected.has(item.id)
           return (
-            <div
-              key={item.id}
-              className={`facility-card-tile${isSelected ? ' is-selected' : ''}`}
-            >
+            <div key={item.id} className={`facility-card-tile${isSelected ? ' is-selected' : ''}`}>
               {canBulkAct ? (
                 <label
                   className="facility-card__select checkbox-label"
                   aria-label={t('table.selectOne', { name: item.name })}
                 >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggle(item.id)}
-                  />
+                  <input type="checkbox" checked={isSelected} onChange={() => toggle(item.id)} />
                 </label>
               ) : null}
               <Link href={`/dashboard/facilities/${item.id}`} className="facility-card">

@@ -12,9 +12,14 @@ const PAGE_SIZE = 20
 
 const STATUS_FILTERS: { labelKey: string; value?: BookingStatus }[] = [
   { labelKey: 'filters.all' },
+  { labelKey: 'filters.pendingPayment', value: 'PENDING_PAYMENT' },
   { labelKey: 'filters.confirmed', value: 'CONFIRMED' },
   { labelKey: 'filters.checkedIn', value: 'CHECKED_IN' },
   { labelKey: 'filters.checkedOut', value: 'CHECKED_OUT' },
+  { labelKey: 'filters.cancelled', value: 'CANCELLED' },
+  { labelKey: 'filters.expired', value: 'EXPIRED' },
+  { labelKey: 'filters.refundPending', value: 'REFUND_PENDING' },
+  { labelKey: 'filters.refunded', value: 'REFUNDED' },
 ]
 
 function parseStatus(value: string | undefined): BookingStatus | undefined {

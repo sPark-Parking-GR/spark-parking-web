@@ -43,11 +43,12 @@ function AutocompleteInput({
       sessionTokenRef.current = new placesLib.AutocompleteSessionToken()
     }
     try {
-      const { suggestions: results } = await placesLib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
-        input,
-        includedRegionCodes: ['gr'],
-        sessionToken: sessionTokenRef.current,
-      })
+      const { suggestions: results } =
+        await placesLib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          input,
+          includedRegionCodes: ['gr'],
+          sessionToken: sessionTokenRef.current,
+        })
       const predictions = results
         .map((s) => s.placePrediction)
         .filter((p): p is google.maps.places.PlacePrediction => p !== null)
@@ -140,9 +141,13 @@ function AutocompleteInput({
               }}
               onMouseEnter={() => setHighlighted(i)}
             >
-              <span className="address-autocomplete__main">{prediction.mainText?.text ?? prediction.text.text}</span>
+              <span className="address-autocomplete__main">
+                {prediction.mainText?.text ?? prediction.text.text}
+              </span>
               {prediction.secondaryText ? (
-                <span className="address-autocomplete__secondary">{prediction.secondaryText.text}</span>
+                <span className="address-autocomplete__secondary">
+                  {prediction.secondaryText.text}
+                </span>
               ) : null}
             </li>
           ))}
@@ -152,7 +157,14 @@ function AutocompleteInput({
   )
 }
 
-function PlainAddressInput({ name, value, onChange, required, disabled, className }: AddressAutocompleteProps) {
+function PlainAddressInput({
+  name,
+  value,
+  onChange,
+  required,
+  disabled,
+  className,
+}: AddressAutocompleteProps) {
   return (
     <input
       className={className}

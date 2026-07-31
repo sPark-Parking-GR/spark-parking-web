@@ -27,7 +27,14 @@ export function SparkMark({
     >
       <path d={MARK_PATH} fill={`url(#${gradientId})`} stroke="#0A6A99" strokeWidth={2} />
       <defs>
-        <linearGradient id={gradientId} x1="0" y1="0" x2="500" y2="500" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id={gradientId}
+          x1="0"
+          y1="0"
+          x2="500"
+          y2="500"
+          gradientUnits="userSpaceOnUse"
+        >
           <stop stopColor="#0D7FB6" />
           <stop offset="0.495192" stopColor="#1094D4" />
           <stop offset="0.802885" stopColor="#32A5DC" />

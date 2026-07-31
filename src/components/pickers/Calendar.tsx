@@ -37,11 +37,21 @@ export function Calendar({ value, onSelect }: Props) {
   return (
     <div className="calendar">
       <div className="calendar__head">
-        <button type="button" className="calendar__nav" onClick={() => shift(-1)} aria-label="Previous month">
+        <button
+          type="button"
+          className="calendar__nav"
+          onClick={() => shift(-1)}
+          aria-label="Previous month"
+        >
           <ChevronLeft size={16} strokeWidth={2.25} aria-hidden="true" />
         </button>
         <span className="calendar__title">{monthLabel(view)}</span>
-        <button type="button" className="calendar__nav" onClick={() => shift(1)} aria-label="Next month">
+        <button
+          type="button"
+          className="calendar__nav"
+          onClick={() => shift(1)}
+          aria-label="Next month"
+        >
           <ChevronRight size={16} strokeWidth={2.25} aria-hidden="true" />
         </button>
       </div>

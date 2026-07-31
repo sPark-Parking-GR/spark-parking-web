@@ -16,6 +16,7 @@ interface Props {
 
 export function DeleteTariffButton({ planId, plans }: Props) {
   const t = useTranslations('tariffs.delete')
+  const tTariffs = useTranslations('tariffs')
   const [open, setOpen] = useState(false)
   const [count, setCount] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -44,12 +45,13 @@ export function DeleteTariffButton({ planId, plans }: Props) {
     startTransition(async () => {
       const res = await deleteTariffPlanAction(planId, newDefaultPlanId)
       if (!res.ok) {
+        const message = res.detail ?? tTariffs(res.errorKey)
         if (res.requiresDefaultReplacement) {
           setRequiresReplacement(true)
-          setReplacementError(newDefaultPlanId ? res.error : null)
+          setReplacementError(newDefaultPlanId ? message : null)
           return
         }
-        setError(res.error)
+        setError(message)
         return
       }
     })
