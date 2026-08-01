@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { Spinner } from './Spinner'
-import { LIFECYCLE_RESOURCE_TYPES, LIFECYCLE_STATUSES } from '@/lib/lifecycle-api'
+import { LIFECYCLE_RESOURCE_TYPES, LIFECYCLE_STATUSES } from '@/lib/lifecycle-constants'
 
 export function TrashFilters() {
   const t = useTranslations('adminLifecycle')
