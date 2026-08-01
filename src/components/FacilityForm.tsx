@@ -7,7 +7,12 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { buildFacilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
 import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actions'
 import type { FacilityActionResult } from '@/lib/facility-actions'
-import type { AdminFacility, FacilityTariffAssignment, FacilityTariffPlan } from '@/lib/api'
+import type {
+  AdminFacility,
+  FacilityKind,
+  FacilityTariffAssignment,
+  FacilityTariffPlan,
+} from '@/lib/api'
 import { FacilityLocationPicker } from '@/components/FacilityLocationPicker'
 import { FacilityAddressInput } from '@/components/FacilityAddressInput'
 import { MultiSelectControl } from '@/components/MultiSelectControl'
@@ -18,6 +23,13 @@ import { OperatorPicker } from '@/components/OperatorPicker'
 import type { OperatorSummary } from '@/lib/operator-actions'
 
 const VEHICLE_OPTIONS = VEHICLE_TYPE_OPTIONS.map((o) => ({ ...o, icon: VEHICLE_ICON[o.value] }))
+
+const KIND_SELECT_OPTIONS: { value: FacilityKind; labelKey: string }[] = [
+  { value: 'BUSINESS', labelKey: 'kind.business' },
+  { value: 'FREE_PUBLIC', labelKey: 'kind.freePublic' },
+  { value: 'RESTRICTED', labelKey: 'kind.restricted' },
+  { value: 'UNKNOWN', labelKey: 'kind.unknown' },
+]
 
 interface TariffProps {
   facilityId: string
@@ -71,10 +83,14 @@ function prefillCloseTime(facility?: AdminFacility): string {
 export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operators }: Props) {
   const t = useTranslations('facilities')
   const tOperatorStatus = useTranslations('onboarding')
-  const isBusiness = mode === 'create' || facility?.kind === 'BUSINESS'
+  const [kind, setKind] = useState<FacilityKind>(() => facility?.kind ?? 'BUSINESS')
+  // Tracks the pending selection, not the saved facility: a platform admin moving a
+  // facility into or out of Business must see the capacity/vehicle/hours sections
+  // appear or disappear before submitting, since that is what the save will require.
+  const isBusiness = mode === 'create' || kind === 'BUSINESS'
   const boundAction =
     mode === 'edit' && facility
-      ? updateFacilityAction.bind(null, facility.id)
+      ? updateFacilityAction.bind(null, facility.id, facility.kind)
       : createFacilityAction
 
   const [state, formAction, isPending] = useActionState(boundAction, INITIAL_STATE)
@@ -174,7 +190,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operator
           </p>
         ) : null}
 
-        {mode === 'edit' && facility ? (
+        {mode === 'edit' && facility && !isPlatformAdmin ? (
           <input type="hidden" name="kind" value={facility.kind} />
         ) : null}
 
@@ -429,6 +445,31 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operator
                   {t('form.activeVisible')}
                 </label>
               </div>
+            ) : null}
+
+            {mode === 'edit' && isPlatformAdmin && facility ? (
+              <label className="field">
+                <span className="field__label">{t('form.kindLabel')}</span>
+                <select
+                  className="input"
+                  name="kind"
+                  value={kind}
+                  onChange={(e) => setKind(e.target.value as FacilityKind)}
+                  disabled={isPending}
+                >
+                  {KIND_SELECT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(option.labelKey)}
+                    </option>
+                  ))}
+                </select>
+                {facility.kind === 'BUSINESS' && kind !== 'BUSINESS' ? (
+                  <p className="form-banner form-banner--warning" role="alert">
+                    <AlertCircle size={16} strokeWidth={2} aria-hidden="true" />
+                    {t('form.kindLeavingBusinessWarning')}
+                  </p>
+                ) : null}
+              </label>
             ) : null}
 
             {mode === 'create' && isPlatformAdmin ? (

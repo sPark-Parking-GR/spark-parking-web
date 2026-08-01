@@ -358,6 +358,12 @@
       "pendingVerification": "Pending verification",
       "live": "Live"
     },
+    "kind": {
+      "business": "Business",
+      "freePublic": "Free public",
+      "restricted": "Restricted",
+      "unknown": "Unknown"
+    },
     "stats": {
       "totalSpots": "Total spots",
       "onlineQuota": "Online quota",
@@ -386,7 +392,7 @@
       "deployTitle": "Deploy facilities",
       "deployBody": "{count, plural, one {Activate and verify # facility. It becomes visible in the mobile app immediately.} other {Activate and verify # facilities. They become visible in the mobile app immediately.}}",
       "deleteTitle": "Delete facilities",
-      "deleteBody": "{count, plural, one {Deactivate # facility and remove it from the mobile app. You can re-enable later.} other {Deactivate # facilities and remove them from the mobile app. You can re-enable later.}}",
+      "deleteBody": "{count, plural, one {Permanently remove # facility from the mobile app. This action cannot be undone. The record is retained and can only be restored by a platform administrator.} other {Permanently remove # facilities from the mobile app. This action cannot be undone. The records are retained and can only be restored by a platform administrator.}}",
       "working": "Working…"
     },
     "errors": {
@@ -438,6 +444,8 @@
       "closingTimeAria": "Closing time",
       "open24h": "Open 24 hours",
       "activeVisible": "Active (visible to customers)",
+      "kindLabel": "Facility kind",
+      "kindLeavingBusinessWarning": "Moving this facility out of Business clears its tariff assignments.",
       "operatorIdLabel": "Operator",
       "operatorIdPlaceholder": "Search operators by name…",
       "operatorIdHint": "The operator this facility belongs to.",
@@ -483,7 +491,7 @@
     "delete": {
       "ariaLabel": "Delete facility",
       "modalTitle": "Delete facility",
-      "modalText": "This permanently removes the facility and its configuration. This action cannot be undone.",
+      "modalText": "This permanently removes the facility and its configuration. This action cannot be undone. The record is retained and can only be restored by a platform administrator.",
       "deleting": "Deleting…",
       "confirm": "Delete facility"
     },
@@ -712,7 +720,7 @@
       "buttonLabel": "Delete tariff plan",
       "tooltip": "Delete plan",
       "title": "Delete tariff plan",
-      "body": "This permanently removes the tariff plan and its pricing. This action cannot be undone.",
+      "body": "This permanently removes the tariff plan and its pricing. This action cannot be undone. The record is retained and can only be restored by a platform administrator.",
       "affectedFacilities": "{count, plural, one {This will unassign the plan from # facility.} other {This will unassign the plan from # facilities.}}",
       "cancel": "Cancel",
       "confirm": "Delete plan",
@@ -983,7 +991,7 @@
         "bookingCancelled": "cancelled a booking",
         "facilityCreated": "created a facility",
         "facilityUpdated": "updated a facility",
-        "facilityDeactivated": "paused a facility",
+        "facilityArchived": "archived a facility",
         "facilityTariffAssigned": "assigned a tariff plan",
         "facilityTariffUnassigned": "unassigned a tariff plan",
         "facilityBulkEnable": "enabled facilities in bulk",
@@ -993,7 +1001,7 @@
         "facilityBulkAssignTariff": "assigned tariffs in bulk",
         "tariffPlanCreated": "created a tariff plan",
         "tariffPlanUpdated": "updated a tariff plan",
-        "tariffPlanDeleted": "deleted a tariff plan"
+        "tariffPlanArchived": "archived a tariff plan"
       }
     }
   },

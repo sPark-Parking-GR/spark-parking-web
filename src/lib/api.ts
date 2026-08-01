@@ -168,6 +168,7 @@ export interface UpdateFacilityInput {
   amenities?: string[]
   cancellationPolicy?: string
   isActive?: boolean
+  kind?: FacilityKind
 }
 
 function toSessionData(result: AuthResult): SessionData {

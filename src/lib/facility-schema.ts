@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 const VEHICLE_TYPES = ['car', 'motorcycle', 'van', 'truck'] as const
 
+const FACILITY_KINDS = ['BUSINESS', 'FREE_PUBLIC', 'RESTRICTED', 'UNKNOWN'] as const
+
 const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/
 
 // FormData reports an untouched number input as '' (not absent), which Number('') coerces
@@ -58,6 +60,9 @@ const commonFields = {
   ),
   isActive: z.coerce.boolean().optional(),
   operatorId: z.string().trim().nullable().optional(),
+  // Only ever submitted by the platform-admin kind selector; absent from every other
+  // caller's form data, so z.optional() (not nullable) is the correct match.
+  kind: z.enum(FACILITY_KINDS).optional(),
 }
 
 const quotaWithinCapacity = {

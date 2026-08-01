@@ -50,6 +50,9 @@ function mapApiError(err: unknown): FacilityActionResult {
   if (err instanceof ApiError) {
     if (err.status === 403) return { ok: false, errorKey: 'errors.forbidden' }
     if (err.status === 404) return { ok: false, errorKey: 'errors.notFound' }
+    if (err.status === 409) {
+      return { ok: false, errorKey: 'errors.genericError', detail: err.message || undefined }
+    }
     if (err.status === 400) {
       const detail = err.errors
         ?.map((issue) => (issue.path ? `${issue.path}: ${issue.message}` : issue.message))
@@ -161,6 +164,7 @@ export async function createFacilityAction(
 
 export async function updateFacilityAction(
   id: string,
+  currentKind: FacilityKind,
   _prev: FacilityActionResult,
   formData: FormData,
 ): Promise<FacilityActionResult> {
@@ -179,12 +183,13 @@ export async function updateFacilityAction(
     openTime: formData.get('openTime'),
     closeTime: formData.get('closeTime'),
     isActive: formData.get('isActive'),
+    kind: formData.get('kind'),
   }
 
   // Non-business facilities are catalog-only: the form omits the booking sections, so their
   // fields must stay absent from the payload rather than be sent as fabricated defaults.
-  const kind = formData.get('kind')
-  const isBusiness = kind === 'BUSINESS' || kind === null
+  const kindField = formData.get('kind')
+  const isBusiness = kindField === 'BUSINESS' || kindField === null
 
   const parsed = buildFacilityFormSchema(isBusiness).safeParse(raw)
   if (!parsed.success) {
@@ -206,6 +211,7 @@ export async function updateFacilityAction(
     openTime,
     closeTime,
     isActive,
+    kind,
   } = parsed.data
 
   const input: UpdateFacilityInput = {
@@ -230,6 +236,10 @@ export async function updateFacilityAction(
     ...(isBusiness
       ? { openingHours: buildOpeningHours(is24h, openTime ?? undefined, closeTime ?? undefined) }
       : {}),
+    // Only a platform admin's kind selector ever disagrees with the facility's current
+    // kind; every other caller echoes it unchanged. Sending it unconditionally would have
+    // the API log a same-to-same facility.updated payload on every plain save.
+    ...(kind !== undefined && kind !== currentKind ? { kind } : {}),
   }
 
   try {

@@ -28,7 +28,7 @@ const ACTION_LABEL_KEYS: Record<string, string> = {
   'booking.cancelled': 'bookingCancelled',
   'facility.created': 'facilityCreated',
   'facility.updated': 'facilityUpdated',
-  'facility.deactivated': 'facilityDeactivated',
+  'facility.archived': 'facilityArchived',
   'facility.tariff_assigned': 'facilityTariffAssigned',
   'facility.tariff_unassigned': 'facilityTariffUnassigned',
   'facility.bulk.enable': 'facilityBulkEnable',
@@ -38,7 +38,7 @@ const ACTION_LABEL_KEYS: Record<string, string> = {
   'facility.bulk.assignTariff': 'facilityBulkAssignTariff',
   'tariff_plan.created': 'tariffPlanCreated',
   'tariff_plan.updated': 'tariffPlanUpdated',
-  'tariff_plan.deleted': 'tariffPlanDeleted',
+  'tariff_plan.archived': 'tariffPlanArchived',
 }
 
 function humanize(action: string): string {
@@ -53,7 +53,7 @@ export function actionLabel(t: Translator, action: string): string {
 export type AuditTone = 'primary' | 'success' | 'warning' | 'danger'
 
 export function actionTone(action: string): AuditTone {
-  if (/deleted|deactivated|cancelled|unassigned|bulk\.delete|bulk\.disable/.test(action))
+  if (/deleted|deactivated|archived|cancelled|unassigned|bulk\.delete|bulk\.disable/.test(action))
     return 'danger'
   if (/created|confirmed|assigned|bulk\.enable|bulk\.deploy/.test(action)) return 'success'
   if (/updated|refunded/.test(action)) return 'warning'
