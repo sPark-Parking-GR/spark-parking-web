@@ -196,7 +196,7 @@ export function FacilityMapView({ filters }: Props) {
             <X size={16} strokeWidth={2} aria-hidden="true" />
           </button>
           <span className={`badge ${KIND_META[selected.kind].badge}`}>
-            {KIND_META[selected.kind].label}
+            {t(KIND_META[selected.kind].labelKey)}
           </span>
           <h3 className="map-popup__title">{selected.name}</h3>
           <p className="map-popup__meta text-secondary">

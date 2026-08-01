@@ -1,4 +1,5 @@
 import { apiFetch } from './api'
+import type { ManagersResponse } from './api'
 import type { VehicleType } from '@spark/types'
 
 export type TariffUnit = 'per_minute' | 'per_block' | 'flat'
@@ -148,5 +149,19 @@ export function simulateTariff(body: SimulateRequest): Promise<SimulateResult> {
   return apiFetch<SimulateResult>(`${PLANS_PATH}/simulate`, {
     method: 'POST',
     body: JSON.stringify(body),
+  })
+}
+
+export function getTariffPlanManagers(planId: string): Promise<ManagersResponse> {
+  return apiFetch<ManagersResponse>(`${PLANS_PATH}/${planId}/managers`)
+}
+
+export function updateTariffPlanManagers(
+  planId: string,
+  userIds: string[],
+): Promise<ManagersResponse> {
+  return apiFetch<ManagersResponse>(`${PLANS_PATH}/${planId}/managers`, {
+    method: 'PUT',
+    body: JSON.stringify({ userIds }),
   })
 }

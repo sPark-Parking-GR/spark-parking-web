@@ -9,7 +9,7 @@ import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import { AssignTariffModal } from './AssignTariffModal'
 import { bulkFacilityAction, getFacilityTariffAssignmentsAction } from '@/lib/facility-actions'
-import { KIND_META, sourceLabel } from '@/lib/facility-display'
+import { KIND_META, sourceLabelKey } from '@/lib/facility-display'
 import { usePersistentSelection } from '@/lib/use-persistent-selection'
 import type {
   AdminFacilityListItem,
@@ -280,10 +280,10 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                   </td>
                   <td className="text-secondary">
                     {item.operatorName}
-                    <span className="table__sub">{sourceLabel(item.source)}</span>
+                    <span className="table__sub">{t(sourceLabelKey(item.source))}</span>
                   </td>
                   <td>
-                    <span className={`badge ${kind.badge}`}>{kind.label}</span>
+                    <span className={`badge ${kind.badge}`}>{t(kind.labelKey)}</span>
                   </td>
                   <td>
                     {item.onlineQuota}/{item.totalCapacity}

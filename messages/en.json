@@ -364,6 +364,11 @@
       "restricted": "Restricted",
       "unknown": "Unknown"
     },
+    "source": {
+      "osm": "OpenStreetMap",
+      "google": "Google",
+      "manual": "Manual"
+    },
     "stats": {
       "totalSpots": "Total spots",
       "onlineQuota": "Online quota",
@@ -465,7 +470,8 @@
     },
     "detail": {
       "overviewTab": "Overview",
-      "manageTab": "Manage"
+      "manageTab": "Manage",
+      "managersTab": "Managers"
     },
     "overview": {
       "backToFacilities": "Facilities",
@@ -502,6 +508,35 @@
       "changePlans": "Change tariff plans",
       "assignPlansTitle": "Assign tariff plans",
       "assignPlansDescription": "Choose the tariff plan customers are billed under, per vehicle type, at this facility."
+    },
+    "managers": {
+      "heading": "Managers",
+      "description": "Only the operator admins listed here can see and edit this facility from their dashboard. This is layered on top of their operator role, not a replacement for it.",
+      "emptyState": "No one is assigned to manage this facility yet. That's normal for facilities added automatically or created before the operator had any members.",
+      "columnMember": "Member",
+      "columnRole": "Role",
+      "columnAssigned": "Assigned",
+      "notAMember": "No longer an operator member",
+      "assignedBySystem": "Assigned {date} · automatically during rollout",
+      "assignedByYou": "Assigned {date} · by you",
+      "assignedByName": "Assigned {date} · by {name}",
+      "assignedByUnknown": "Assigned {date} · by another administrator",
+      "manageButton": "Manage access",
+      "modalTitle": "Manage access",
+      "modalDescription": "Choose who can see and edit this facility. Operator members left unchecked keep their role but lose access to this facility.",
+      "noCandidates": "No eligible operator members to assign yet. Invite teammates to the operator first.",
+      "saveButton": "Save access",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "selfRemoveTitle": "Remove your own access?",
+      "selfRemoveBody": "You are about to unassign yourself from this facility. You will lose access to it immediately, and this page will no longer open for you. You can re-grant your own access afterwards.",
+      "selfRemoveConfirm": "Remove my access",
+      "selfRemoveBack": "Go back",
+      "errors": {
+        "forbidden": "You don't have permission to manage this facility's access.",
+        "notFound": "Facility not found.",
+        "invalidUsers": "Could not save. Check the selected users and try again."
+      }
     },
     "vehicleTypes": {
       "car": "Car",
@@ -734,6 +769,35 @@
       "cancel": "Cancel",
       "confirm": "Confirm",
       "saving": "Saving…"
+    },
+    "managers": {
+      "heading": "Managers",
+      "description": "Only the operator admins listed here can see and edit this tariff plan from their dashboard. This is layered on top of their operator role, not a replacement for it.",
+      "emptyState": "No one is assigned to manage this tariff plan yet. That's normal for plans created before the operator had any members.",
+      "columnMember": "Member",
+      "columnRole": "Role",
+      "columnAssigned": "Assigned",
+      "notAMember": "No longer an operator member",
+      "assignedBySystem": "Assigned {date} · automatically during rollout",
+      "assignedByYou": "Assigned {date} · by you",
+      "assignedByName": "Assigned {date} · by {name}",
+      "assignedByUnknown": "Assigned {date} · by another administrator",
+      "manageButton": "Manage access",
+      "modalTitle": "Manage access",
+      "modalDescription": "Choose who can see and edit this tariff plan. Operator members left unchecked keep their role but lose access to this plan.",
+      "noCandidates": "No eligible operator members to assign yet. Invite teammates to the operator first.",
+      "saveButton": "Save access",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "selfRemoveTitle": "Remove your own access?",
+      "selfRemoveBody": "You are about to unassign yourself from this tariff plan. You will lose access to it immediately, and this page will no longer open for you. You can re-grant your own access afterwards.",
+      "selfRemoveConfirm": "Remove my access",
+      "selfRemoveBack": "Go back",
+      "errors": {
+        "forbidden": "You don't have permission to manage this tariff plan's access.",
+        "notFound": "Tariff plan not found.",
+        "invalidUsers": "Could not save. Check the selected users and try again."
+      }
     },
     "errors": {
       "forbidden": "You are not allowed to manage this plan.",

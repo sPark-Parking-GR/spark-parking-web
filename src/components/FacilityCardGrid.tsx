@@ -163,7 +163,7 @@ export function FacilityCardGrid({ items, role }: Props) {
                   <Badge variant={item.isVerified ? 'ok' : 'warn'}>
                     {item.isVerified ? t('status.verified') : t('status.pending')}
                   </Badge>
-                  <span className={`badge ${kind.badge}`}>{kind.label}</span>
+                  <span className={`badge ${kind.badge}`}>{t(kind.labelKey)}</span>
                 </div>
 
                 <div className="facility-card__divider" />

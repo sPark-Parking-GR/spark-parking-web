@@ -7,6 +7,7 @@ import { FacilityForm } from '@/components/FacilityForm'
 import { DeleteFacilityButton } from '@/components/DeleteFacilityButton'
 import { FacilityDetailTabs } from '@/components/FacilityDetailTabs'
 import { FacilityOverviewPanel } from '@/components/FacilityOverviewPanel'
+import { ManagersPanel } from '@/components/ManagersPanel'
 import {
   getFacilityForEdit,
   getFacilityTariffAssignments,
@@ -14,6 +15,7 @@ import {
   AuthRequiredError,
 } from '@/lib/api'
 import { listTariffPlans } from '@/lib/tariff-api'
+import { getFacilityManagersAction } from '@/lib/facility-actions'
 import { getSession } from '@/lib/session'
 
 interface PageProps {
@@ -27,7 +29,13 @@ export default async function EditFacilityPage({ params, searchParams }: PagePro
 
   const { id } = await params
   const { tab } = await searchParams
-  const activeTab = tab === 'manage' ? 'manage' : 'overview'
+
+  const canManageAccess =
+    session.user?.role === 'operator_admin' || session.user?.role === 'platform_admin'
+  // Kicked off before the facility/tariff awaits below so it resolves concurrently with
+  // them rather than adding a serial round trip; the action swallows 403/404 to null so an
+  // admin who is only STAFF on the owning operator gets no panel instead of a broken one.
+  const managersPromise = canManageAccess ? getFacilityManagersAction(id) : Promise.resolve(null)
 
   let facility
   let tariff
@@ -52,6 +60,10 @@ export default async function EditFacilityPage({ params, searchParams }: PagePro
     throw err
   }
 
+  const managers = await managersPromise
+  const activeTab =
+    tab === 'manage' ? 'manage' : tab === 'managers' && managers ? 'managers' : 'overview'
+
   const isPlatformAdmin = session.user?.role === 'platform_admin'
   const t = await getTranslations('facilities')
 
@@ -63,13 +75,22 @@ export default async function EditFacilityPage({ params, searchParams }: PagePro
       </Link>
 
       <PageHeader title={facility.name} titleAccessory={<DeleteFacilityButton id={id} />} />
-      <FacilityDetailTabs active={activeTab} />
+      <FacilityDetailTabs active={activeTab} showManagers={managers !== null} />
       {activeTab === 'manage' ? (
         <FacilityForm
           mode="edit"
           facility={facility}
           isPlatformAdmin={isPlatformAdmin}
           tariff={tariff}
+        />
+      ) : activeTab === 'managers' && managers ? (
+        <ManagersPanel
+          kind="facility"
+          resourceId={id}
+          namespace="facilities"
+          initial={managers}
+          currentUserId={session.user?.id ?? ''}
+          isPlatformAdmin={isPlatformAdmin}
         />
       ) : (
         <FacilityOverviewPanel facility={facility} />

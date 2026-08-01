@@ -10,6 +10,8 @@ import {
   adminMapFacilities,
   assignFacilityTariff,
   getFacilityTariffAssignments,
+  getFacilityManagers,
+  updateFacilityManagers,
   ApiError,
   AuthRequiredError,
 } from './api'
@@ -22,6 +24,8 @@ import type {
   FacilityKind,
   FacilityTariffAssignmentsResponse,
   FacilityVehicleType,
+  ManagersActionResult,
+  ManagersResponse,
   UpdateFacilityInput,
 } from './api'
 import type { OpeningHours } from '@spark/types'
@@ -322,6 +326,42 @@ export async function fetchMapFacilitiesAction(params: {
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     return { ok: false, errorKey: 'errors.mapLoadFailed' }
+  }
+}
+
+export async function getFacilityManagersAction(
+  facilityId: string,
+): Promise<ManagersResponse | null> {
+  try {
+    return await getFacilityManagers(facilityId)
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    return null
+  }
+}
+
+export async function updateFacilityManagersAction(
+  facilityId: string,
+  userIds: string[],
+): Promise<ManagersActionResult> {
+  try {
+    const data = await updateFacilityManagers(facilityId, userIds)
+    revalidatePath(`${FACILITIES_PATH}/${facilityId}`)
+    return { ok: true, data }
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    if (err instanceof ApiError) {
+      if (err.status === 403) return { ok: false, errorKey: 'managers.errors.forbidden' }
+      if (err.status === 404) return { ok: false, errorKey: 'managers.errors.notFound' }
+      if (err.status === 400) {
+        return {
+          ok: false,
+          errorKey: 'managers.errors.invalidUsers',
+          detail: err.message || undefined,
+        }
+      }
+    }
+    return { ok: false, errorKey: 'errors.genericError' }
   }
 }
 

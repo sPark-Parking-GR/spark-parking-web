@@ -102,9 +102,9 @@ export function buildFacilityFormSchema(isBusiness: boolean) {
 
 export type FacilityFormValues = z.infer<ReturnType<typeof buildFacilityFormSchema>>
 
-export const VEHICLE_TYPE_OPTIONS: { value: (typeof VEHICLE_TYPES)[number]; label: string }[] = [
-  { value: 'car', label: 'Car' },
-  { value: 'motorcycle', label: 'Motorcycle' },
-  { value: 'van', label: 'Van' },
-  { value: 'truck', label: 'Truck' },
+export const VEHICLE_TYPE_OPTIONS: { value: (typeof VEHICLE_TYPES)[number]; labelKey: string }[] = [
+  { value: 'car', labelKey: 'vehicleTypes.car' },
+  { value: 'motorcycle', labelKey: 'vehicleTypes.motorcycle' },
+  { value: 'van', labelKey: 'vehicleTypes.van' },
+  { value: 'truck', labelKey: 'vehicleTypes.truck' },
 ]

@@ -3,7 +3,9 @@ import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { TariffEditor } from '@/components/TariffEditor'
 import { DeleteTariffButton } from '@/components/DeleteTariffButton'
+import { ManagersPanel } from '@/components/ManagersPanel'
 import { getTariffPlan, getTariffAssignments, listTariffPlans } from '@/lib/tariff-api'
+import { getTariffPlanManagersAction } from '@/lib/tariff-actions'
 import { ApiError, AuthRequiredError } from '@/lib/api'
 import { getSession } from '@/lib/session'
 
@@ -18,6 +20,15 @@ export default async function EditTariffPlanPage({ params }: PageProps) {
   const { planId } = await params
 
   const t = await getTranslations('tariffs')
+
+  const canManageAccess =
+    session.user?.role === 'operator_admin' || session.user?.role === 'platform_admin'
+  // Kicked off before the plan/assignment awaits below so it resolves concurrently with
+  // them rather than adding a serial round trip; the action swallows 403/404 to null so an
+  // admin who is only STAFF on the owning operator gets no panel instead of a broken one.
+  const managersPromise = canManageAccess
+    ? getTariffPlanManagersAction(planId)
+    : Promise.resolve(null)
 
   let detail
   let assignments
@@ -34,6 +45,8 @@ export default async function EditTariffPlanPage({ params }: PageProps) {
     throw err
   }
 
+  const managers = await managersPromise
+
   const description = assignments.isDefault
     ? t('detail.descriptionDefault', {
         count: assignments.count,
@@ -48,6 +61,16 @@ export default async function EditTariffPlanPage({ params }: PageProps) {
         description={description}
         titleAccessory={<DeleteTariffButton planId={planId} plans={plans.items} />}
       />
+      {managers ? (
+        <ManagersPanel
+          kind="tariffPlan"
+          resourceId={planId}
+          namespace="tariffs"
+          initial={managers}
+          currentUserId={session.user?.id ?? ''}
+          isPlatformAdmin={session.user?.role === 'platform_admin'}
+        />
+      ) : null}
       <TariffEditor mode="edit" planId={planId} plan={detail} plans={plans.items} />
     </>
   )

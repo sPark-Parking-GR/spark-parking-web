@@ -5,7 +5,12 @@ import { useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { Tabs } from '@spark/ui'
 
-export function FacilityDetailTabs({ active }: { active: string }) {
+interface Props {
+  active: string
+  showManagers?: boolean
+}
+
+export function FacilityDetailTabs({ active, showManagers }: Props) {
   const t = useTranslations('facilities')
   const pathname = usePathname()
   const router = useRouter()
@@ -15,6 +20,7 @@ export function FacilityDetailTabs({ active }: { active: string }) {
   const ITEMS = [
     { key: 'overview', label: t('detail.overviewTab') },
     { key: 'manage', label: t('detail.manageTab') },
+    ...(showManagers ? [{ key: 'managers', label: t('detail.managersTab') }] : []),
   ]
 
   const select = (tab: string) => {

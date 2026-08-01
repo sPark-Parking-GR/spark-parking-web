@@ -69,7 +69,7 @@ export function FacilityFilters() {
         <option value="">{t('filters.anyKind')}</option>
         {KIND_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
-            {o.label}
+            {t(o.labelKey)}
           </option>
         ))}
       </select>

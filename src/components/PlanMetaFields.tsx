@@ -36,7 +36,7 @@ export function PlanMetaFields({ draft, onChange }: Props) {
   const t = useTranslations('tariffs')
   const vehicleOptions = VEHICLE_TYPE_OPTIONS.map((o) => ({
     value: o.value,
-    label: t(`vehicleTypes.${o.value}`),
+    label: t(o.labelKey),
     icon: VEHICLE_ICON[o.value],
   }))
 

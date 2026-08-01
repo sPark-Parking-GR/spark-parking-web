@@ -161,29 +161,29 @@ export const tariffDraftSchema = z
 
 export type TariffDraftValues = z.infer<typeof tariffDraftSchema>
 
-export const VEHICLE_TYPE_OPTIONS: { value: VehicleType; label: string }[] = [
-  { value: 'car', label: 'Car' },
-  { value: 'motorcycle', label: 'Motorcycle' },
-  { value: 'van', label: 'Van' },
-  { value: 'truck', label: 'Truck' },
+export const VEHICLE_TYPE_OPTIONS: { value: VehicleType; labelKey: string }[] = [
+  { value: 'car', labelKey: 'vehicleTypes.car' },
+  { value: 'motorcycle', labelKey: 'vehicleTypes.motorcycle' },
+  { value: 'van', labelKey: 'vehicleTypes.van' },
+  { value: 'truck', labelKey: 'vehicleTypes.truck' },
 ]
 
-export const UNIT_OPTIONS: { value: TariffTier['unit']; label: string }[] = [
-  { value: 'per_minute', label: 'Per minute' },
-  { value: 'per_block', label: 'Per block' },
-  { value: 'flat', label: 'Flat' },
+export const UNIT_OPTIONS: { value: TariffTier['unit']; labelKey: string }[] = [
+  { value: 'per_minute', labelKey: 'tiers.unitOptions.perMinute' },
+  { value: 'per_block', labelKey: 'tiers.unitOptions.perBlock' },
+  { value: 'flat', labelKey: 'tiers.unitOptions.flat' },
 ]
 
-export const CAP_SCOPE_OPTIONS: { value: TariffCapScope; label: string }[] = [
-  { value: 'stay', label: 'Whole stay' },
-  { value: 'rolling', label: 'Rolling window' },
+export const CAP_SCOPE_OPTIONS: { value: TariffCapScope; labelKey: string }[] = [
+  { value: 'stay', labelKey: 'caps.scopeOptions.stay' },
+  { value: 'rolling', labelKey: 'caps.scopeOptions.rolling' },
 ]
 
 type TariffCapScope = (typeof CAP_SCOPES)[number]
 
 // WHY: bit0=Monday .. bit6=Sunday — order matches the API dayMask contract.
-export const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const
-export const DAY_BITS = WEEKDAY_LABELS.map((_, i) => 1 << i)
+export const WEEKDAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+export const DAY_BITS = WEEKDAY_KEYS.map((_, i) => 1 << i)
 export const ALL_DAYS_MASK = 127
 
 export function makeKey(): string {

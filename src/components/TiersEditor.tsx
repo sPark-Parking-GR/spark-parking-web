@@ -25,12 +25,6 @@ function normalize(tiers: TariffTier[]): TariffTier[] {
   })
 }
 
-const UNIT_KEY: Record<TariffTier['unit'], string> = {
-  per_minute: 'perMinute',
-  per_block: 'perBlock',
-  flat: 'flat',
-}
-
 export function TiersEditor({ tiers, onChange }: Props) {
   const t = useTranslations('tariffs')
 
@@ -122,7 +116,7 @@ export function TiersEditor({ tiers, onChange }: Props) {
                 >
                   {UNIT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
-                      {t(`tiers.unitOptions.${UNIT_KEY[o.value]}`)}
+                      {t(o.labelKey)}
                     </option>
                   ))}
                 </select>

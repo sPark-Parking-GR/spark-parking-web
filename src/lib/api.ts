@@ -155,6 +155,37 @@ export interface CreateFacilityInput {
   operatorId?: string
 }
 
+export type OperatorMemberRole = 'ADMIN' | 'STAFF'
+
+export interface ResourceManager {
+  userId: string
+  email: string
+  displayName: string | null
+  // Null only if the assignment outlived the membership (the person left the operator).
+  memberRole: OperatorMemberRole | null
+  assignedAt: string
+  // The acting user's id, or the sentinel `system:backfill` for rows the migration seeded.
+  assignedBy: string
+}
+
+export interface ResourceManagerCandidate {
+  userId: string
+  email: string
+  displayName: string | null
+  memberRole: OperatorMemberRole
+}
+
+export interface ManagersResponse {
+  resourceId: string
+  operatorId: string
+  managers: ResourceManager[]
+  candidates: ResourceManagerCandidate[]
+}
+
+export type ManagersActionResult =
+  | { ok: true; data: ManagersResponse }
+  | { ok: false; errorKey: string; detail?: string }
+
 export interface UpdateFacilityInput {
   name?: string
   address?: string
@@ -389,4 +420,18 @@ export function updateFacility(id: string, input: UpdateFacilityInput): Promise<
 
 export function deleteFacility(id: string): Promise<void> {
   return apiFetch<void>(`/facilities/${id}`, { method: 'DELETE' })
+}
+
+export function getFacilityManagers(facilityId: string): Promise<ManagersResponse> {
+  return apiFetch<ManagersResponse>(`/facilities/${facilityId}/managers`)
+}
+
+export function updateFacilityManagers(
+  facilityId: string,
+  userIds: string[],
+): Promise<ManagersResponse> {
+  return apiFetch<ManagersResponse>(`/facilities/${facilityId}/managers`, {
+    method: 'PUT',
+    body: JSON.stringify({ userIds }),
+  })
 }

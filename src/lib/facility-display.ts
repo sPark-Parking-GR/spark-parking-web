@@ -1,25 +1,25 @@
 import type { FacilityKind, FacilitySource } from './api'
 
-export const KIND_META: Record<FacilityKind, { label: string; badge: string }> = {
-  BUSINESS: { label: 'Business', badge: 'badge--info' },
-  FREE_PUBLIC: { label: 'Free public', badge: 'badge--success' },
-  RESTRICTED: { label: 'Restricted', badge: 'badge--warning' },
-  UNKNOWN: { label: 'Unknown', badge: 'badge--neutral' },
+export const KIND_META: Record<FacilityKind, { labelKey: string; badge: string }> = {
+  BUSINESS: { labelKey: 'kind.business', badge: 'badge--info' },
+  FREE_PUBLIC: { labelKey: 'kind.freePublic', badge: 'badge--success' },
+  RESTRICTED: { labelKey: 'kind.restricted', badge: 'badge--warning' },
+  UNKNOWN: { labelKey: 'kind.unknown', badge: 'badge--neutral' },
 }
 
-export const KIND_OPTIONS: { value: FacilityKind; label: string }[] = (
+export const KIND_OPTIONS: { value: FacilityKind; labelKey: string }[] = (
   Object.keys(KIND_META) as FacilityKind[]
-).map((value) => ({ value, label: KIND_META[value].label }))
+).map((value) => ({ value, labelKey: KIND_META[value].labelKey }))
 
-export function sourceLabel(source: FacilitySource): string {
+export function sourceLabelKey(source: FacilitySource): string {
   switch (source) {
     case 'OSM':
-      return 'OpenStreetMap'
+      return 'source.osm'
     case 'GOOGLE':
-      return 'Google'
+      return 'source.google'
     case 'MANUAL':
-      return 'Manual'
+      return 'source.manual'
     default:
-      return 'Manual'
+      return 'source.manual'
   }
 }

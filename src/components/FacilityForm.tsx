@@ -5,6 +5,7 @@ import { useFormStatus } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { buildFacilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
+import { KIND_OPTIONS } from '@/lib/facility-display'
 import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actions'
 import type { FacilityActionResult } from '@/lib/facility-actions'
 import type {
@@ -21,15 +22,6 @@ import { DateTimePicker } from '@/components/pickers/DateTimePicker'
 import { FacilityTariffPanel } from '@/components/FacilityTariffPanel'
 import { OperatorPicker } from '@/components/OperatorPicker'
 import type { OperatorSummary } from '@/lib/operator-actions'
-
-const VEHICLE_OPTIONS = VEHICLE_TYPE_OPTIONS.map((o) => ({ ...o, icon: VEHICLE_ICON[o.value] }))
-
-const KIND_SELECT_OPTIONS: { value: FacilityKind; labelKey: string }[] = [
-  { value: 'BUSINESS', labelKey: 'kind.business' },
-  { value: 'FREE_PUBLIC', labelKey: 'kind.freePublic' },
-  { value: 'RESTRICTED', labelKey: 'kind.restricted' },
-  { value: 'UNKNOWN', labelKey: 'kind.unknown' },
-]
 
 interface TariffProps {
   facilityId: string
@@ -83,6 +75,11 @@ function prefillCloseTime(facility?: AdminFacility): string {
 export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operators }: Props) {
   const t = useTranslations('facilities')
   const tOperatorStatus = useTranslations('onboarding')
+  const vehicleOptions = VEHICLE_TYPE_OPTIONS.map((o) => ({
+    value: o.value,
+    label: t(o.labelKey),
+    icon: VEHICLE_ICON[o.value],
+  }))
   const [kind, setKind] = useState<FacilityKind>(() => facility?.kind ?? 'BUSINESS')
   // Tracks the pending selection, not the saved facility: a platform admin moving a
   // facility into or out of Business must see the capacity/vehicle/hours sections
@@ -325,7 +322,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operator
             <div className="field">
               <span className="field__label">{t('form.vehicleTypesLabel')}</span>
               <MultiSelectControl
-                options={VEHICLE_OPTIONS}
+                options={vehicleOptions}
                 value={vehicleTypes}
                 onChange={setVehicleTypes}
                 disabled={isPending}
@@ -457,7 +454,7 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operator
                   onChange={(e) => setKind(e.target.value as FacilityKind)}
                   disabled={isPending}
                 >
-                  {KIND_SELECT_OPTIONS.map((option) => (
+                  {KIND_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
                       {t(option.labelKey)}
                     </option>

@@ -3,12 +3,15 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { ApiError, AuthRequiredError } from './api'
+import type { ManagersActionResult, ManagersResponse } from './api'
 import {
   createTariffPlan,
   updateTariffPlan,
   deleteTariffPlan,
   simulateTariff,
   getTariffAssignments,
+  getTariffPlanManagers,
+  updateTariffPlanManagers,
 } from './tariff-api'
 import { tariffDraftSchema } from './tariff-schema'
 import type { SimulateRequest, SimulateQuote, PlanAssignments } from './tariff-api'
@@ -108,6 +111,42 @@ export async function getTariffAssignmentsAction(planId: string): Promise<PlanAs
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     return null
+  }
+}
+
+export async function getTariffPlanManagersAction(
+  planId: string,
+): Promise<ManagersResponse | null> {
+  try {
+    return await getTariffPlanManagers(planId)
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    return null
+  }
+}
+
+export async function updateTariffPlanManagersAction(
+  planId: string,
+  userIds: string[],
+): Promise<ManagersActionResult> {
+  try {
+    const data = await updateTariffPlanManagers(planId, userIds)
+    revalidatePath(`${TARIFFS_PATH}/${planId}`)
+    return { ok: true, data }
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    if (err instanceof ApiError) {
+      if (err.status === 403) return { ok: false, errorKey: 'managers.errors.forbidden' }
+      if (err.status === 404) return { ok: false, errorKey: 'managers.errors.notFound' }
+      if (err.status === 400) {
+        return {
+          ok: false,
+          errorKey: 'managers.errors.invalidUsers',
+          detail: err.message || undefined,
+        }
+      }
+    }
+    return { ok: false, errorKey: 'errors.genericError' }
   }
 }
 

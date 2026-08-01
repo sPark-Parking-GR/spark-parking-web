@@ -4,7 +4,7 @@ import { Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import {
   DAY_BITS,
-  WEEKDAY_LABELS,
+  WEEKDAY_KEYS,
   ALL_DAYS_MASK,
   minutesToHHMM,
   hhmmToMinutes,
@@ -13,8 +13,6 @@ import {
 import { DateTimePicker } from '@/components/pickers/DateTimePicker'
 import { FieldInfo } from './FieldInfo'
 import type { TariffWindow } from '@/lib/tariff-api'
-
-const WEEKDAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 
 interface Props {
   windows: TariffWindow[]
@@ -77,7 +75,7 @@ export function WindowsEditor({ windows, onChange }: Props) {
     onChange(windows.filter((_, i) => i !== index))
   }
 
-  const uncoveredDays = WEEKDAY_LABELS.map((_, i) => i)
+  const uncoveredDays = WEEKDAY_KEYS.map((_, i) => i)
     .filter((i) => {
       const bit = DAY_BITS[i] ?? 0
       const usedByAny = windows.some((w) => (w.dayMask & bit) !== 0)

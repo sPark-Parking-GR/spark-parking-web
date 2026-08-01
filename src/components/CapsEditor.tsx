@@ -84,7 +84,7 @@ export function CapsEditor({ caps, onChange }: Props) {
               >
                 {CAP_SCOPE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
-                    {t(`caps.scopeOptions.${o.value}`)}
+                    {t(o.labelKey)}
                   </option>
                 ))}
               </select>
