@@ -10,6 +10,7 @@ import {
   ScrollText,
   Trash2,
   ShieldCheck,
+  Store,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { NavIcon } from '@/lib/nav'
@@ -21,6 +22,7 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   bookings: CalendarClock,
   scan: ScanLine,
   operators: Users,
+  operatorDirectory: Store,
   onboarding: UserPlus,
   analytics: BarChart3,
   audit: ScrollText,

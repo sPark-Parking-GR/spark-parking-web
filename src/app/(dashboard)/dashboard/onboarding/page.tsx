@@ -4,10 +4,8 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { InviteForm } from '@/components/InviteForm'
 import { InviteTable } from '@/components/InviteTable'
-import { OperatorsTable } from '@/components/OperatorsTable'
 import { requireSession } from '@/lib/dal'
 import { listInvitesAction } from '@/lib/invite-actions'
-import { listOperatorsAction } from '@/lib/operator-actions'
 
 export default async function OnboardingPage() {
   const session = await requireSession()
@@ -16,7 +14,7 @@ export default async function OnboardingPage() {
   }
 
   const t = await getTranslations('onboarding')
-  const [invites, operators] = await Promise.all([listInvitesAction(), listOperatorsAction()])
+  const invites = await listInvitesAction()
 
   return (
     <>
@@ -26,13 +24,6 @@ export default async function OnboardingPage() {
         <EmptyState title={t('empty.title')} message={t('empty.message')} />
       ) : (
         <InviteTable items={invites} />
-      )}
-
-      <PageHeader title={t('operators.title')} description={t('operators.description')} />
-      {operators.length === 0 ? (
-        <EmptyState title={t('operators.empty.title')} message={t('operators.empty.message')} />
-      ) : (
-        <OperatorsTable items={operators} />
       )}
     </>
   )

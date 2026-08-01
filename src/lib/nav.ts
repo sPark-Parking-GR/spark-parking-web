@@ -8,6 +8,7 @@ export type NavIcon =
   | 'bookings'
   | 'scan'
   | 'operators'
+  | 'operatorDirectory'
   | 'onboarding'
   | 'analytics'
   | 'audit'
@@ -33,6 +34,12 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/bookings', icon: 'bookings', roles: OPERATOR_ROLES },
   { href: '/dashboard/scan', icon: 'scan', roles: OPERATOR_ROLES },
   { href: '/dashboard/operators', icon: 'operators', roles: PLATFORM_ADMIN_ROLES },
+  {
+    href: '/dashboard/admin/operators',
+    icon: 'operatorDirectory',
+    roles: PLATFORM_ADMIN_ROLES,
+    permission: 'platform:tenant.read',
+  },
   { href: '/dashboard/onboarding', icon: 'onboarding', roles: PLATFORM_ADMIN_ROLES },
   { href: '/dashboard/analytics', icon: 'analytics', roles: PLATFORM_ADMIN_ROLES },
   { href: '/dashboard/audit', icon: 'audit', roles: PLATFORM_ADMIN_ROLES },

@@ -8,6 +8,7 @@
     "capacity": "Capacity",
     "analytics": "Analytics",
     "operators": "Operators",
+    "operatorDirectory": "Operator directory",
     "onboarding": "Onboarding",
     "audit": "Audit log",
     "trash": "Trash",
@@ -19,6 +20,7 @@
       "bookings": "Active and past customer bookings",
       "scan": "Scan booking QR codes at the barrier",
       "operators": "Platform operator accounts",
+      "operatorDirectory": "Browse every operator with lifecycle and membership controls",
       "onboarding": "Invite new operator businesses onto sPark",
       "analytics": "Revenue and occupancy insights",
       "audit": "Security and change history",
@@ -170,7 +172,8 @@
       "empty": {
         "title": "No operators yet",
         "message": "Operators appear here once an invite is sent."
-      }
+      },
+      "loadError": "Could not load operators. The platform API request failed — try reloading the page."
     },
     "operatorTable": {
       "name": "Business",
@@ -201,6 +204,24 @@
     },
     "detail": {
       "back": "Back to operators",
+      "loadError": "Could not load this operator. The platform API request failed — try reloading the page.",
+      "status": {
+        "business": "Business status",
+        "lifecycle": "Lifecycle status",
+        "active": "Active"
+      },
+      "identity": {
+        "title": "Overview",
+        "fields": {
+          "id": "Operator ID",
+          "created": "Created",
+          "facilities": "Facilities",
+          "members": "Members"
+        }
+      },
+      "actions": {
+        "title": "Platform actions"
+      },
       "facilities": {
         "title": "Facilities",
         "empty": "No facilities yet."
@@ -214,7 +235,28 @@
         "empty": "No members yet.",
         "email": "Email",
         "role": "Role",
-        "joined": "Joined"
+        "joined": "Joined",
+        "actions": "Actions",
+        "roleOptions": {
+          "STAFF": "Staff",
+          "ADMIN": "Admin"
+        },
+        "selfNote": "This is you",
+        "soleAdminNote": "Sole admin — promote another member first",
+        "changeRole": {
+          "trigger": "Change role",
+          "modalTitle": "Change role for {email}",
+          "roleLabel": "Role",
+          "confirm": "Save",
+          "confirming": "Saving…"
+        },
+        "remove": {
+          "trigger": "Remove",
+          "modalTitle": "Remove member",
+          "body": "This removes {email} from the operator. They lose all access immediately.",
+          "confirm": "Remove member",
+          "confirming": "Removing…"
+        }
       }
     },
     "errors": {

@@ -3374,6 +3374,47 @@ td.table-amount {
   font-weight: 700;
 }
 
+/* ─── Operator detail ──────────────────────────────────────────────────────── */
+
+.operator-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.operator-status-row__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.operator-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-md) var(--space-lg);
+}
+
+.operator-detail-grid__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.operator-detail-grid__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.operator-detail-grid__value {
+  font-size: 14px;
+  color: var(--ink);
+}
+
 /* ─── Facilities console ──────────────────────────────────────────────────── */
 
 .table-toolbar--filters {

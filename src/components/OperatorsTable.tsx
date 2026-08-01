@@ -8,6 +8,7 @@ import type { OperatorStatus, OperatorSummary } from '@/lib/operator-actions'
 
 interface Props {
   items: OperatorSummary[]
+  canWrite: boolean
 }
 
 const STATUS_BADGE: Record<OperatorStatus, { labelKey: string; variant: BadgeVariant }> = {
@@ -24,7 +25,7 @@ const dateFmt = new Intl.DateTimeFormat('en-GB', {
   minute: '2-digit',
 })
 
-export async function OperatorsTable({ items }: Props) {
+export async function OperatorsTable({ items, canWrite }: Props) {
   const t = await getTranslations('onboarding')
 
   return (
@@ -46,7 +47,7 @@ export async function OperatorsTable({ items }: Props) {
             return (
               <tr key={item.id}>
                 <td className="table-facility">
-                  <Link href={`/dashboard/onboarding/${item.id}`} className="table-link">
+                  <Link href={`/dashboard/admin/operators/${item.id}`} className="table-link">
                     {item.name}
                   </Link>
                 </td>
@@ -57,9 +58,9 @@ export async function OperatorsTable({ items }: Props) {
                 <td className="text-secondary">{item.memberCount}</td>
                 <td className="text-secondary">{dateFmt.format(new Date(item.createdAt))}</td>
                 <td>
-                  {item.status === 'VERIFIED' ? (
+                  {item.status === 'VERIFIED' && canWrite ? (
                     <SuspendOperatorButton id={item.id} />
-                  ) : item.status === 'SUSPENDED' ? (
+                  ) : item.status === 'SUSPENDED' && canWrite ? (
                     <ReactivateOperatorButton id={item.id} />
                   ) : (
                     <span className="text-secondary">—</span>

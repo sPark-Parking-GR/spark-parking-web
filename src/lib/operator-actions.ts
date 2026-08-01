@@ -66,15 +66,6 @@ export async function listOperatorsAction(): Promise<OperatorSummary[]> {
   }
 }
 
-export async function getOperatorDetailAction(id: string): Promise<OperatorDetail | null> {
-  try {
-    return await apiFetch<OperatorDetail>(`/operators/${id}`)
-  } catch (err) {
-    if (err instanceof AuthRequiredError) redirect('/login')
-    return null
-  }
-}
-
 async function transitionOperator(
   id: string,
   path: 'suspend' | 'reactivate',
