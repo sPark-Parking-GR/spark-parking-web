@@ -8,6 +8,8 @@ import {
   UserPlus,
   BarChart3,
   ScrollText,
+  Trash2,
+  ShieldCheck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { NavIcon } from '@/lib/nav'
@@ -22,4 +24,6 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   onboarding: UserPlus,
   analytics: BarChart3,
   audit: ScrollText,
+  trash: Trash2,
+  approvals: ShieldCheck,
 }

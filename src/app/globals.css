@@ -1995,6 +1995,11 @@ select.input {
   color: var(--warn);
 }
 
+.form-banner--info {
+  background: var(--tint-primary);
+  color: var(--pri);
+}
+
 .form-banner__body {
   display: flex;
   flex-direction: column;
@@ -3438,6 +3443,13 @@ td.table-amount {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
 .table__check {

@@ -10,6 +10,8 @@
     "operators": "Operators",
     "onboarding": "Onboarding",
     "audit": "Audit log",
+    "trash": "Trash",
+    "approvals": "Approvals",
     "descriptions": {
       "overview": "Snapshot of your parking operations",
       "facilities": "Manage your parking facilities and locations",
@@ -19,7 +21,9 @@
       "operators": "Platform operator accounts",
       "onboarding": "Invite new operator businesses onto sPark",
       "analytics": "Revenue and occupancy insights",
-      "audit": "Security and change history"
+      "audit": "Security and change history",
+      "trash": "Archived and tombstoned resources, with restore and purge",
+      "approvals": "Pending two-person purge approvals"
     }
   },
   "dateRange": {
@@ -949,6 +953,136 @@
         "tariffPlanUpdated": "updated a tariff plan",
         "tariffPlanDeleted": "deleted a tariff plan"
       }
+    }
+  },
+  "adminLifecycle": {
+    "resourceType": {
+      "user": "User",
+      "operator": "Operator",
+      "facility": "Facility",
+      "tariff-plan": "Tariff plan"
+    },
+    "status": {
+      "ARCHIVED": "Archived",
+      "TOMBSTONED": "Tombstoned",
+      "PURGED": "Purged"
+    },
+    "cancel": "Cancel",
+    "close": "Close",
+    "reasonLabel": "Reason",
+    "reasonOptionalLabel": "Reason (optional)",
+    "reasonPlaceholder": "Why is this action necessary?",
+    "validation": {
+      "reasonRequired": "A reason is required."
+    },
+    "impact": {
+      "loading": "Checking impact…",
+      "loadError": "Could not load the impact preview. Try again.",
+      "blockersTitle": "This action is blocked",
+      "warningsTitle": "Warnings",
+      "effectsTitle": "This will also affect",
+      "acknowledge": "I understand the warnings above and want to continue.",
+      "noImpact": "No related records will be affected."
+    },
+    "action": {
+      "archive": {
+        "trigger": "Archive",
+        "modalTitle": "Archive {resource}",
+        "confirm": "Archive",
+        "confirming": "Archiving…"
+      },
+      "restore": {
+        "trigger": "Restore",
+        "modalTitle": "Restore {resource}",
+        "confirm": "Restore",
+        "confirming": "Restoring…"
+      },
+      "tombstone": {
+        "trigger": "Delete",
+        "modalTitle": "Delete {resource}",
+        "confirm": "Delete",
+        "confirming": "Deleting…"
+      },
+      "purge": {
+        "trigger": "Purge permanently",
+        "modalTitle": "Purge {resource} permanently",
+        "confirm": "Purge permanently",
+        "confirming": "Purging…",
+        "pendingApproval": "Submitted for review — a second platform admin must approve this purge before it happens."
+      }
+    },
+    "trash": {
+      "title": "Trash",
+      "description": "Archived and tombstoned resources across the platform.",
+      "filters": {
+        "resourceTypeAria": "Filter by resource type",
+        "anyResourceType": "All resource types",
+        "statusAria": "Filter by status",
+        "anyStatus": "Any status"
+      },
+      "table": {
+        "name": "Resource",
+        "type": "Type",
+        "status": "Status",
+        "reason": "Reason",
+        "changedAt": "Changed",
+        "retention": "Retention",
+        "actions": "Actions"
+      },
+      "noReason": "—",
+      "retention": {
+        "overdue": "Purge overdue",
+        "today": "Purges today",
+        "tomorrow": "Purges tomorrow",
+        "inDays": "{count, plural, one {Purges in # day} other {Purges in # days}}"
+      },
+      "empty": {
+        "title": "Nothing in the trash",
+        "message": "Archived and tombstoned resources will show up here."
+      },
+      "emptyFiltered": "No resources match these filters.",
+      "loadError": "Could not load the trash. The platform API request failed — try reloading the page."
+    },
+    "approvals": {
+      "title": "Purge approvals",
+      "description": "Pending two-person purge requests awaiting a second approver.",
+      "table": {
+        "resource": "Resource",
+        "reason": "Reason",
+        "requestedBy": "Requested by",
+        "requestedAt": "Requested at",
+        "expiresAt": "Expires",
+        "actions": "Actions"
+      },
+      "selfRequestNote": "You requested this purge — another platform admin must approve it.",
+      "empty": {
+        "title": "No pending approvals",
+        "message": "Purge requests awaiting a second approver will show up here."
+      },
+      "loadError": "Could not load approvals. The platform API request failed — try reloading the page.",
+      "approve": {
+        "trigger": "Approve",
+        "modalTitle": "Approve purge",
+        "body": "This permanently destroys {resource}. This cannot be undone.",
+        "confirm": "Approve purge",
+        "confirming": "Approving…"
+      },
+      "reject": {
+        "trigger": "Reject",
+        "modalTitle": "Reject purge request",
+        "body": "This cancels the purge request for {resource}.",
+        "reasonLabel": "Reason for rejection",
+        "confirm": "Reject request",
+        "confirming": "Rejecting…"
+      }
+    },
+    "errors": {
+      "forbidden": "You do not have permission to do this.",
+      "notFound": "This resource no longer exists.",
+      "conflict": "This action can no longer be applied — the resource state changed.",
+      "expired": "This approval request has expired.",
+      "invalidReason": "Enter a reason before continuing.",
+      "genericError": "Something went wrong. Try again."
     }
   }
 }

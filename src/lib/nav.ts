@@ -1,4 +1,5 @@
-import type { UserRole } from '@spark/types'
+import { hasPlatformPermission } from '@spark/types'
+import type { PlatformPermission, UserRole } from '@spark/types'
 
 export type NavIcon =
   | 'overview'
@@ -10,11 +11,15 @@ export type NavIcon =
   | 'onboarding'
   | 'analytics'
   | 'audit'
+  | 'trash'
+  | 'approvals'
 
 export interface NavItem {
   href: string
   icon: NavIcon
   roles: UserRole[]
+  /** Extra gate beyond `roles`, checked with `hasPlatformPermission`. Omit when role alone decides. */
+  permission?: PlatformPermission
 }
 
 const OPERATOR_ROLES: UserRole[] = ['operator_staff', 'operator_admin', 'platform_admin']
@@ -31,8 +36,24 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/onboarding', icon: 'onboarding', roles: PLATFORM_ADMIN_ROLES },
   { href: '/dashboard/analytics', icon: 'analytics', roles: PLATFORM_ADMIN_ROLES },
   { href: '/dashboard/audit', icon: 'audit', roles: PLATFORM_ADMIN_ROLES },
+  {
+    href: '/dashboard/admin/trash',
+    icon: 'trash',
+    roles: PLATFORM_ADMIN_ROLES,
+    permission: 'platform:tenant.read',
+  },
+  {
+    href: '/dashboard/admin/approvals',
+    icon: 'approvals',
+    roles: PLATFORM_ADMIN_ROLES,
+    permission: 'platform:tenant.purge',
+  },
 ]
 
 export function navForRole(role: UserRole): NavItem[] {
-  return NAV_ITEMS.filter((item) => item.roles.includes(role))
+  return NAV_ITEMS.filter(
+    (item) =>
+      item.roles.includes(role) &&
+      (!item.permission || hasPlatformPermission(role, item.permission)),
+  )
 }
