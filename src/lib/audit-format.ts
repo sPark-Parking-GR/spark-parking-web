@@ -21,24 +21,98 @@ export function formatRelativeTime(iso: string, t: Translator): string {
   }).format(date)
 }
 
-const ACTION_LABEL_KEYS: Record<string, string> = {
-  'booking.created': 'bookingCreated',
-  'booking.confirmed': 'bookingConfirmed',
-  'booking.refunded': 'bookingRefunded',
-  'booking.cancelled': 'bookingCancelled',
-  'facility.created': 'facilityCreated',
-  'facility.updated': 'facilityUpdated',
-  'facility.archived': 'facilityArchived',
-  'facility.tariff_assigned': 'facilityTariffAssigned',
-  'facility.tariff_unassigned': 'facilityTariffUnassigned',
-  'facility.bulk.enable': 'facilityBulkEnable',
-  'facility.bulk.disable': 'facilityBulkDisable',
-  'facility.bulk.deploy': 'facilityBulkDeploy',
-  'facility.bulk.delete': 'facilityBulkDelete',
-  'facility.bulk.assignTariff': 'facilityBulkAssignTariff',
-  'tariff_plan.created': 'tariffPlanCreated',
-  'tariff_plan.updated': 'tariffPlanUpdated',
-  'tariff_plan.archived': 'tariffPlanArchived',
+export type AuditTone = 'primary' | 'success' | 'warning' | 'danger'
+
+/**
+ * Every audit action the API writes, with the tone it renders in.
+ *
+ * Exhaustive on purpose, and one table rather than two. What this replaced was a partial
+ * label map beside a regex over the action string, and each half failed in its own way:
+ * an action nobody remembered to add fell through to humanize() and rendered in a visibly
+ * different voice from its neighbours, while the regex matched substrings — `unassigned`
+ * contains `assigned`, `unpublish` contains `publish`, `purge_requested` contains `purge`
+ * — so a row's tone depended on the order of the clauses rather than on what it meant.
+ *
+ * The `deactivated` and `deleted` entries name actions the API no longer writes. They stay
+ * because the audit log is a historical record: rows written before those actions were
+ * renamed still have to render, and retiring a label silently orphans the past.
+ */
+const ACTION_META: Record<string, { key: string; tone: AuditTone }> = {
+  'account.deleted': { key: 'accountDeleted', tone: 'danger' },
+
+  'booking.created': { key: 'bookingCreated', tone: 'success' },
+  'booking.confirmed': { key: 'bookingConfirmed', tone: 'success' },
+  'booking.cancelled': { key: 'bookingCancelled', tone: 'danger' },
+  'booking.refunded': { key: 'bookingRefunded', tone: 'warning' },
+  'booking.refund_requested': { key: 'bookingRefundRequested', tone: 'warning' },
+  'booking.refund_failed': { key: 'bookingRefundFailed', tone: 'danger' },
+  'booking.checked_in': { key: 'bookingCheckedIn', tone: 'primary' },
+  'booking.checked_out': { key: 'bookingCheckedOut', tone: 'primary' },
+
+  'facility.created': { key: 'facilityCreated', tone: 'success' },
+  'facility.updated': { key: 'facilityUpdated', tone: 'warning' },
+  'facility.archived': { key: 'facilityArchived', tone: 'danger' },
+  'facility.restored': { key: 'facilityRestored', tone: 'success' },
+  'facility.tombstoned': { key: 'facilityTombstoned', tone: 'danger' },
+  'facility.purged': { key: 'facilityPurged', tone: 'danger' },
+  'facility.managers_changed': { key: 'facilityManagersChanged', tone: 'warning' },
+  'facility.tariff_assigned': { key: 'facilityTariffAssigned', tone: 'success' },
+  'facility.tariff_unassigned': { key: 'facilityTariffUnassigned', tone: 'danger' },
+  'facility.deactivated': { key: 'facilityDeactivated', tone: 'danger' },
+
+  'facility.bulk.enable': { key: 'facilityBulkEnable', tone: 'success' },
+  'facility.bulk.disable': { key: 'facilityBulkDisable', tone: 'danger' },
+  'facility.bulk.deploy': { key: 'facilityBulkDeploy', tone: 'success' },
+  'facility.bulk.delete': { key: 'facilityBulkDelete', tone: 'danger' },
+  'facility.bulk.publish': { key: 'facilityBulkPublish', tone: 'success' },
+  'facility.bulk.unpublish': { key: 'facilityBulkUnpublish', tone: 'danger' },
+  'facility.bulk.assignTariff': { key: 'facilityBulkAssignTariff', tone: 'success' },
+
+  'tariff_plan.created': { key: 'tariffPlanCreated', tone: 'success' },
+  'tariff_plan.updated': { key: 'tariffPlanUpdated', tone: 'warning' },
+  'tariff_plan.archived': { key: 'tariffPlanArchived', tone: 'danger' },
+  'tariff_plan.restored': { key: 'tariffPlanRestored', tone: 'success' },
+  'tariff_plan.tombstoned': { key: 'tariffPlanTombstoned', tone: 'danger' },
+  'tariff_plan.purged': { key: 'tariffPlanPurged', tone: 'danger' },
+  'tariff_plan.managers_changed': { key: 'tariffPlanManagersChanged', tone: 'warning' },
+  'tariff_plan.deleted': { key: 'tariffPlanDeleted', tone: 'danger' },
+  'tariff_plan.deactivated': { key: 'tariffPlanDeactivated', tone: 'danger' },
+
+  'operator.archived': { key: 'operatorArchived', tone: 'danger' },
+  'operator.restored': { key: 'operatorRestored', tone: 'success' },
+  'operator.tombstoned': { key: 'operatorTombstoned', tone: 'danger' },
+  'operator.purged': { key: 'operatorPurged', tone: 'danger' },
+  'operator.suspended': { key: 'operatorSuspended', tone: 'danger' },
+  'operator.reactivated': { key: 'operatorReactivated', tone: 'success' },
+
+  'operator_member.removed': { key: 'operatorMemberRemoved', tone: 'danger' },
+  'operator_member.role_changed': { key: 'operatorMemberRoleChanged', tone: 'warning' },
+
+  'operator_subscription.assigned': { key: 'operatorSubscriptionAssigned', tone: 'success' },
+  'operator_subscription.override_set': {
+    key: 'operatorSubscriptionOverrideSet',
+    tone: 'warning',
+  },
+
+  'subscription_plan.created': { key: 'subscriptionPlanCreated', tone: 'success' },
+  'subscription_plan.updated': { key: 'subscriptionPlanUpdated', tone: 'warning' },
+  'subscription_plan.archived': { key: 'subscriptionPlanArchived', tone: 'danger' },
+
+  'user.archived': { key: 'userArchived', tone: 'danger' },
+  'user.restored': { key: 'userRestored', tone: 'success' },
+  'user.tombstoned': { key: 'userTombstoned', tone: 'danger' },
+  'user.purged': { key: 'userPurged', tone: 'danger' },
+  'user.purge_anonymised': { key: 'userPurgeAnonymised', tone: 'danger' },
+
+  'invite.created': { key: 'inviteCreated', tone: 'success' },
+  'invite.accepted': { key: 'inviteAccepted', tone: 'success' },
+  'invite.resent': { key: 'inviteResent', tone: 'primary' },
+  'invite.revoked': { key: 'inviteRevoked', tone: 'danger' },
+
+  'lifecycle.purge_requested': { key: 'lifecyclePurgeRequested', tone: 'warning' },
+  'lifecycle.purge_approved': { key: 'lifecyclePurgeApproved', tone: 'danger' },
+  'lifecycle.purge_rejected': { key: 'lifecyclePurgeRejected', tone: 'primary' },
+  'lifecycle.purged': { key: 'lifecyclePurged', tone: 'danger' },
 }
 
 function humanize(action: string): string {
@@ -46,16 +120,10 @@ function humanize(action: string): string {
 }
 
 export function actionLabel(t: Translator, action: string): string {
-  const key = ACTION_LABEL_KEYS[action]
-  return key ? t(`actions.${key}`) : humanize(action)
+  const meta = ACTION_META[action]
+  return meta ? t(`actions.${meta.key}`) : humanize(action)
 }
 
-export type AuditTone = 'primary' | 'success' | 'warning' | 'danger'
-
 export function actionTone(action: string): AuditTone {
-  if (/deleted|deactivated|archived|cancelled|unassigned|bulk\.delete|bulk\.disable/.test(action))
-    return 'danger'
-  if (/created|confirmed|assigned|bulk\.enable|bulk\.deploy/.test(action)) return 'success'
-  if (/updated|refunded/.test(action)) return 'warning'
-  return 'primary'
+  return ACTION_META[action]?.tone ?? 'primary'
 }
