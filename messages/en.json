@@ -4,6 +4,7 @@
     "facilities": "Facilities",
     "tariffs": "Tariffs",
     "bookings": "Bookings",
+    "scan": "Scan",
     "capacity": "Capacity",
     "analytics": "Analytics",
     "operators": "Operators",
@@ -14,6 +15,7 @@
       "facilities": "Manage your parking facilities and locations",
       "tariffs": "Pricing plans, rates and caps",
       "bookings": "Active and past customer bookings",
+      "scan": "Scan booking QR codes at the barrier",
       "operators": "Platform operator accounts",
       "onboarding": "Invite new operator businesses onto sPark",
       "analytics": "Revenue and occupancy insights",
@@ -809,6 +811,62 @@
       "refundFailed": "The refund could not be completed right now. The booking is marked refund-pending — try cancelling again to retry.",
       "genericError": "Something went wrong. Please try again.",
       "missingId": "Missing booking id."
+    }
+  },
+  "scan": {
+    "title": "Scan",
+    "description": "Scan a booking QR code or enter an access code to check a vehicle in.",
+    "camera": {
+      "heading": "Camera",
+      "starting": "Starting camera…",
+      "hint": "Point the camera at the booking QR code",
+      "error": {
+        "insecureContext": "Camera requires a secure (HTTPS) connection. Use the manual code entry below instead.",
+        "unsupported": "This device or browser doesn't support camera scanning. Use the manual code entry below.",
+        "permissionDenied": "Camera access was denied. Allow camera access, or use the manual code entry below.",
+        "notFound": "No camera was found on this device. Use the manual code entry below.",
+        "unknown": "The camera couldn't be started. Use the manual code entry below."
+      }
+    },
+    "manual": {
+      "heading": "Enter code manually",
+      "label": "Access code",
+      "placeholder": "e.g. 7ZK4QAND3H8QX5RT2VBWY9",
+      "submit": "Check",
+      "submitting": "Checking…",
+      "invalidFormat": "Enter a valid access code."
+    },
+    "mute": {
+      "on": "Turn sound on",
+      "off": "Turn sound off"
+    },
+    "result": {
+      "idle": "Ready to scan",
+      "pending": "Checking…",
+      "verdict": {
+        "valid": "Valid ticket",
+        "checkedIn": "Checked in",
+        "alreadyCheckedIn": "Already checked in",
+        "validNotApplied": "Verified, but the booking status changed — check manually",
+        "invalidSignature": "Invalid code — not a genuine sPark ticket",
+        "outsideTimeWindow": "Code expired — ask the driver to refresh the QR",
+        "alreadyUsed": "Code already used",
+        "notHonourable": "Booking is not valid for entry"
+      },
+      "errors": {
+        "invalidFormat": "Enter a valid access code.",
+        "malformed": "This code is not a valid sPark ticket",
+        "notFound": "No booking matches this code",
+        "redisUnavailable": "QR verification is temporarily unavailable — use manual code entry below",
+        "rateLimited": "Scanning too fast — pause a moment before the next attempt",
+        "genericError": "Couldn't verify — try again."
+      },
+      "fields": {
+        "facility": "Facility",
+        "vehicle": "Vehicle",
+        "window": "Window",
+        "accessCode": "Access code"
+      }
     }
   },
   "insights": {

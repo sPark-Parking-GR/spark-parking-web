@@ -5,6 +5,7 @@ export type NavIcon =
   | 'facilities'
   | 'tariffs'
   | 'bookings'
+  | 'scan'
   | 'operators'
   | 'onboarding'
   | 'analytics'
@@ -25,6 +26,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/facilities', icon: 'facilities', roles: OPERATOR_ADMIN_ROLES },
   { href: '/dashboard/tariffs', icon: 'tariffs', roles: OPERATOR_ADMIN_ROLES },
   { href: '/dashboard/bookings', icon: 'bookings', roles: OPERATOR_ROLES },
+  { href: '/dashboard/scan', icon: 'scan', roles: OPERATOR_ROLES },
   { href: '/dashboard/operators', icon: 'operators', roles: PLATFORM_ADMIN_ROLES },
   { href: '/dashboard/onboarding', icon: 'onboarding', roles: PLATFORM_ADMIN_ROLES },
   { href: '/dashboard/analytics', icon: 'analytics', roles: PLATFORM_ADMIN_ROLES },
