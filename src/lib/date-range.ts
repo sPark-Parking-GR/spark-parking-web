@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import type { RevenueBucket } from './analytics-api'
 
 export const RANGE_PRESETS = ['7d', '30d', '90d', '12m'] as const
@@ -32,10 +33,14 @@ export function parseRangePreset(value: string | undefined): RangePreset {
     : DEFAULT_RANGE_PRESET
 }
 
+// Server render logic can execute more than once per request (SSR HTML pass and RSC
+// flight pass); memoize so both passes agree on "now" even across a UTC-day rollover.
+const getRequestNow = cache(() => new Date())
+
 // `to` is exclusive at the API boundary, so it is pinned to the UTC midnight after
 // today: every bucket up to and including today's partial data is covered, and the
 // span always tiles into exactly PRESET_DAYS whole buckets.
-export function resolveRange(preset: RangePreset, now: Date = new Date()): ResolvedRange {
+export function resolveRange(preset: RangePreset, now: Date = getRequestNow()): ResolvedRange {
   const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))
   const from = new Date(to.getTime() - PRESET_DAYS[preset] * 24 * 60 * 60 * 1000)
   return { preset, from, to, bucket: PRESET_BUCKET[preset] }
