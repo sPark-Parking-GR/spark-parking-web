@@ -15,7 +15,7 @@ import {
   ApiError,
   AuthRequiredError,
 } from './api'
-import { buildFacilityFormSchema, facilityFormSchema } from './facility-schema'
+import { buildFacilityFormSchema } from './facility-schema'
 import type {
   AdminMapResponse,
   AssignTariffInput,
@@ -112,9 +112,15 @@ export async function createFacilityAction(
     openTime: formData.get('openTime'),
     closeTime: formData.get('closeTime'),
     operatorId: formData.get('operatorId'),
+    kind: formData.get('kind'),
   }
 
-  const parsed = facilityFormSchema.safeParse(raw)
+  // Non-business facilities are catalog-only: the form omits the booking sections, so
+  // their fields must stay absent from the payload and the API defaults them instead.
+  const kindField = formData.get('kind')
+  const isBusiness = kindField === 'BUSINESS' || kindField === null
+
+  const parsed = buildFacilityFormSchema(isBusiness).safeParse(raw)
   if (!parsed.success) {
     return { ok: false, errorKey: parsed.error.issues[0]?.message ?? 'errors.invalidInput' }
   }
@@ -134,6 +140,7 @@ export async function createFacilityAction(
     openTime,
     closeTime,
     operatorId,
+    kind,
   } = parsed.data
 
   const input: CreateFacilityInput = {
@@ -141,11 +148,12 @@ export async function createFacilityAction(
     address,
     lat,
     lng,
-    totalCapacity,
-    onlineQuota,
-    vehicleTypes,
-    heightRestrictionCm: heightRestrictionCm ?? null,
-    openingHours: buildOpeningHours(is24h, openTime ?? undefined, closeTime ?? undefined),
+    ...(isBusiness ? { totalCapacity, onlineQuota } : {}),
+    ...(vehicleTypes && vehicleTypes.length > 0 ? { vehicleTypes } : {}),
+    ...(isBusiness && heightRestrictionCm !== undefined ? { heightRestrictionCm } : {}),
+    ...(isBusiness
+      ? { openingHours: buildOpeningHours(is24h, openTime ?? undefined, closeTime ?? undefined) }
+      : {}),
     amenities: amenities
       ? amenities
           .split(',')
@@ -154,6 +162,9 @@ export async function createFacilityAction(
       : [],
     cancellationPolicy: cancellationPolicy ?? '',
     ...(operatorId ? { operatorId } : {}),
+    // Only ever submitted by the platform-admin kind selector; every other caller
+    // omits it and the API defaults the new facility to BUSINESS.
+    ...(kind !== undefined ? { kind } : {}),
   }
 
   try {

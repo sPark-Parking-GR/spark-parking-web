@@ -75,8 +75,8 @@ export interface AdminFacilityListItem {
   isVerified: boolean
   kind: FacilityKind
   source: FacilitySource
-  operatorId: string
-  operatorName: string
+  operatorId: string | null
+  operatorName: string | null
   createdAt: string
   updatedAt: string
 }
@@ -113,7 +113,7 @@ export interface AdminMapResponse {
 
 export interface AdminFacility {
   id: string
-  operatorId: string
+  operatorId: string | null
   kind: FacilityKind
   name: string
   address: string
@@ -145,14 +145,18 @@ export interface CreateFacilityInput {
   address: string
   lat: number
   lng: number
-  totalCapacity: number
-  onlineQuota: number
-  vehicleTypes: string[]
+  // Required for a BUSINESS facility (the default kind); omitted entirely for a
+  // non-BUSINESS kind, which is catalog-only and never bookable — the API then
+  // defaults capacity to uncapped, vehicleTypes to every type, and hours to 24h.
+  totalCapacity?: number
+  onlineQuota?: number
+  vehicleTypes?: string[]
   heightRestrictionCm?: number | null
-  openingHours: OpeningHours
+  openingHours?: OpeningHours
   amenities?: string[]
   cancellationPolicy?: string
   operatorId?: string
+  kind?: FacilityKind
 }
 
 export type OperatorMemberRole = 'ADMIN' | 'STAFF'

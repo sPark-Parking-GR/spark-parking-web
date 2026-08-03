@@ -81,10 +81,11 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operator
     icon: VEHICLE_ICON[o.value],
   }))
   const [kind, setKind] = useState<FacilityKind>(() => facility?.kind ?? 'BUSINESS')
-  // Tracks the pending selection, not the saved facility: a platform admin moving a
-  // facility into or out of Business must see the capacity/vehicle/hours sections
-  // appear or disappear before submitting, since that is what the save will require.
-  const isBusiness = mode === 'create' || kind === 'BUSINESS'
+  // Tracks the pending selection, not the saved facility: a platform admin picking a
+  // non-Business kind must see the capacity/vehicle/hours sections disappear before
+  // submitting, since a catalog-only facility never uses them and the API will default
+  // them (uncapped, every vehicle, 24h) rather than require them.
+  const isBusiness = kind === 'BUSINESS'
   const boundAction =
     mode === 'edit' && facility
       ? updateFacilityAction.bind(null, facility.id, facility.kind)
@@ -466,6 +467,25 @@ export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operator
                     {t('form.kindLeavingBusinessWarning')}
                   </p>
                 ) : null}
+              </label>
+            ) : null}
+
+            {mode === 'create' && isPlatformAdmin ? (
+              <label className="field">
+                <span className="field__label">{t('form.kindLabel')}</span>
+                <select
+                  className="input"
+                  name="kind"
+                  value={kind}
+                  onChange={(e) => setKind(e.target.value as FacilityKind)}
+                  disabled={isPending}
+                >
+                  {KIND_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(option.labelKey)}
+                    </option>
+                  ))}
+                </select>
               </label>
             ) : null}
 

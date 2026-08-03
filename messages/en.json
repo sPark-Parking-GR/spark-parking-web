@@ -387,6 +387,7 @@
     "table": {
       "name": "Name",
       "operator": "Operator",
+      "noOperator": "No operator",
       "kind": "Kind",
       "capacity": "Capacity",
       "status": "Status",
@@ -463,7 +464,7 @@
       "kindLeavingBusinessWarning": "Moving this facility out of Business clears its tariff assignments.",
       "operatorIdLabel": "Operator",
       "operatorIdPlaceholder": "Search operators by name…",
-      "operatorIdHint": "The operator this facility belongs to.",
+      "operatorIdHint": "The operator this facility belongs to. Leave blank to create it with no operator assigned.",
       "operatorFacilityCount": "{count, plural, one {# facility} other {# facilities}}",
       "operatorNoMatches": "No operators match.",
       "mapHint": "Click the map or drag the pin to set the location. The coordinates update automatically.",

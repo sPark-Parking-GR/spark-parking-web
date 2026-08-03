@@ -279,7 +279,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                     <span className="table__sub">{item.address}</span>
                   </td>
                   <td className="text-secondary">
-                    {item.operatorName}
+                    {item.operatorName ?? t('table.noOperator')}
                     <span className="table__sub">{t(sourceLabelKey(item.source))}</span>
                   </td>
                   <td>
