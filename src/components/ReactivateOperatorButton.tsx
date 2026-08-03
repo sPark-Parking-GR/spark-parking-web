@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useTranslations } from 'next-intl'
+import type { ReactNode } from 'react'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import { reactivateOperatorAction } from '@/lib/operator-actions'
@@ -10,6 +11,8 @@ import type { OperatorActionResult } from '@/lib/operator-actions'
 
 interface Props {
   id: string
+  icon?: ReactNode
+  iconOnly?: boolean
 }
 
 const INITIAL_STATE: OperatorActionResult = { ok: true }
@@ -31,16 +34,29 @@ function ConfirmButton() {
   )
 }
 
-export function ReactivateOperatorButton({ id }: Props) {
+export function ReactivateOperatorButton({ id, icon, iconOnly }: Props) {
   const t = useTranslations('onboarding')
   const [open, setOpen] = useState(false)
   const [state, formAction] = useActionState(reactivateOperatorAction, INITIAL_STATE)
 
   return (
     <>
-      <button type="button" className="btn btn--sm btn--secondary" onClick={() => setOpen(true)}>
-        {t('reactivate.trigger')}
-      </button>
+      {iconOnly && icon ? (
+        <button
+          type="button"
+          className="btn btn--icon btn--ghost-primary"
+          onClick={() => setOpen(true)}
+          aria-label={t('reactivate.trigger')}
+          data-tooltip={t('reactivate.trigger')}
+          data-tooltip-pos="bottom"
+        >
+          {icon}
+        </button>
+      ) : (
+        <button type="button" className="btn btn--sm btn--secondary" onClick={() => setOpen(true)}>
+          {t('reactivate.trigger')}
+        </button>
+      )}
 
       <Modal open={open} onClose={() => setOpen(false)} title={t('reactivate.modalTitle')}>
         <p className="modal__text">{t('reactivate.modalText')}</p>

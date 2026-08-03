@@ -173,7 +173,20 @@
         "title": "No operators yet",
         "message": "Operators appear here once an invite is sent."
       },
-      "loadError": "Could not load operators. The platform API request failed — try reloading the page."
+      "emptyFiltered": "No operators match your search or filters.",
+      "loadError": "Could not load operators. The platform API request failed — try reloading the page.",
+      "searchPlaceholder": "Search operators…",
+      "count": "{count, plural, one {# operator} other {# operators}}",
+      "filters": {
+        "statusAria": "Filter by status",
+        "anyStatus": "All statuses"
+      },
+      "stats": {
+        "total": "Total operators",
+        "verified": "Verified",
+        "pending": "Pending",
+        "suspended": "Suspended"
+      }
     },
     "operatorTable": {
       "name": "Business",
@@ -218,9 +231,6 @@
           "facilities": "Facilities",
           "members": "Members"
         }
-      },
-      "actions": {
-        "title": "Platform actions"
       },
       "facilities": {
         "title": "Facilities",

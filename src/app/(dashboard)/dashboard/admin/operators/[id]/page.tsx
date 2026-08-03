@@ -1,6 +1,15 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { ChevronLeft, AlertCircle } from 'lucide-react'
+import {
+  ChevronLeft,
+  AlertCircle,
+  Building2,
+  ShieldOff,
+  ShieldCheck,
+  Archive,
+  ArchiveRestore,
+  Trash2,
+} from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { hasPlatformPermission } from '@spark/types'
 import { Badge } from '@spark/ui'
@@ -13,7 +22,7 @@ import { OperatorMembersTable } from '@/components/OperatorMembersTable'
 import { ApiError, AuthRequiredError } from '@/lib/api'
 import { requireSession } from '@/lib/dal'
 import { getOperatorDetail } from '@/lib/operator-api'
-import type { OperatorDetail, OperatorStatus } from '@/lib/operator-actions'
+import type { OperatorDetail, OperatorLifecycleStatus, OperatorStatus } from '@/lib/operator-actions'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -23,6 +32,13 @@ const OPERATOR_STATUS_VARIANT: Record<OperatorStatus, BadgeVariant> = {
   PENDING: 'warn',
   VERIFIED: 'ok',
   SUSPENDED: 'bad',
+}
+
+const LIFECYCLE_VARIANT: Record<OperatorLifecycleStatus, BadgeVariant> = {
+  ACTIVE: 'ok',
+  ARCHIVED: 'warn',
+  TOMBSTONED: 'bad',
+  PURGED: 'neutral',
 }
 
 const dateFmt = new Intl.DateTimeFormat('en-GB', {
@@ -41,11 +57,12 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
   const canGrantRoles = hasPlatformPermission(session.user.role, 'platform:role.grant')
 
   const { id } = await params
-  const [t, tOnboarding, tFacilities, tTariffs] = await Promise.all([
+  const [t, tOnboarding, tFacilities, tTariffs, tAdminLifecycle] = await Promise.all([
     getTranslations('onboarding.detail'),
     getTranslations('onboarding'),
     getTranslations('facilities'),
     getTranslations('tariffs'),
+    getTranslations('adminLifecycle'),
   ])
 
   let operator: OperatorDetail | null = null
@@ -71,7 +88,68 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
         </p>
       ) : (
         <>
-          <PageHeader title={operator.name} />
+          <div className="operator-overview__header">
+            <span className="operator-overview__icon" aria-hidden="true">
+              <Building2 size={24} strokeWidth={2} />
+            </span>
+            <PageHeader
+              title={operator.name}
+              actions={
+                canWrite || canPurge ? (
+                  <div className="row-actions">
+                    {canWrite && operator.status === 'VERIFIED' ? (
+                      <SuspendOperatorButton
+                        id={operator.id}
+                        icon={<ShieldOff size={18} strokeWidth={2} aria-hidden="true" />}
+                        iconOnly
+                      />
+                    ) : null}
+                    {canWrite && operator.status === 'SUSPENDED' ? (
+                      <ReactivateOperatorButton
+                        id={operator.id}
+                        icon={<ShieldCheck size={18} strokeWidth={2} aria-hidden="true" />}
+                        iconOnly
+                      />
+                    ) : null}
+                    {canWrite && operator.lifecycleStatus === 'ACTIVE' ? (
+                      <LifecycleActionButton
+                        resourceType="operator"
+                        resourceId={operator.id}
+                        resourceLabel={operator.name}
+                        action="archive"
+                        icon={<Archive size={18} strokeWidth={2} aria-hidden="true" />}
+                        iconOnly
+                      />
+                    ) : null}
+                    {canWrite &&
+                    (operator.lifecycleStatus === 'ARCHIVED' ||
+                      operator.lifecycleStatus === 'TOMBSTONED') ? (
+                      <LifecycleActionButton
+                        resourceType="operator"
+                        resourceId={operator.id}
+                        resourceLabel={operator.name}
+                        action="restore"
+                        icon={<ArchiveRestore size={18} strokeWidth={2} aria-hidden="true" />}
+                        iconOnly
+                      />
+                    ) : null}
+                    {canPurge &&
+                    (operator.lifecycleStatus === 'ACTIVE' ||
+                      operator.lifecycleStatus === 'ARCHIVED') ? (
+                      <LifecycleActionButton
+                        resourceType="operator"
+                        resourceId={operator.id}
+                        resourceLabel={operator.name}
+                        action="tombstone"
+                        icon={<Trash2 size={18} strokeWidth={2} aria-hidden="true" />}
+                        iconOnly
+                      />
+                    ) : null}
+                  </div>
+                ) : undefined
+              }
+            />
+          </div>
 
           <div className="operator-status-row">
             <span className="operator-status-row__item">
@@ -82,13 +160,19 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
             </span>
             <span className="operator-status-row__item">
               <span className="text-secondary">{t('status.lifecycle')}</span>
-              <Badge variant="ok">{t('status.active')}</Badge>
+              <Badge variant={LIFECYCLE_VARIANT[operator.lifecycleStatus]}>
+                {operator.lifecycleStatus === 'ACTIVE'
+                  ? t('status.active')
+                  : tAdminLifecycle(`status.${operator.lifecycleStatus}`)}
+              </Badge>
             </span>
           </div>
 
           <div className="panel-card panel-card--wide">
-            <div className="panel-card__body">
+            <div className="panel-card__header">
               <h3 className="panel-card__title">{t('identity.title')}</h3>
+            </div>
+            <div className="panel-card__body">
               <div className="operator-detail-grid">
                 <div className="operator-detail-grid__item">
                   <span className="operator-detail-grid__label">{t('identity.fields.id')}</span>
@@ -118,42 +202,11 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {canWrite || canPurge ? (
-            <div className="panel-card panel-card--wide">
-              <div className="panel-card__body">
-                <h3 className="panel-card__title">{t('actions.title')}</h3>
-                <div className="table-actions">
-                  {canWrite && operator.status === 'VERIFIED' ? (
-                    <SuspendOperatorButton id={operator.id} />
-                  ) : null}
-                  {canWrite && operator.status === 'SUSPENDED' ? (
-                    <ReactivateOperatorButton id={operator.id} />
-                  ) : null}
-                  {canWrite ? (
-                    <LifecycleActionButton
-                      resourceType="operator"
-                      resourceId={operator.id}
-                      resourceLabel={operator.name}
-                      action="archive"
-                    />
-                  ) : null}
-                  {canPurge ? (
-                    <LifecycleActionButton
-                      resourceType="operator"
-                      resourceId={operator.id}
-                      resourceLabel={operator.name}
-                      action="tombstone"
-                      triggerClassName="btn btn--sm btn--danger"
-                    />
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          ) : null}
-
           <div className="panel-card panel-card--wide">
-            <div className="panel-card__body">
+            <div className="panel-card__header">
               <h3 className="panel-card__title">{t('facilities.title')}</h3>
+            </div>
+            <div className="panel-card__body">
               {operator.facilities.length === 0 ? (
                 <p className="text-secondary">{t('facilities.empty')}</p>
               ) : (
@@ -199,8 +252,10 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
           </div>
 
           <div className="panel-card panel-card--wide">
-            <div className="panel-card__body">
+            <div className="panel-card__header">
               <h3 className="panel-card__title">{t('plans.title')}</h3>
+            </div>
+            <div className="panel-card__body">
               {operator.plans.length === 0 ? (
                 <p className="text-secondary">{t('plans.empty')}</p>
               ) : (
@@ -240,8 +295,10 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
           </div>
 
           <div className="panel-card panel-card--wide">
-            <div className="panel-card__body">
+            <div className="panel-card__header">
               <h3 className="panel-card__title">{t('members.title')}</h3>
+            </div>
+            <div className="panel-card__body">
               {operator.members.length === 0 ? (
                 <p className="text-secondary">{t('members.empty')}</p>
               ) : (

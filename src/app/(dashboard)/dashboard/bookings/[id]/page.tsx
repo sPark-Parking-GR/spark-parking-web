@@ -61,8 +61,10 @@ export default async function BookingDetailPage({ params }: PageProps) {
       />
 
       <div className="panel-card panel-card--wide">
-        <div className="panel-card__body">
+        <div className="panel-card__header">
           <h3 className="panel-card__title">{t('detail.sections.overview')}</h3>
+        </div>
+        <div className="panel-card__body">
           <div className="booking-detail-grid">
             <div className="booking-detail-grid__item">
               <span className="booking-detail-grid__label">{t('detail.fields.facility')}</span>
@@ -127,15 +129,19 @@ export default async function BookingDetailPage({ params }: PageProps) {
       </div>
 
       <div className="panel-card panel-card--wide">
-        <div className="panel-card__body">
+        <div className="panel-card__header">
           <h3 className="panel-card__title">{t('detail.sections.payment')}</h3>
+        </div>
+        <div className="panel-card__body">
           <p className="text-secondary">{t(`detail.payment.${booking.status}`)}</p>
         </div>
       </div>
 
       <div className="panel-card panel-card--wide">
-        <div className="panel-card__body">
+        <div className="panel-card__header">
           <h3 className="panel-card__title">{t('detail.sections.timeline')}</h3>
+        </div>
+        <div className="panel-card__body">
           {booking.statusHistory.length === 0 ? (
             <p className="text-secondary">{t('detail.timeline.empty')}</p>
           ) : (

@@ -1,7 +1,7 @@
 import { Info } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export type StatTone = 'primary' | 'success' | 'warning' | 'neutral'
+export type StatTone = 'primary' | 'success' | 'warning' | 'neutral' | 'error'
 
 export function StatCard({
   label,

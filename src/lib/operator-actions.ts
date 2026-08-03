@@ -3,15 +3,18 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { apiFetch, ApiError, AuthRequiredError } from './api'
+import type { LifecycleItemStatus } from './lifecycle-constants'
 
 const ONBOARDING_PATH = '/dashboard/onboarding'
 
 export type OperatorStatus = 'PENDING' | 'VERIFIED' | 'SUSPENDED'
+export type OperatorLifecycleStatus = 'ACTIVE' | LifecycleItemStatus
 
 export interface OperatorSummary {
   id: string
   name: string
   status: OperatorStatus
+  lifecycleStatus: OperatorLifecycleStatus
   facilityCount: number
   memberCount: number
   createdAt: string

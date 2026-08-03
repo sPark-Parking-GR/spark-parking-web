@@ -1088,6 +1088,10 @@ select.input {
   background: rgba(107, 114, 122, 0.12);
   color: var(--color-text-secondary);
 }
+.stat-card__icon--error {
+  background: var(--badBg);
+  color: var(--color-error);
+}
 
 .stat-card__label {
   font-size: 13px;
@@ -1145,6 +1149,14 @@ select.input {
   border-radius: var(--lg);
   box-shadow: var(--shadow);
   padding: 20px;
+  transition:
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.panel-card--wide:hover {
+  border-color: rgba(16, 148, 212, 0.25);
+  box-shadow: var(--shadow-md);
 }
 
 .panel-card--wide {
@@ -3375,6 +3387,31 @@ td.table-amount {
 }
 
 /* ─── Operator detail ──────────────────────────────────────────────────────── */
+
+.operator-overview__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.operator-overview__header > .page-header {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.operator-overview__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: linear-gradient(160deg, var(--pri), var(--pri2));
+  color: #fff;
+}
 
 .operator-status-row {
   display: flex;

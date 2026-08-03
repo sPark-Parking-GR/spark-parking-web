@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useTranslations } from 'next-intl'
+import type { ReactNode } from 'react'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import { suspendOperatorAction } from '@/lib/operator-actions'
@@ -10,6 +11,8 @@ import type { OperatorActionResult } from '@/lib/operator-actions'
 
 interface Props {
   id: string
+  icon?: ReactNode
+  iconOnly?: boolean
 }
 
 const INITIAL_STATE: OperatorActionResult = { ok: true }
@@ -31,16 +34,29 @@ function ConfirmButton() {
   )
 }
 
-export function SuspendOperatorButton({ id }: Props) {
+export function SuspendOperatorButton({ id, icon, iconOnly }: Props) {
   const t = useTranslations('onboarding')
   const [open, setOpen] = useState(false)
   const [state, formAction] = useActionState(suspendOperatorAction, INITIAL_STATE)
 
   return (
     <>
-      <button type="button" className="btn btn--sm btn--danger" onClick={() => setOpen(true)}>
-        {t('suspend.trigger')}
-      </button>
+      {iconOnly && icon ? (
+        <button
+          type="button"
+          className="btn btn--icon btn--ghost-danger"
+          onClick={() => setOpen(true)}
+          aria-label={t('suspend.trigger')}
+          data-tooltip={t('suspend.trigger')}
+          data-tooltip-pos="bottom"
+        >
+          {icon}
+        </button>
+      ) : (
+        <button type="button" className="btn btn--sm btn--danger" onClick={() => setOpen(true)}>
+          {t('suspend.trigger')}
+        </button>
+      )}
 
       <Modal open={open} onClose={() => setOpen(false)} title={t('suspend.modalTitle')}>
         <p className="modal__text">{t('suspend.modalText')}</p>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import type { ReactNode } from 'react'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import { ImpactPreviewPanel } from './ImpactPreviewPanel'
@@ -23,6 +24,15 @@ interface Props {
   resourceLabel: string
   action: LifecycleActionKind
   triggerClassName?: string
+  icon?: ReactNode
+  iconOnly?: boolean
+}
+
+const ICON_TRIGGER_CLASS: Record<LifecycleActionKind, string> = {
+  archive: 'btn btn--icon btn--ghost',
+  restore: 'btn btn--icon btn--ghost-primary',
+  tombstone: 'btn btn--icon btn--ghost-danger',
+  purge: 'btn btn--icon btn--ghost-danger',
 }
 
 const REASON_REQUIRED: Record<LifecycleActionKind, boolean> = {
@@ -55,6 +65,8 @@ export function LifecycleActionButton({
   resourceLabel,
   action,
   triggerClassName,
+  icon,
+  iconOnly,
 }: Props) {
   const t = useTranslations('adminLifecycle')
   const router = useRouter()
@@ -136,13 +148,26 @@ export function LifecycleActionButton({
 
   return (
     <>
-      <button
-        type="button"
-        className={triggerClassName ?? 'btn btn--sm btn--secondary'}
-        onClick={() => setOpen(true)}
-      >
-        {t(`action.${action}.trigger`)}
-      </button>
+      {iconOnly && icon ? (
+        <button
+          type="button"
+          className={triggerClassName ?? ICON_TRIGGER_CLASS[action]}
+          onClick={() => setOpen(true)}
+          aria-label={t(`action.${action}.trigger`)}
+          data-tooltip={t(`action.${action}.trigger`)}
+          data-tooltip-pos="bottom"
+        >
+          {icon}
+        </button>
+      ) : (
+        <button
+          type="button"
+          className={triggerClassName ?? 'btn btn--sm btn--secondary'}
+          onClick={() => setOpen(true)}
+        >
+          {t(`action.${action}.trigger`)}
+        </button>
+      )}
 
       <Modal
         open={open}
