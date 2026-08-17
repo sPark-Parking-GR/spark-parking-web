@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { apiFetch, ApiError, AuthRequiredError } from './api'
 import type { LifecycleItemStatus } from './lifecycle-constants'
 
-const ONBOARDING_PATH = '/dashboard/onboarding'
+const ONBOARDING_PATH = '/admin/onboarding'
 
 export type OperatorStatus = 'PENDING' | 'VERIFIED' | 'SUSPENDED'
 export type OperatorLifecycleStatus = 'ACTIVE' | LifecycleItemStatus
@@ -62,7 +62,7 @@ export interface OperatorDetail extends OperatorSummary {
 
 export async function listOperatorsAction(): Promise<OperatorSummary[]> {
   try {
-    return await apiFetch<OperatorSummary[]>('/operators')
+    return await apiFetch<OperatorSummary[]>('/admin/operators')
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     return []
@@ -77,7 +77,7 @@ async function transitionOperator(
   if (!id) return { ok: false, errorKey: 'errors.invalidOperator' }
 
   try {
-    await apiFetch(`/operators/${id}/${path}`, { method: 'POST' })
+    await apiFetch(`/admin/operators/${id}/${path}`, { method: 'POST' })
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
     if (err instanceof ApiError) {

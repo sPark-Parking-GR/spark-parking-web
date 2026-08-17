@@ -5,26 +5,11 @@ import { EmptyState } from '@/components/EmptyState'
 import { BookingTable } from '@/components/BookingTable'
 import { SearchInput } from '@/components/SearchInput'
 import { Pagination } from '@/components/Pagination'
-import { listBookings, type BookingStatus } from '@/lib/booking-api'
+import { listBookings } from '@/lib/booking-api'
+import { BOOKING_STATUS_FILTERS, parseBookingStatus } from '@/lib/booking-format'
 import { buildQuery, loadPage, requireSession } from '@/lib/dal'
 
 const PAGE_SIZE = 20
-
-const STATUS_FILTERS: { labelKey: string; value?: BookingStatus }[] = [
-  { labelKey: 'filters.all' },
-  { labelKey: 'filters.pendingPayment', value: 'PENDING_PAYMENT' },
-  { labelKey: 'filters.confirmed', value: 'CONFIRMED' },
-  { labelKey: 'filters.checkedIn', value: 'CHECKED_IN' },
-  { labelKey: 'filters.checkedOut', value: 'CHECKED_OUT' },
-  { labelKey: 'filters.cancelled', value: 'CANCELLED' },
-  { labelKey: 'filters.expired', value: 'EXPIRED' },
-  { labelKey: 'filters.refundPending', value: 'REFUND_PENDING' },
-  { labelKey: 'filters.refunded', value: 'REFUNDED' },
-]
-
-function parseStatus(value: string | undefined): BookingStatus | undefined {
-  return STATUS_FILTERS.find((f) => f.value === value)?.value
-}
 
 interface PageProps {
   searchParams: Promise<{ status?: string; q?: string; skip?: string }>
@@ -35,7 +20,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
 
   const t = await getTranslations('bookings')
   const params = await searchParams
-  const status = parseStatus(params.status)
+  const status = parseBookingStatus(params.status)
   const q = params.q?.trim() ?? ''
   const skip = Math.max(0, parseInt(params.skip ?? '0', 10) || 0)
 
@@ -58,7 +43,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
       <PageHeader title={t('title')} description={t('description')} />
 
       <div className="tabs">
-        {STATUS_FILTERS.map((f) => (
+        {BOOKING_STATUS_FILTERS.map((f) => (
           <Link
             key={f.labelKey}
             href={buildQuery('/dashboard/bookings', { status: f.value, q })}

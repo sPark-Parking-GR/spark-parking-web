@@ -4,7 +4,12 @@ import { getSessionFromRequest, isDashboardRole } from './lib/session'
 
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const res = NextResponse.next()
-  const session = await getSessionFromRequest(req, res)
+  const requiresPlatformAdmin = req.nextUrl.pathname.startsWith('/admin')
+  const session = await getSessionFromRequest(
+    req,
+    res,
+    requiresPlatformAdmin ? 'admin' : 'dashboard',
+  )
 
   if (!session.accessToken || !session.user) {
     const loginUrl = new URL('/login', req.url)
@@ -12,7 +17,11 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (!isDashboardRole(session.user.role)) {
+  const allowed = requiresPlatformAdmin
+    ? session.user.role === 'platform_admin'
+    : isDashboardRole(session.user.role)
+
+  if (!allowed) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('error', 'forbidden')
     return NextResponse.redirect(loginUrl)
@@ -21,8 +30,9 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   return res
 }
 
+// WHY: session cookies are scoped to /dashboard and /admin, so no other path can carry
+// one — matching them here would redirect authenticated users to /login. The root page is
+// a bare redirect into /dashboard, where this guard applies.
 export const config = {
-  matcher: [
-    '/((?!login|invite|forgot-password|reset-password|_next/static|_next/image|favicon.ico|api/auth|.*\\..*).*)',
-  ],
+  matcher: ['/dashboard', '/dashboard/:path*', '/admin', '/admin/:path*'],
 }

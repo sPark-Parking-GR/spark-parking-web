@@ -7,14 +7,14 @@ import { ManagersPanel } from '@/components/ManagersPanel'
 import { getTariffPlan, getTariffAssignments, listTariffPlans } from '@/lib/tariff-api'
 import { getTariffPlanManagersAction } from '@/lib/tariff-actions'
 import { ApiError, AuthRequiredError } from '@/lib/api'
-import { getSession } from '@/lib/session'
+import { getActiveSession } from '@/lib/session'
 
 interface PageProps {
   params: Promise<{ planId: string }>
 }
 
 export default async function EditTariffPlanPage({ params }: PageProps) {
-  const session = await getSession()
+  const session = await getActiveSession()
   if (!session.accessToken) redirect('/login')
 
   const { planId } = await params

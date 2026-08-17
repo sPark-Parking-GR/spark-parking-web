@@ -273,7 +273,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                     </label>
                   </td>
                   <td>
-                    <Link href={`/dashboard/facilities/${item.id}`} className="table-link">
+                    <Link href={`/admin/facilities/${item.id}`} className="table-link">
                       {item.name}
                     </Link>
                     <span className="table__sub">{item.address}</span>
@@ -354,7 +354,7 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                         <Banknote size={17} strokeWidth={2} aria-hidden="true" />
                       </button>
                       <Link
-                        href={`/dashboard/facilities/${item.id}?tab=manage`}
+                        href={`/admin/facilities/${item.id}?tab=manage`}
                         className="btn btn--icon btn--ghost"
                         aria-label={t('actions.edit')}
                         data-tooltip={t('table.tooltipEdit')}

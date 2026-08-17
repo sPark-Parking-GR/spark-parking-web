@@ -23,7 +23,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
     redirects: { 403: '/dashboard' },
   })
 
-  const buildHref = (nextSkip: number) => buildQuery('/dashboard/audit', { skip: nextSkip })
+  const buildHref = (nextSkip: number) => buildQuery('/admin/audit', { skip: nextSkip })
 
   return (
     <>

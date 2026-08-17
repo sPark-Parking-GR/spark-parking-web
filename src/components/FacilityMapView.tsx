@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   APIProvider,
   Map,
@@ -63,6 +64,9 @@ function pinClass(point: AdminMapPoint): string {
 
 export function FacilityMapView({ filters }: Props) {
   const t = useTranslations('facilities')
+  // Rendered from both the operator list (/dashboard/facilities) and the platform-admin
+  // one (/admin/facilities), so detail links stay on the surface the user is already on.
+  const pathname = usePathname()
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID'
 
@@ -237,7 +241,7 @@ export function FacilityMapView({ filters }: Props) {
               </button>
             )}
             <Link
-              href={`/dashboard/facilities/${selected.id}`}
+              href={`${pathname}/${selected.id}`}
               className="btn btn--secondary btn--sm"
             >
               {t('actions.edit')}

@@ -26,5 +26,5 @@ export function listAuditLog(params: {
   if (params.skip !== undefined) query.set('skip', String(params.skip))
   if (params.take !== undefined) query.set('take', String(params.take))
   const qs = query.toString()
-  return apiFetch<AuditLogListResponse>(`/audit-log${qs ? `?${qs}` : ''}`)
+  return apiFetch<AuditLogListResponse>(`/admin/audit-log${qs ? `?${qs}` : ''}`)
 }

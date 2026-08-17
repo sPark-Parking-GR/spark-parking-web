@@ -28,8 +28,9 @@ interface PageProps {
 }
 
 export default async function DashboardOverviewPage({ searchParams }: PageProps) {
-  await requireSession()
+  const session = await requireSession()
   const t = await getTranslations('overview')
+  const bookingsHref = session.user.role === 'platform_admin' ? '/admin/bookings' : '/dashboard/bookings'
 
   const params = await searchParams
   const preset = parseRangePreset(params.range)
@@ -173,7 +174,7 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
             <h2 className="panel-card__title">{t('recentBookings.title')}</h2>
             <p className="panel-card__subtitle text-secondary">{t('recentBookings.subtitle')}</p>
           </div>
-          <Link href="/dashboard/bookings" className="panel-card__link">
+          <Link href={bookingsHref} className="panel-card__link">
             {t('recentBookings.viewAll')}
           </Link>
         </div>
@@ -184,7 +185,7 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
               message={t('recentBookings.emptyMessage')}
             />
           ) : (
-            <BookingTable items={recentBookings.items} />
+            <BookingTable items={recentBookings.items} basePath={bookingsHref} />
           )}
         </div>
       </div>

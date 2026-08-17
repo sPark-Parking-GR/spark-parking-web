@@ -11,6 +11,8 @@ export interface SessionData {
   user: AuthUser
 }
 
+export type SessionScope = 'dashboard' | 'admin'
+
 const DASHBOARD_ROLES: ReadonlySet<UserRole> = new Set<UserRole>([
   'operator_staff',
   'operator_admin',
@@ -29,9 +31,54 @@ function getSessionPassword(): string {
   return password
 }
 
-export const sessionOptions: SessionOptions = {
+const sessionPassword = getSessionPassword()
+
+const DASHBOARD_TTL_SECONDS = 14 * 24 * 60 * 60
+const ADMIN_TTL_SECONDS = 30 * 60
+
+export const dashboardSessionOptions: SessionOptions = {
+  cookieName: 'spark_dashboard_session',
+  password: sessionPassword,
+  ttl: DASHBOARD_TTL_SECONDS,
+  cookieOptions: {
+    httpOnly: true,
+    secure: process.env['NODE_ENV'] === 'production',
+    sameSite: 'lax',
+    path: '/dashboard',
+  },
+}
+
+// WHY: `ttl` bounds the encrypted seal server-side while `maxAge` bounds the cookie in
+// the browser; iron-session only derives one from the other when `maxAge` is absent, so
+// both are pinned to 30 minutes here to keep the admin surface expiring on schedule even
+// if a copied cookie is replayed.
+//
+// WHY this name, not `spark_admin_session`: that was the pre-split cookie's name, shared
+// by every dashboard role at path `/`. Any browser with a session from before the split
+// still carries that cookie. Reusing the name here — even with a narrower path — means a
+// browser can hold two same-named cookies at once (old path `/`, new path `/admin`), and
+// header-parsing order then decides which one wins; that ambiguity is what caused
+// platform_admin to get bounced to /login when the stale one won. A distinct name makes
+// the collision impossible instead of relying on parser behavior.
+export const adminSessionOptions: SessionOptions = {
+  cookieName: 'spark_platform_admin_session',
+  password: sessionPassword,
+  ttl: ADMIN_TTL_SECONDS,
+  cookieOptions: {
+    httpOnly: true,
+    secure: process.env['NODE_ENV'] === 'production',
+    sameSite: 'strict',
+    path: '/admin',
+    maxAge: ADMIN_TTL_SECONDS,
+  },
+}
+
+// The pre-split cookie every dashboard role used to share, at path `/`. Nothing issues
+// it anymore, but nothing ever cleared it from existing browsers either — clear it
+// opportunistically on every login so it stops shadowing the new admin cookie above.
+const legacySessionOptions: SessionOptions = {
   cookieName: 'spark_admin_session',
-  password: getSessionPassword(),
+  password: sessionPassword,
   cookieOptions: {
     httpOnly: true,
     secure: process.env['NODE_ENV'] === 'production',
@@ -40,9 +87,14 @@ export const sessionOptions: SessionOptions = {
   },
 }
 
-export async function getSession(): Promise<IronSession<SessionData>> {
+const optionsByScope: Readonly<Record<SessionScope, SessionOptions>> = {
+  dashboard: dashboardSessionOptions,
+  admin: adminSessionOptions,
+}
+
+export async function getSession(scope: SessionScope): Promise<IronSession<SessionData>> {
   const cookieStore = await cookies()
-  return getIronSession<SessionData>(cookieStore, sessionOptions)
+  return getIronSession<SessionData>(cookieStore, optionsByScope[scope])
 }
 
 // WHY: iron-session v8 uses the Web Crypto API and is edge-compatible, so the
@@ -50,12 +102,24 @@ export async function getSession(): Promise<IronSession<SessionData>> {
 export function getSessionFromRequest(
   req: NextRequest,
   res: NextResponse,
+  scope: SessionScope,
 ): Promise<IronSession<SessionData>> {
-  return getIronSession<SessionData>(req, res, sessionOptions)
+  return getIronSession<SessionData>(req, res, optionsByScope[scope])
 }
 
-export async function setSession(data: SessionData): Promise<void> {
-  const session = await getSession()
+// WHY: the two cookies are path-scoped, so a request carries at most one of them —
+// admin pages get the admin cookie, dashboard pages the dashboard one. Shared
+// data-access code cannot know its surface, so it resolves whichever cookie arrived;
+// probe order doesn't matter for correctness since only one is ever actually present,
+// dashboard is just the more common case.
+export async function getActiveSession(): Promise<IronSession<SessionData>> {
+  const dashboardSession = await getSession('dashboard')
+  if (isAuthenticated(dashboardSession)) return dashboardSession
+  return getSession('admin')
+}
+
+export async function setSession(scope: SessionScope, data: SessionData): Promise<void> {
+  const session = await getSession(scope)
   session.accessToken = data.accessToken
   session.refreshToken = data.refreshToken
   session.expiresAt = data.expiresAt
@@ -63,9 +127,24 @@ export async function setSession(data: SessionData): Promise<void> {
   await session.save()
 }
 
-export async function clearSession(): Promise<void> {
-  const session = await getSession()
+export async function clearSession(scope: SessionScope): Promise<void> {
+  const session = await getSession(scope)
   session.destroy()
+}
+
+export async function establishSessions(data: SessionData): Promise<void> {
+  await setSession('dashboard', data)
+  if (data.user.role === 'platform_admin') {
+    await setSession('admin', data)
+  }
+  const cookieStore = await cookies()
+  const legacySession = await getIronSession<SessionData>(cookieStore, legacySessionOptions)
+  legacySession.destroy()
+}
+
+export async function clearAllSessions(): Promise<void> {
+  await clearSession('dashboard')
+  await clearSession('admin')
 }
 
 export function isAuthenticated(session: IronSession<SessionData>): boolean {

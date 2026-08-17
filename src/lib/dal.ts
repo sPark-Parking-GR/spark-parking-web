@@ -1,10 +1,10 @@
 import { cache } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import type { IronSession } from 'iron-session'
-import { getSession, type SessionData } from './session'
+import { getActiveSession, type SessionData } from './session'
 import { ApiError, AuthRequiredError } from './api'
 
-export const getCachedSession = cache(getSession)
+export const getCachedSession = cache(getActiveSession)
 
 export async function requireSession(): Promise<IronSession<SessionData>> {
   const session = await getCachedSession()

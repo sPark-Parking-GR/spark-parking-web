@@ -5,7 +5,16 @@ import { revalidatePath } from 'next/cache'
 import { ApiError, AuthRequiredError } from './api'
 import { cancelBooking, checkInBooking, checkOutBooking } from './booking-api'
 
-const BOOKINGS_PATH = '/dashboard/bookings'
+// The same action buttons render on the operator board and the platform-admin
+// cross-operator board, so both listings have to be revalidated after a transition.
+const BOOKINGS_PATHS = ['/dashboard/bookings', '/admin/bookings']
+
+function revalidateBookings(id?: string): void {
+  for (const path of BOOKINGS_PATHS) {
+    revalidatePath(path)
+    if (id) revalidatePath(`${path}/${id}`)
+  }
+}
 
 export type BookingErrorKey =
   | 'forbidden'
@@ -46,7 +55,7 @@ export async function checkInAction(formData: FormData): Promise<BookingActionRe
     return mapApiError(err)
   }
 
-  revalidatePath(BOOKINGS_PATH)
+  revalidateBookings()
   return { ok: true }
 }
 
@@ -60,7 +69,7 @@ export async function checkOutAction(formData: FormData): Promise<BookingActionR
     return mapApiError(err)
   }
 
-  revalidatePath(BOOKINGS_PATH)
+  revalidateBookings()
   return { ok: true }
 }
 
@@ -74,7 +83,6 @@ export async function cancelBookingAction(formData: FormData): Promise<BookingAc
     return mapApiError(err)
   }
 
-  revalidatePath(BOOKINGS_PATH)
-  revalidatePath(`${BOOKINGS_PATH}/${id}`)
+  revalidateBookings(id)
   return { ok: true }
 }

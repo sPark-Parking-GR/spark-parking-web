@@ -7,7 +7,6 @@
     "scan": "Scan",
     "capacity": "Capacity",
     "analytics": "Analytics",
-    "operators": "Operators",
     "operatorDirectory": "Operator directory",
     "onboarding": "Onboarding",
     "audit": "Audit log",
@@ -19,7 +18,6 @@
       "tariffs": "Pricing plans, rates and caps",
       "bookings": "Active and past customer bookings",
       "scan": "Scan booking QR codes at the barrier",
-      "operators": "Platform operator accounts",
       "operatorDirectory": "Browse every operator with lifecycle and membership controls",
       "onboarding": "Invite new operator businesses onto sPark",
       "analytics": "Revenue and occupancy insights",
@@ -596,11 +594,13 @@
     },
     "table": {
       "name": "Name",
+      "operator": "Operator",
       "status": "Status",
       "vehicles": "Vehicles",
       "validity": "Validity",
       "version": "Version",
       "updated": "Updated",
+      "actions": "Actions",
       "default": "Default",
       "active": "Active",
       "inactive": "Inactive",
@@ -608,6 +608,10 @@
       "validityFrom": "From {date}",
       "validityUntil": "Until {date}",
       "validityRange": "{from} – {to}"
+    },
+    "filters": {
+      "operatorAria": "Filter by operator",
+      "allOperators": "All operators"
     },
     "new": {
       "pageTitle": "New tariff plan",
@@ -1038,13 +1042,6 @@
         "mixedCurrency": "This period mixes multiple currencies and can't be combined. Narrow the date range.",
         "unknown": "Couldn't load analytics right now. Try again shortly."
       }
-    },
-    "operators": {
-      "title": "Operators",
-      "description": "People who can manage your facilities.",
-      "invite": "Invite",
-      "emptyTitle": "No team members yet",
-      "emptyMessage": "Operator accounts and roles will appear here once team management is available."
     },
     "audit": {
       "title": "Audit log",

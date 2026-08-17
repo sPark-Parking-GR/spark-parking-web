@@ -3,7 +3,6 @@ import { Plus, AlertCircle } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
-import { FacilitiesManager } from '@/components/FacilitiesManager'
 import { FacilityCardGrid } from '@/components/FacilityCardGrid'
 import { FacilityFilters } from '@/components/FacilityFilters'
 import { ViewToggle } from '@/components/ViewToggle'
@@ -12,7 +11,6 @@ import { SearchInput } from '@/components/SearchInput'
 import { Pagination } from '@/components/Pagination'
 import { listFacilities } from '@/lib/api'
 import type { FacilityKind } from '@/lib/api'
-import { listTariffPlans } from '@/lib/tariff-api'
 import { buildQuery, loadPage, requireSession } from '@/lib/dal'
 
 const PAGE_SIZE = 20
@@ -34,7 +32,6 @@ interface PageProps {
 export default async function FacilitiesPage({ searchParams }: PageProps) {
   const t = await getTranslations('facilities')
   const session = await requireSession()
-  const isPlatformAdmin = session.user.role === 'platform_admin'
 
   const params = await searchParams
   const q = params.q?.trim() ?? ''
@@ -69,10 +66,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
     </>
   )
 
-  // One-facility-per-operator cap: only meaningful for an operator's own view.
-  // A platform_admin isn't scoped to a single operator, so the button always shows for them.
-  const canCreateFacility =
-    isPlatformAdmin || (await loadPage(() => listFacilities({ take: 1 }))).total === 0
+  const canCreateFacility = (await loadPage(() => listFacilities({ take: 1 }))).total === 0
 
   const header = (
     <PageHeader
@@ -119,19 +113,16 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
     )
   }
 
-  const [{ items, total }, tariffPlans] = await Promise.all([
-    loadPage(() =>
-      listFacilities({
-        skip,
-        take: PAGE_SIZE,
-        ...(q ? { q } : {}),
-        ...(isActive !== undefined ? { isActive } : {}),
-        ...(isVerified !== undefined ? { isVerified } : {}),
-        ...(kind ? { kind } : {}),
-      }),
-    ),
-    isPlatformAdmin ? listTariffPlans().then((res) => res.items) : Promise.resolve([]),
-  ])
+  const { items, total } = await loadPage(() =>
+    listFacilities({
+      skip,
+      take: PAGE_SIZE,
+      ...(q ? { q } : {}),
+      ...(isActive !== undefined ? { isActive } : {}),
+      ...(isVerified !== undefined ? { isVerified } : {}),
+      ...(kind ? { kind } : {}),
+    }),
+  )
 
   const buildHref = (nextSkip: number) =>
     buildQuery('/dashboard/facilities', { ...filterParams, skip: nextSkip })
@@ -156,11 +147,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
         />
       ) : (
         <>
-          {isPlatformAdmin ? (
-            <FacilitiesManager items={items} tariffPlans={tariffPlans} />
-          ) : (
-            <FacilityCardGrid items={items} role={session.user.role} />
-          )}
+          <FacilityCardGrid items={items} role={session.user.role} />
           <Pagination skip={skip} take={PAGE_SIZE} total={total} buildHref={buildHref} sticky />
         </>
       )}

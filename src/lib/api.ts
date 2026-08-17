@@ -1,4 +1,4 @@
-import { getSession } from './session'
+import { getActiveSession } from './session'
 import type { SessionData } from './session'
 import type { IronSession } from 'iron-session'
 import type { AuthResult } from '@spark/types'
@@ -261,7 +261,7 @@ async function authFetch(path: string, init: RequestInit, accessToken: string): 
 }
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const session = await getSession()
+  const session = await getActiveSession()
   if (!session.accessToken) {
     throw new AuthRequiredError()
   }

@@ -59,7 +59,7 @@ export default async function TrashPage({ searchParams }: PageProps) {
   }
 
   const buildHref = (nextSkip: number) =>
-    buildQuery('/dashboard/admin/trash', { resourceType, status, skip: nextSkip })
+    buildQuery('/admin/trash', { resourceType, status, skip: nextSkip })
 
   return (
     <>

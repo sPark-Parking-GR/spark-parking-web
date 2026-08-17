@@ -9,7 +9,11 @@ import type { BadgeVariant } from '@spark/ui'
 import { EmptyState } from './EmptyState'
 import { SuspendOperatorButton } from './SuspendOperatorButton'
 import { ReactivateOperatorButton } from './ReactivateOperatorButton'
-import type { OperatorLifecycleStatus, OperatorStatus, OperatorSummary } from '@/lib/operator-actions'
+import type {
+  OperatorLifecycleStatus,
+  OperatorStatus,
+  OperatorSummary,
+} from '@/lib/operator-actions'
 
 interface Props {
   items: OperatorSummary[]
@@ -76,7 +80,9 @@ export function OperatorsTable({ items, canWrite }: Props) {
           >
             {STATUS_FILTERS.map((status) => (
               <option key={status} value={status}>
-                {status === 'ALL' ? t('operators.filters.anyStatus') : t(STATUS_BADGE[status].labelKey)}
+                {status === 'ALL'
+                  ? t('operators.filters.anyStatus')
+                  : t(STATUS_BADGE[status].labelKey)}
               </option>
             ))}
           </select>
@@ -105,11 +111,13 @@ export function OperatorsTable({ items, canWrite }: Props) {
               {filtered.map((item) => {
                 const badge = STATUS_BADGE[item.status]
                 const lifecycleVariant =
-                  item.lifecycleStatus !== 'ACTIVE' ? LIFECYCLE_BADGE_VARIANT[item.lifecycleStatus] : null
+                  item.lifecycleStatus !== 'ACTIVE'
+                    ? LIFECYCLE_BADGE_VARIANT[item.lifecycleStatus]
+                    : null
                 return (
                   <tr key={item.id}>
                     <td className="table-facility">
-                      <Link href={`/dashboard/admin/operators/${item.id}`} className="table-link">
+                      <Link href={`/admin/operators/${item.id}`} className="table-link">
                         {item.name}
                       </Link>
                     </td>

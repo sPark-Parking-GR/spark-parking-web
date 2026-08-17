@@ -13,6 +13,22 @@ export const STATUS_BADGE: Record<BookingStatus, { labelKey: string; variant: Ba
   REFUNDED: { labelKey: 'status.refunded', variant: 'neutral' },
 }
 
+export const BOOKING_STATUS_FILTERS: { labelKey: string; value?: BookingStatus }[] = [
+  { labelKey: 'filters.all' },
+  { labelKey: 'filters.pendingPayment', value: 'PENDING_PAYMENT' },
+  { labelKey: 'filters.confirmed', value: 'CONFIRMED' },
+  { labelKey: 'filters.checkedIn', value: 'CHECKED_IN' },
+  { labelKey: 'filters.checkedOut', value: 'CHECKED_OUT' },
+  { labelKey: 'filters.cancelled', value: 'CANCELLED' },
+  { labelKey: 'filters.expired', value: 'EXPIRED' },
+  { labelKey: 'filters.refundPending', value: 'REFUND_PENDING' },
+  { labelKey: 'filters.refunded', value: 'REFUNDED' },
+]
+
+export function parseBookingStatus(value: string | undefined): BookingStatus | undefined {
+  return BOOKING_STATUS_FILTERS.find((f) => f.value === value)?.value
+}
+
 const dateFmt = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit',
   month: 'short',

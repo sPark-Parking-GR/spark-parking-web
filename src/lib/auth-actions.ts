@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { clearSession, getSession, isDashboardRole, setSession } from './session'
+import { clearAllSessions, establishSessions, getActiveSession, isDashboardRole } from './session'
 import type { AuthResult } from '@spark/types'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
@@ -62,7 +62,7 @@ export async function signInAction(input: SignInInput, from?: string): Promise<S
     return { ok: false, errorKey: 'notAuthorized' }
   }
 
-  await setSession({
+  await establishSessions({
     accessToken: result.session.accessToken,
     refreshToken: result.session.refreshToken,
     expiresAt: result.session.expiresAt,
@@ -73,7 +73,7 @@ export async function signInAction(input: SignInInput, from?: string): Promise<S
 }
 
 export async function signOutAction(): Promise<void> {
-  const session = await getSession()
+  const session = await getActiveSession()
   const accessToken = session.accessToken
 
   if (accessToken) {
@@ -88,6 +88,6 @@ export async function signOutAction(): Promise<void> {
     }
   }
 
-  await clearSession()
+  await clearAllSessions()
   redirect(LOGIN_PATH)
 }

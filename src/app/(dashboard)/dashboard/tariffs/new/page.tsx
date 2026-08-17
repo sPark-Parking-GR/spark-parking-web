@@ -1,8 +1,7 @@
-import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { PageHeader } from '@/components/PageHeader'
 import { TariffEditor } from '@/components/TariffEditor'
-import { getSession } from '@/lib/session'
+import { requireSession } from '@/lib/dal'
 import { makeKey, ALL_DAYS_MASK } from '@/lib/tariff-schema'
 import type { TariffDraft } from '@/lib/tariff-api'
 
@@ -35,18 +34,15 @@ function buildDefaultDraft(name: string, windowLabel: string): TariffDraft {
 }
 
 export default async function NewTariffPlanPage() {
-  const session = await getSession()
-  if (!session.accessToken) redirect('/login')
+  await requireSession()
 
   const t = await getTranslations('tariffs')
-  const isPlatformAdmin = session.user?.role === 'platform_admin'
 
   return (
     <>
       <PageHeader title={t('new.pageTitle')} />
       <TariffEditor
         mode="create"
-        isPlatformAdmin={isPlatformAdmin}
         plan={buildDefaultDraft(t('new.defaultName'), t('new.defaultWindowLabel'))}
       />
     </>

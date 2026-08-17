@@ -24,7 +24,7 @@ interface Props {
   namespace: 'facilities' | 'tariffs'
   initial: ManagersResponse
   currentUserId: string
-  isPlatformAdmin: boolean
+  isPlatformAdmin?: boolean
 }
 
 function saveManagers(
@@ -43,7 +43,7 @@ export function ManagersPanel({
   namespace,
   initial,
   currentUserId,
-  isPlatformAdmin,
+  isPlatformAdmin = false,
 }: Props) {
   const t = useTranslations(namespace)
   const tRole = useTranslations('onboarding.detail.members.roleOptions')

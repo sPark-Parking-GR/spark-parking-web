@@ -61,7 +61,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
   }
 
   const buildHref = (nextPreset: RangePreset) =>
-    buildQuery('/dashboard/analytics', { range: nextPreset === '30d' ? undefined : nextPreset })
+    buildQuery('/admin/analytics', { range: nextPreset === '30d' ? undefined : nextPreset })
 
   const errorBanner = analyticsError ? (
     <p className="form-banner form-banner--error" role="alert">

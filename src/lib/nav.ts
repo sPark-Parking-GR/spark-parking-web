@@ -7,7 +7,6 @@ export type NavIcon =
   | 'tariffs'
   | 'bookings'
   | 'scan'
-  | 'operators'
   | 'operatorDirectory'
   | 'onboarding'
   | 'analytics'
@@ -18,49 +17,59 @@ export type NavIcon =
 export interface NavItem {
   href: string
   icon: NavIcon
-  roles: UserRole[]
-  /** Extra gate beyond `roles`, checked with `hasPlatformPermission`. Omit when role alone decides. */
+  /** Extra gate beyond role, checked with `hasPlatformPermission`. Omit when role alone decides. */
   permission?: PlatformPermission
 }
 
-const OPERATOR_ROLES: UserRole[] = ['operator_staff', 'operator_admin', 'platform_admin']
-const OPERATOR_ADMIN_ROLES: UserRole[] = ['operator_admin', 'platform_admin']
-const PLATFORM_ADMIN_ROLES: UserRole[] = ['platform_admin']
+interface OperatorNavItem extends NavItem {
+  roles: UserRole[]
+}
 
-export const NAV_ITEMS: NavItem[] = [
+// platform_admin has its own /admin/* equivalent for facilities, tariffs and bookings
+// (cross-operator views/operations) — these three stay operator-only so the sidebar
+// never lists the same resource twice. Root overview and scan are unaffected: scan has
+// no admin equivalent (operator-only, on purpose), and root stays on OPERATOR_ROLES per
+// the dual-access decision — platform_admin reaches both /dashboard and /admin/* routes,
+// just through one merged nav list (navForPlatformAdmin) instead of two separate ones.
+const OPERATOR_ROLES: UserRole[] = ['operator_staff', 'operator_admin', 'platform_admin']
+const OPERATOR_ADMIN_ROLES: UserRole[] = ['operator_admin']
+const OPERATOR_STAFF_ROLES: UserRole[] = ['operator_staff', 'operator_admin']
+
+const OPERATOR_NAV_ITEMS: OperatorNavItem[] = [
   { href: '/dashboard', icon: 'overview', roles: OPERATOR_ROLES },
   { href: '/dashboard/facilities', icon: 'facilities', roles: OPERATOR_ADMIN_ROLES },
   { href: '/dashboard/tariffs', icon: 'tariffs', roles: OPERATOR_ADMIN_ROLES },
-  { href: '/dashboard/bookings', icon: 'bookings', roles: OPERATOR_ROLES },
+  { href: '/dashboard/bookings', icon: 'bookings', roles: OPERATOR_STAFF_ROLES },
   { href: '/dashboard/scan', icon: 'scan', roles: OPERATOR_ROLES },
-  { href: '/dashboard/operators', icon: 'operators', roles: PLATFORM_ADMIN_ROLES },
-  {
-    href: '/dashboard/admin/operators',
-    icon: 'operatorDirectory',
-    roles: PLATFORM_ADMIN_ROLES,
-    permission: 'platform:tenant.read',
-  },
-  { href: '/dashboard/onboarding', icon: 'onboarding', roles: PLATFORM_ADMIN_ROLES },
-  { href: '/dashboard/analytics', icon: 'analytics', roles: PLATFORM_ADMIN_ROLES },
-  { href: '/dashboard/audit', icon: 'audit', roles: PLATFORM_ADMIN_ROLES },
-  {
-    href: '/dashboard/admin/trash',
-    icon: 'trash',
-    roles: PLATFORM_ADMIN_ROLES,
-    permission: 'platform:tenant.read',
-  },
-  {
-    href: '/dashboard/admin/approvals',
-    icon: 'approvals',
-    roles: PLATFORM_ADMIN_ROLES,
-    permission: 'platform:tenant.purge',
-  },
 ]
 
-export function navForRole(role: UserRole): NavItem[] {
-  return NAV_ITEMS.filter(
-    (item) =>
-      item.roles.includes(role) &&
-      (!item.permission || hasPlatformPermission(role, item.permission)),
+const ADMIN_NAV_ITEMS: NavItem[] = [
+  { href: '/admin/operators', icon: 'operatorDirectory', permission: 'platform:tenant.read' },
+  { href: '/admin/facilities', icon: 'facilities' },
+  { href: '/admin/tariffs', icon: 'tariffs' },
+  { href: '/admin/bookings', icon: 'bookings' },
+  { href: '/admin/onboarding', icon: 'onboarding' },
+  { href: '/admin/analytics', icon: 'analytics' },
+  { href: '/admin/audit', icon: 'audit' },
+  { href: '/admin/trash', icon: 'trash', permission: 'platform:tenant.read' },
+  { href: '/admin/approvals', icon: 'approvals', permission: 'platform:tenant.purge' },
+]
+
+export function navForOperator(role: UserRole): NavItem[] {
+  return OPERATOR_NAV_ITEMS.filter((item) => item.roles.includes(role))
+}
+
+export function navForAdmin(): NavItem[] {
+  return ADMIN_NAV_ITEMS.filter(
+    (item) => !item.permission || hasPlatformPermission('platform_admin', item.permission),
   )
+}
+
+// One merged nav for platform_admin, used by both (dashboard) and (admin) layouts —
+// routes stay split at /dashboard vs /admin, but the sidebar itself doesn't, so there's
+// no separate "surface" to switch between.
+export function navForPlatformAdmin(): NavItem[] {
+  const overview = OPERATOR_NAV_ITEMS.find((item) => item.href === '/dashboard')
+  const scan = OPERATOR_NAV_ITEMS.find((item) => item.href === '/dashboard/scan')
+  return [overview, ...navForAdmin(), scan].filter((item): item is NavItem => item !== undefined)
 }

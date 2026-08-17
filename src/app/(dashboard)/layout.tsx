@@ -5,16 +5,19 @@ import { TopBar } from '@/components/TopBar'
 import { TooltipLayer } from '@/components/TooltipLayer'
 import { NumberWheelGuard } from '@/components/NumberWheelGuard'
 import { getSession, isAuthenticated, isDashboardRole } from '@/lib/session'
-import { navForRole } from '@/lib/nav'
+import { navForOperator, navForPlatformAdmin } from '@/lib/nav'
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const session = await getSession()
+  const session = await getSession('dashboard')
 
   if (!isAuthenticated(session) || !isDashboardRole(session.user.role)) {
     redirect('/login')
   }
 
-  const items = navForRole(session.user.role)
+  const items =
+    session.user.role === 'platform_admin'
+      ? navForPlatformAdmin()
+      : navForOperator(session.user.role)
 
   return (
     <div className="dashboard-shell">

@@ -4,12 +4,12 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { apiFetch, ApiError, AuthRequiredError } from './api'
-import { setSession } from './session'
+import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
-const ONBOARDING_PATH = '/dashboard/onboarding'
+const ONBOARDING_PATH = '/admin/onboarding'
 
 export type InviteStatus = 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'REVOKED'
 
@@ -207,7 +207,7 @@ export async function acceptInviteAction(
   }
 
   const result = (await response.json()) as AuthResult
-  await setSession({
+  await establishSessions({
     accessToken: result.session.accessToken,
     refreshToken: result.session.refreshToken,
     expiresAt: result.session.expiresAt,

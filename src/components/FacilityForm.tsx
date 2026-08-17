@@ -33,7 +33,7 @@ interface TariffProps {
 interface Props {
   mode: 'create' | 'edit'
   facility?: AdminFacility
-  isPlatformAdmin: boolean
+  isPlatformAdmin?: boolean
   tariff?: TariffProps
   operators?: OperatorSummary[]
 }
@@ -72,7 +72,13 @@ function prefillCloseTime(facility?: AdminFacility): string {
   return first ? first.close : '20:00'
 }
 
-export function FacilityForm({ mode, facility, isPlatformAdmin, tariff, operators }: Props) {
+export function FacilityForm({
+  mode,
+  facility,
+  isPlatformAdmin = false,
+  tariff,
+  operators,
+}: Props) {
   const t = useTranslations('facilities')
   const tOperatorStatus = useTranslations('onboarding')
   const vehicleOptions = VEHICLE_TYPE_OPTIONS.map((o) => ({

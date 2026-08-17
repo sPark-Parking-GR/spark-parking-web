@@ -53,6 +53,8 @@ export interface TariffDraft {
 
 export interface TariffPlanListItem {
   id: string
+  operatorId: string
+  operatorName: string
   name: string
   isActive: boolean
   isDefault: boolean
@@ -109,8 +111,13 @@ export type SimulateResult = { ok: true; quote: SimulateQuote } | { ok: false; e
 
 const PLANS_PATH = '/tariff-plans'
 
-export function listTariffPlans(): Promise<{ items: TariffPlanListItem[] }> {
-  return apiFetch<{ items: TariffPlanListItem[] }>(PLANS_PATH)
+// `operatorId` narrows the cross-operator list a platform admin sees; the API ignores it
+// for operator callers, whose own scope already restricts them to their plans.
+export function listTariffPlans(
+  params: { operatorId?: string } = {},
+): Promise<{ items: TariffPlanListItem[] }> {
+  const qs = params.operatorId ? `?operatorId=${encodeURIComponent(params.operatorId)}` : ''
+  return apiFetch<{ items: TariffPlanListItem[] }>(`${PLANS_PATH}${qs}`)
 }
 
 export function getTariffPlan(planId: string): Promise<TariffPlanDetail> {

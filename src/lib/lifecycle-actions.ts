@@ -19,8 +19,8 @@ import type {
   LifecycleResourceType,
 } from './lifecycle-api'
 
-const TRASH_PATH = '/dashboard/admin/trash'
-const APPROVALS_PATH = '/dashboard/admin/approvals'
+const TRASH_PATH = '/admin/trash'
+const APPROVALS_PATH = '/admin/approvals'
 
 const requiredReasonSchema = z.string().trim().min(1)
 const optionalReasonSchema = z.string().trim().optional()

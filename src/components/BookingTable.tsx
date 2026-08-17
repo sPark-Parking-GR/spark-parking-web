@@ -7,9 +7,10 @@ import type { BookingListItem } from '@/lib/booking-api'
 
 interface Props {
   items: BookingListItem[]
+  basePath?: string
 }
 
-export async function BookingTable({ items }: Props) {
+export async function BookingTable({ items, basePath = '/dashboard/bookings' }: Props) {
   const t = await getTranslations('bookings')
 
   return (
@@ -33,10 +34,7 @@ export async function BookingTable({ items }: Props) {
             return (
               <tr key={item.id}>
                 <td>
-                  <Link
-                    href={`/dashboard/bookings/${item.id}`}
-                    className="table-link mono table-code"
-                  >
+                  <Link href={`${basePath}/${item.id}`} className="table-link mono table-code">
                     {item.accessCode}
                   </Link>
                 </td>

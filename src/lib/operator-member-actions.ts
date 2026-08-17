@@ -47,7 +47,7 @@ export async function changeOperatorMemberRoleAction(
   } catch (err) {
     return mapError(err)
   }
-  revalidatePath(`/dashboard/admin/operators/${operatorId}`)
+  revalidatePath(`/admin/operators/${operatorId}`)
   return { ok: true }
 }
 
@@ -60,6 +60,6 @@ export async function removeOperatorMemberAction(
   } catch (err) {
     return mapError(err)
   }
-  revalidatePath(`/dashboard/admin/operators/${operatorId}`)
+  revalidatePath(`/admin/operators/${operatorId}`)
   return { ok: true }
 }

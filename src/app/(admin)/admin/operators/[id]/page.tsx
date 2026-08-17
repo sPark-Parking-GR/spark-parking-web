@@ -22,7 +22,11 @@ import { OperatorMembersTable } from '@/components/OperatorMembersTable'
 import { ApiError, AuthRequiredError } from '@/lib/api'
 import { requireSession } from '@/lib/dal'
 import { getOperatorDetail } from '@/lib/operator-api'
-import type { OperatorDetail, OperatorLifecycleStatus, OperatorStatus } from '@/lib/operator-actions'
+import type {
+  OperatorDetail,
+  OperatorLifecycleStatus,
+  OperatorStatus,
+} from '@/lib/operator-actions'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -76,7 +80,7 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <Link href="/dashboard/admin/operators" className="facility-overview__back">
+      <Link href="/admin/operators" className="facility-overview__back">
         <ChevronLeft size={16} strokeWidth={2.5} aria-hidden="true" />
         {t('back')}
       </Link>
@@ -223,7 +227,7 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
                       {operator.facilities.map((f) => (
                         <tr key={f.id}>
                           <td>
-                            <Link href={`/dashboard/facilities/${f.id}`} className="table-link">
+                            <Link href={`/admin/facilities/${f.id}`} className="table-link">
                               {f.name}
                             </Link>
                             <span className="table__sub">{f.address}</span>

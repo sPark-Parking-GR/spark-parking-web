@@ -50,7 +50,15 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, '../..'),
   transpilePackages: ['@spark/ui', '@spark/types'],
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // Admin pages carry tenant lifecycle/audit data — never let a shared or
+      // public machine's browser cache serve them back after logout.
+      {
+        source: '/admin/:path*',
+        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+      },
+    ]
   },
 }
 

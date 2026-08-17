@@ -14,9 +14,16 @@ import {
   updateTariffPlanManagers,
 } from './tariff-api'
 import { tariffDraftSchema } from './tariff-schema'
+import { getActiveSession } from './session'
 import type { SimulateRequest, SimulateQuote, PlanAssignments } from './tariff-api'
 
-const TARIFFS_PATH = '/dashboard/tariffs'
+// WHY: tariff plans are managed on two surfaces — platform admins from /admin/tariffs,
+// operators from /dashboard/tariffs — so revalidation and post-action redirects have to
+// follow the caller's own surface instead of a single hardcoded path.
+async function tariffsPath(): Promise<string> {
+  const session = await getActiveSession()
+  return session.user?.role === 'platform_admin' ? '/admin/tariffs' : '/dashboard/tariffs'
+}
 
 export type TariffActionResult =
   | { ok: true }
@@ -83,11 +90,12 @@ export async function saveTariffPlanAction(
     return mapApiError(err)
   }
 
-  revalidatePath(TARIFFS_PATH)
+  const basePath = await tariffsPath()
+  revalidatePath(basePath)
   if (planId) {
-    revalidatePath(`${TARIFFS_PATH}/${planId}`)
+    revalidatePath(`${basePath}/${planId}`)
   }
-  redirect(TARIFFS_PATH)
+  redirect(basePath)
 }
 
 export async function deleteTariffPlanAction(
@@ -101,8 +109,9 @@ export async function deleteTariffPlanAction(
     return mapApiError(err)
   }
 
-  revalidatePath(TARIFFS_PATH)
-  redirect(TARIFFS_PATH)
+  const basePath = await tariffsPath()
+  revalidatePath(basePath)
+  redirect(basePath)
 }
 
 export async function getTariffAssignmentsAction(planId: string): Promise<PlanAssignments | null> {
@@ -131,7 +140,7 @@ export async function updateTariffPlanManagersAction(
 ): Promise<ManagersActionResult> {
   try {
     const data = await updateTariffPlanManagers(planId, userIds)
-    revalidatePath(`${TARIFFS_PATH}/${planId}`)
+    revalidatePath(`${await tariffsPath()}/${planId}`)
     return { ok: true, data }
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')

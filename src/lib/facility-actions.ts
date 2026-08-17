@@ -16,6 +16,7 @@ import {
   AuthRequiredError,
 } from './api'
 import { buildFacilityFormSchema } from './facility-schema'
+import { getActiveSession } from './session'
 import type {
   AdminMapResponse,
   AssignTariffInput,
@@ -30,7 +31,13 @@ import type {
 } from './api'
 import type { OpeningHours } from '@spark/types'
 
-const FACILITIES_PATH = '/dashboard/facilities'
+// WHY: facilities are managed on two surfaces — platform admins from /admin/facilities,
+// operators from /dashboard/facilities — so revalidation and post-action redirects have to
+// follow the caller's own surface instead of a single hardcoded path.
+async function facilitiesPath(): Promise<string> {
+  const session = await getActiveSession()
+  return session.user?.role === 'platform_admin' ? '/admin/facilities' : '/dashboard/facilities'
+}
 
 export type FacilityErrorKey =
   | 'errors.forbidden'
@@ -173,8 +180,9 @@ export async function createFacilityAction(
     return mapApiError(err)
   }
 
-  revalidatePath(FACILITIES_PATH)
-  redirect(FACILITIES_PATH)
+  const basePath = await facilitiesPath()
+  revalidatePath(basePath)
+  redirect(basePath)
 }
 
 export async function updateFacilityAction(
@@ -263,8 +271,9 @@ export async function updateFacilityAction(
     return mapApiError(err)
   }
 
-  revalidatePath(FACILITIES_PATH)
-  revalidatePath(`${FACILITIES_PATH}/${id}`)
+  const basePath = await facilitiesPath()
+  revalidatePath(basePath)
+  revalidatePath(`${basePath}/${id}`)
   return { ok: true }
 }
 
@@ -277,7 +286,7 @@ export async function bulkFacilityAction(
 
   try {
     const { affected } = await bulkFacilities(ids, action, assignments)
-    revalidatePath(FACILITIES_PATH)
+    revalidatePath(await facilitiesPath())
     return { ok: true, affected }
   } catch (err) {
     if (action === 'assignTariff' && err instanceof ApiError && err.status === 404) {
@@ -312,8 +321,9 @@ export async function assignTariffAction(
     return mapApiError(err)
   }
 
-  revalidatePath(FACILITIES_PATH)
-  revalidatePath(`${FACILITIES_PATH}/${facilityId}`)
+  const basePath = await facilitiesPath()
+  revalidatePath(basePath)
+  revalidatePath(`${basePath}/${facilityId}`)
   return { ok: true }
 }
 
@@ -357,7 +367,7 @@ export async function updateFacilityManagersAction(
 ): Promise<ManagersActionResult> {
   try {
     const data = await updateFacilityManagers(facilityId, userIds)
-    revalidatePath(`${FACILITIES_PATH}/${facilityId}`)
+    revalidatePath(`${await facilitiesPath()}/${facilityId}`)
     return { ok: true, data }
   } catch (err) {
     if (err instanceof AuthRequiredError) redirect('/login')
@@ -387,6 +397,7 @@ export async function deleteFacilityAction(formData: FormData): Promise<void> {
     return
   }
 
-  revalidatePath(FACILITIES_PATH)
-  redirect(FACILITIES_PATH)
+  const basePath = await facilitiesPath()
+  revalidatePath(basePath)
+  redirect(basePath)
 }
