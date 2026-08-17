@@ -12,6 +12,7 @@
     "audit": "Audit log",
     "trash": "Trash",
     "approvals": "Approvals",
+    "users": "Users",
     "descriptions": {
       "overview": "Snapshot of your parking operations",
       "facilities": "Manage your parking facilities and locations",
@@ -23,7 +24,8 @@
       "analytics": "Revenue and occupancy insights",
       "audit": "Security and change history",
       "trash": "Archived and tombstoned resources, with restore and purge",
-      "approvals": "Pending two-person purge approvals"
+      "approvals": "Pending two-person purge approvals",
+      "users": "Browse every account with role and lifecycle controls"
     }
   },
   "dateRange": {
@@ -1111,6 +1113,10 @@
         "userTombstoned": "marked a user for deletion",
         "userPurged": "permanently deleted a user",
         "userPurgeAnonymised": "anonymised a user",
+        "userRoleChanged": "changed a user's platform role",
+        "userDemotionRequested": "requested a super admin demotion",
+        "userDemotionRejected": "rejected a super admin demotion request",
+        "userDemoted": "demoted a super admin",
         "inviteCreated": "sent an invite",
         "inviteAccepted": "accepted an invite",
         "inviteResent": "resent an invite",
@@ -1250,6 +1256,157 @@
       "expired": "This approval request has expired.",
       "invalidReason": "Enter a reason before continuing.",
       "genericError": "Something went wrong. Try again."
+    }
+  },
+  "adminUsers": {
+    "title": "Users",
+    "description": "Every account on the platform, with role and lifecycle controls.",
+    "loadError": "Could not load users. The platform API request failed — try reloading the page.",
+    "searchPlaceholder": "Search by email or name…",
+    "filters": {
+      "roleAria": "Filter by role",
+      "anyRole": "Any role",
+      "statusAria": "Filter by status",
+      "anyStatus": "Any status"
+    },
+    "role": {
+      "USER": "User",
+      "OPERATOR_STAFF": "Operator staff",
+      "OPERATOR_ADMIN": "Operator admin",
+      "PLATFORM_ADMIN": "Platform admin",
+      "SUPER_ADMIN": "Super admin"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Suspended",
+      "TOMBSTONED": "Marked for deletion",
+      "PURGED": "Purged"
+    },
+    "anonymised": "Anonymised",
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "operators": "Operators",
+      "created": "Created",
+      "noOperators": "—"
+    },
+    "empty": {
+      "title": "No users yet",
+      "message": "Accounts will show up here once people sign up."
+    },
+    "emptyFiltered": "No users match these filters.",
+    "errors": {
+      "forbidden": "You do not have permission to do this.",
+      "notFound": "This account no longer exists.",
+      "conflict": "This action can no longer be applied — the account state changed.",
+      "expired": "This approval request has expired.",
+      "invalidReason": "Enter a reason before continuing (at least 3 characters).",
+      "genericError": "Something went wrong. Try again."
+    },
+    "detail": {
+      "back": "Back to users",
+      "loadError": "Could not load this user. The platform API request failed — try reloading the page.",
+      "notFound": "This user account no longer exists.",
+      "identity": {
+        "title": "Identity",
+        "fields": {
+          "id": "Account ID",
+          "email": "Email",
+          "displayName": "Display name",
+          "emailVerified": "Email verified",
+          "created": "Created",
+          "updated": "Last updated",
+          "sessionsValidFrom": "Sessions valid from"
+        },
+        "verified": "Verified",
+        "unverified": "Not verified",
+        "noDisplayName": "—"
+      },
+      "lifecycle": {
+        "title": "Lifecycle",
+        "status": "Status",
+        "anonymisedBadge": "Anonymised",
+        "anonymisedNote": "This account was deleted by its owner and anonymised in place. This is permanent — there is no identity left to restore, and role or lifecycle actions are unavailable.",
+        "changedAt": "Changed",
+        "changedBy": "Changed by",
+        "reason": "Reason",
+        "purgeAfter": "Scheduled purge",
+        "none": "—"
+      },
+      "memberships": {
+        "title": "Operator memberships",
+        "empty": "This account is not a member of any operator.",
+        "table": {
+          "operator": "Operator",
+          "role": "Role"
+        }
+      },
+      "role": {
+        "title": "Platform role",
+        "current": "Role",
+        "superAdminNote": "Super admins cannot be re-roled directly. Use Demote below, which requires a second super admin to approve.",
+        "selfNote": "You cannot change your own platform role.",
+        "trigger": "Change role",
+        "modalTitle": "Change platform role",
+        "modalText": "Change the platform role for {email}.",
+        "roleLabel": "New role",
+        "reasonLabel": "Reason",
+        "confirm": "Save role",
+        "confirming": "Saving…"
+      },
+      "suspend": {
+        "trigger": "Suspend",
+        "modalTitle": "Suspend account",
+        "modalText": "This suspends the account. It can be restored at any time.",
+        "reasonLabel": "Reason",
+        "confirm": "Suspend",
+        "confirming": "Suspending…"
+      },
+      "restore": {
+        "trigger": "Restore",
+        "modalTitle": "Restore account",
+        "modalText": "This restores the account to active.",
+        "reasonLabel": "Reason (optional)",
+        "confirm": "Restore",
+        "confirming": "Restoring…"
+      },
+      "demote": {
+        "title": "Demote super admin",
+        "explain": "Super admins can only be demoted, never re-roled directly. This files a request that a different super admin must approve within 24 hours before the account loses its tier.",
+        "selfNote": "You cannot demote your own account.",
+        "trigger": "Demote",
+        "modalTitle": "Request demotion",
+        "modalText": "This files a demotion request for {email}. It takes effect only once a different super admin approves it.",
+        "reasonLabel": "Reason",
+        "confirm": "Request demotion",
+        "confirming": "Requesting…"
+      },
+      "approval": {
+        "title": "Pending demotion request",
+        "body": "{requestedByRole} requested this demotion: \"{reason}\"",
+        "expiresAt": "Expires",
+        "selfRequestNote": "You requested this demotion — another super admin must approve it.",
+        "approve": {
+          "trigger": "Approve demotion",
+          "modalTitle": "Approve demotion",
+          "body": "This demotes {email} from super admin. This cannot be undone by rejecting afterwards.",
+          "confirm": "Approve demotion",
+          "confirming": "Approving…"
+        },
+        "reject": {
+          "trigger": "Reject",
+          "modalTitle": "Reject demotion request",
+          "body": "This cancels the demotion request for {email}.",
+          "reasonLabel": "Reason for rejection",
+          "confirm": "Reject request",
+          "confirming": "Rejecting…"
+        }
+      },
+      "activity": {
+        "title": "Recent activity",
+        "empty": "No recorded activity for this account yet."
+      }
     }
   }
 }

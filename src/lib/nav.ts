@@ -13,6 +13,7 @@ export type NavIcon =
   | 'audit'
   | 'trash'
   | 'approvals'
+  | 'users'
 
 export interface NavItem {
   href: string
@@ -58,6 +59,7 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
   { href: '/admin/audit', icon: 'audit' },
   { href: '/admin/trash', icon: 'trash', permission: 'platform:tenant.read' },
   { href: '/admin/approvals', icon: 'approvals', permission: 'platform:tenant.purge' },
+  { href: '/admin/users', icon: 'users', permission: 'identity:user.read' },
 ]
 
 export function navForOperator(role: UserRole): NavItem[] {

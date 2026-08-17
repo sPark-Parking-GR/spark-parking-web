@@ -10,6 +10,7 @@ import {
   Trash2,
   ShieldCheck,
   Store,
+  Users,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { NavIcon } from '@/lib/nav'
@@ -26,4 +27,5 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   audit: ScrollText,
   trash: Trash2,
   approvals: ShieldCheck,
+  users: Users,
 }

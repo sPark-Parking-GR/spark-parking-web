@@ -103,6 +103,10 @@ const ACTION_META: Record<string, { key: string; tone: AuditTone }> = {
   'user.tombstoned': { key: 'userTombstoned', tone: 'danger' },
   'user.purged': { key: 'userPurged', tone: 'danger' },
   'user.purge_anonymised': { key: 'userPurgeAnonymised', tone: 'danger' },
+  'user.role_changed': { key: 'userRoleChanged', tone: 'warning' },
+  'user.demotion_requested': { key: 'userDemotionRequested', tone: 'warning' },
+  'user.demotion_rejected': { key: 'userDemotionRejected', tone: 'primary' },
+  'user.demoted': { key: 'userDemoted', tone: 'danger' },
 
   'invite.created': { key: 'inviteCreated', tone: 'success' },
   'invite.accepted': { key: 'inviteAccepted', tone: 'success' },
