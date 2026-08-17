@@ -2,11 +2,11 @@ import { getTranslations } from 'next-intl/server'
 import { NavLink } from '@/components/NavLink'
 import { SparkLogo } from '@/components/SparkLogo'
 import type { NavItem } from '@/lib/nav'
-import type { UserRole } from '@spark/types'
+import { isPlatformRole, type UserRole } from '@spark/types'
 
 export async function Sidebar({ items, role }: { items: NavItem[]; role: UserRole }) {
   const t = await getTranslations('shell')
-  const showPromo = role !== 'platform_admin'
+  const showPromo = !isPlatformRole(role)
 
   return (
     <aside className="sidebar" data-theme="dark">

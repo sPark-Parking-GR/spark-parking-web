@@ -24,6 +24,7 @@ export async function TopBar({ user }: { user: AuthUser }) {
     operator_staff: t('roleOperatorStaff'),
     operator_admin: t('roleOperatorAdmin'),
     platform_admin: t('rolePlatformAdmin'),
+    super_admin: t('roleSuperAdmin'),
   }
 
   return (

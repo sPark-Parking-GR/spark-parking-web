@@ -45,6 +45,7 @@
     "roleOperatorStaff": "Operator staff",
     "roleOperatorAdmin": "Operator admin",
     "rolePlatformAdmin": "Platform admin",
+    "roleSuperAdmin": "Super admin",
     "notifications": "Notifications",
     "signedInAs": "Signed in as {name}",
     "exit": "Exit",

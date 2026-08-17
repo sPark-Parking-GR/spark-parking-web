@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/Sidebar'
 import { TopBar } from '@/components/TopBar'
 import { TooltipLayer } from '@/components/TooltipLayer'
 import { NumberWheelGuard } from '@/components/NumberWheelGuard'
+import { isPlatformRole } from '@spark/types'
 import { getSession, isAuthenticated } from '@/lib/session'
 import { navForPlatformAdmin } from '@/lib/nav'
 
@@ -13,11 +14,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (!isAuthenticated(session)) {
     redirect('/login')
   }
-  if (session.user.role !== 'platform_admin') {
+  if (!isPlatformRole(session.user.role)) {
     redirect('/login?error=forbidden')
   }
 
-  const items = navForPlatformAdmin()
+  const items = navForPlatformAdmin(session.user.role)
 
   return (
     <div className="dashboard-shell">

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { isPlatformRole } from '@spark/types'
 import { getSessionFromRequest, isDashboardRole } from './lib/session'
 
 export async function middleware(req: NextRequest): Promise<NextResponse> {
@@ -18,7 +19,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   }
 
   const allowed = requiresPlatformAdmin
-    ? session.user.role === 'platform_admin'
+    ? isPlatformRole(session.user.role)
     : isDashboardRole(session.user.role)
 
   if (!allowed) {

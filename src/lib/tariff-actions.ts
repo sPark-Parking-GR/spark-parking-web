@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { isPlatformRole } from '@spark/types'
 import { ApiError, AuthRequiredError } from './api'
 import type { ManagersActionResult, ManagersResponse } from './api'
 import {
@@ -22,7 +23,8 @@ import type { SimulateRequest, SimulateQuote, PlanAssignments } from './tariff-a
 // follow the caller's own surface instead of a single hardcoded path.
 async function tariffsPath(): Promise<string> {
   const session = await getActiveSession()
-  return session.user?.role === 'platform_admin' ? '/admin/tariffs' : '/dashboard/tariffs'
+  const platform = session.user !== undefined && isPlatformRole(session.user.role)
+  return platform ? '/admin/tariffs' : '/dashboard/tariffs'
 }
 
 export type TariffActionResult =

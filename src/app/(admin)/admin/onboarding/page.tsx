@@ -4,12 +4,13 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { InviteForm } from '@/components/InviteForm'
 import { InviteTable } from '@/components/InviteTable'
+import { isPlatformRole } from '@spark/types'
 import { requireSession } from '@/lib/dal'
 import { listInvitesAction } from '@/lib/invite-actions'
 
 export default async function OnboardingPage() {
   const session = await requireSession()
-  if (session.user.role !== 'platform_admin') {
+  if (!isPlatformRole(session.user.role)) {
     redirect('/dashboard')
   }
 

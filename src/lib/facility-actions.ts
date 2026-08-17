@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { isPlatformRole } from '@spark/types'
 import {
   createFacility,
   updateFacility,
@@ -36,7 +37,8 @@ import type { OpeningHours } from '@spark/types'
 // follow the caller's own surface instead of a single hardcoded path.
 async function facilitiesPath(): Promise<string> {
   const session = await getActiveSession()
-  return session.user?.role === 'platform_admin' ? '/admin/facilities' : '/dashboard/facilities'
+  const platform = session.user !== undefined && isPlatformRole(session.user.role)
+  return platform ? '/admin/facilities' : '/dashboard/facilities'
 }
 
 export type FacilityErrorKey =

@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { getIronSession } from 'iron-session'
 import type { IronSession, SessionOptions } from 'iron-session'
 import type { NextRequest, NextResponse } from 'next/server'
-import type { AuthUser, UserRole } from '@spark/types'
+import { isPlatformRole, type AuthUser, type UserRole } from '@spark/types'
 
 export interface SessionData {
   accessToken: string
@@ -17,6 +17,7 @@ const DASHBOARD_ROLES: ReadonlySet<UserRole> = new Set<UserRole>([
   'operator_staff',
   'operator_admin',
   'platform_admin',
+  'super_admin',
 ])
 
 export function isDashboardRole(role: UserRole | undefined): boolean {
@@ -134,7 +135,7 @@ export async function clearSession(scope: SessionScope): Promise<void> {
 
 export async function establishSessions(data: SessionData): Promise<void> {
   await setSession('dashboard', data)
-  if (data.user.role === 'platform_admin') {
+  if (isPlatformRole(data.user.role)) {
     await setSession('admin', data)
   }
   const cookieStore = await cookies()

@@ -45,6 +45,7 @@
     "roleOperatorStaff": "Προσωπικό χειριστή",
     "roleOperatorAdmin": "Διαχειριστής χειριστή",
     "rolePlatformAdmin": "Διαχειριστής πλατφόρμας",
+    "roleSuperAdmin": "Υπερδιαχειριστής",
     "notifications": "Ειδοποιήσεις",
     "signedInAs": "Συνδεδεμένος ως {name}",
     "exit": "Έξοδος",

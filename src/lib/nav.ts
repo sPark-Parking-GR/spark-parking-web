@@ -31,7 +31,12 @@ interface OperatorNavItem extends NavItem {
 // no admin equivalent (operator-only, on purpose), and root stays on OPERATOR_ROLES per
 // the dual-access decision — platform_admin reaches both /dashboard and /admin/* routes,
 // just through one merged nav list (navForPlatformAdmin) instead of two separate ones.
-const OPERATOR_ROLES: UserRole[] = ['operator_staff', 'operator_admin', 'platform_admin']
+const OPERATOR_ROLES: UserRole[] = [
+  'operator_staff',
+  'operator_admin',
+  'platform_admin',
+  'super_admin',
+]
 const OPERATOR_ADMIN_ROLES: UserRole[] = ['operator_admin']
 const OPERATOR_STAFF_ROLES: UserRole[] = ['operator_staff', 'operator_admin']
 
@@ -59,17 +64,22 @@ export function navForOperator(role: UserRole): NavItem[] {
   return OPERATOR_NAV_ITEMS.filter((item) => item.roles.includes(role))
 }
 
-export function navForAdmin(): NavItem[] {
+// Takes the VIEWER's role rather than assuming platform_admin: the permission field is only
+// a real gate if it is resolved against whoever is actually looking at the sidebar, and a
+// hardcoded role silently grants every item to any administrative role added later.
+export function navForAdmin(role: UserRole): NavItem[] {
   return ADMIN_NAV_ITEMS.filter(
-    (item) => !item.permission || hasPlatformPermission('platform_admin', item.permission),
+    (item) => !item.permission || hasPlatformPermission(role, item.permission),
   )
 }
 
-// One merged nav for platform_admin, used by both (dashboard) and (admin) layouts —
+// One merged nav for the administrative tier, used by both (dashboard) and (admin) layouts —
 // routes stay split at /dashboard vs /admin, but the sidebar itself doesn't, so there's
 // no separate "surface" to switch between.
-export function navForPlatformAdmin(): NavItem[] {
+export function navForPlatformAdmin(role: UserRole): NavItem[] {
   const overview = OPERATOR_NAV_ITEMS.find((item) => item.href === '/dashboard')
   const scan = OPERATOR_NAV_ITEMS.find((item) => item.href === '/dashboard/scan')
-  return [overview, ...navForAdmin(), scan].filter((item): item is NavItem => item !== undefined)
+  return [overview, ...navForAdmin(role), scan].filter(
+    (item): item is NavItem => item !== undefined,
+  )
 }

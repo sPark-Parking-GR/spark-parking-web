@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { BookingTable } from '@/components/BookingTable'
 import { RevenueChart } from '@/components/RevenueChart'
 import { DateRangeControl } from '@/components/DateRangeControl'
+import { isPlatformRole } from '@spark/types'
 import { listFacilities, ApiError, AuthRequiredError } from '@/lib/api'
 import { listBookings } from '@/lib/booking-api'
 import { getAnalyticsSummary, getRevenueSeries } from '@/lib/analytics-api'
@@ -30,7 +31,7 @@ interface PageProps {
 export default async function DashboardOverviewPage({ searchParams }: PageProps) {
   const session = await requireSession()
   const t = await getTranslations('overview')
-  const bookingsHref = session.user.role === 'platform_admin' ? '/admin/bookings' : '/dashboard/bookings'
+  const bookingsHref = isPlatformRole(session.user.role) ? '/admin/bookings' : '/dashboard/bookings'
 
   const params = await searchParams
   const preset = parseRangePreset(params.range)

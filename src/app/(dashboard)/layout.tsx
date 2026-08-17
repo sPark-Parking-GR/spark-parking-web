@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/Sidebar'
 import { TopBar } from '@/components/TopBar'
 import { TooltipLayer } from '@/components/TooltipLayer'
 import { NumberWheelGuard } from '@/components/NumberWheelGuard'
+import { isPlatformRole } from '@spark/types'
 import { getSession, isAuthenticated, isDashboardRole } from '@/lib/session'
 import { navForOperator, navForPlatformAdmin } from '@/lib/nav'
 
@@ -15,8 +16,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   const items =
-    session.user.role === 'platform_admin'
-      ? navForPlatformAdmin()
+    isPlatformRole(session.user.role)
+      ? navForPlatformAdmin(session.user.role)
       : navForOperator(session.user.role)
 
   return (

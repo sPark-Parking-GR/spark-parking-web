@@ -7,6 +7,7 @@ import { ManagersPanel } from '@/components/ManagersPanel'
 import { getTariffPlan, getTariffAssignments, listTariffPlans } from '@/lib/tariff-api'
 import { getTariffPlanManagersAction } from '@/lib/tariff-actions'
 import { ApiError, AuthRequiredError } from '@/lib/api'
+import { isPlatformRole } from '@spark/types'
 import { getActiveSession } from '@/lib/session'
 
 interface PageProps {
@@ -22,7 +23,8 @@ export default async function EditTariffPlanPage({ params }: PageProps) {
   const t = await getTranslations('tariffs')
 
   const canManageAccess =
-    session.user?.role === 'operator_admin' || session.user?.role === 'platform_admin'
+    session.user?.role === 'operator_admin' ||
+    (session.user !== undefined && isPlatformRole(session.user.role))
   // Kicked off before the plan/assignment awaits below so it resolves concurrently with
   // them rather than adding a serial round trip; the action swallows 403/404 to null so an
   // admin who is only STAFF on the owning operator gets no panel instead of a broken one.
@@ -68,7 +70,7 @@ export default async function EditTariffPlanPage({ params }: PageProps) {
           namespace="tariffs"
           initial={managers}
           currentUserId={session.user?.id ?? ''}
-          isPlatformAdmin={session.user?.role === 'platform_admin'}
+          isPlatformAdmin={session.user !== undefined && isPlatformRole(session.user.role)}
         />
       ) : null}
       <TariffEditor mode="edit" planId={planId} plan={detail} plans={plans.items} />
