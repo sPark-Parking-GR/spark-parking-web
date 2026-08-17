@@ -13,6 +13,7 @@
     "trash": "Trash",
     "approvals": "Approvals",
     "users": "Users",
+    "admins": "Admins",
     "descriptions": {
       "overview": "Snapshot of your parking operations",
       "facilities": "Manage your parking facilities and locations",
@@ -25,7 +26,8 @@
       "audit": "Security and change history",
       "trash": "Archived and tombstoned resources, with restore and purge",
       "approvals": "Pending two-person purge approvals",
-      "users": "Browse every account with role and lifecycle controls"
+      "users": "Browse every account with role and lifecycle controls",
+      "admins": "Invite new platform administrators"
     }
   },
   "dateRange": {
@@ -287,6 +289,93 @@
       "businessNameRequired": "Business name is required.",
       "businessNameTooLong": "Business name must be at most 200 characters.",
       "emailInvalid": "Enter a valid email address."
+    }
+  },
+  "adminInvites": {
+    "title": "Admins",
+    "description": "Invite new platform administrators to sPark.",
+    "explainer": "Inviting someone here grants them full platform administration — every tenant capability, including facilities, tariffs and billing across every operator. It does not let you view, search or manage existing accounts; only a super admin can do that.",
+    "form": {
+      "heading": "Invite a platform admin",
+      "emailLabel": "Email",
+      "displayNameLabel": "Display name (optional)",
+      "sendInvite": "Send invite",
+      "sending": "Sending…",
+      "sent": "Invite sent.",
+      "sentNotDelivered": "The invite was created, but the email failed to send. The recipient cannot use this invite until you resend it — use Resend below once it appears in the table."
+    },
+    "table": {
+      "email": "Email",
+      "displayName": "Name",
+      "noDisplayName": "—",
+      "status": "Status",
+      "expiresAt": "Expires",
+      "createdAt": "Sent",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "empty": {
+      "title": "No admin invites yet",
+      "message": "Invite a platform administrator to get started."
+    },
+    "actions": {
+      "cancel": "Cancel"
+    },
+    "resend": {
+      "trigger": "Resend",
+      "confirm": "Resend invite",
+      "resending": "Resending…",
+      "modalTitle": "Resend invite",
+      "modalText": "This sends a new invite email with the same invite, extending its expiry.",
+      "notDelivered": "The invite was resent, but the email still failed to send. Try again shortly."
+    },
+    "revoke": {
+      "trigger": "Revoke",
+      "confirm": "Revoke invite",
+      "revoking": "Revoking…",
+      "modalTitle": "Revoke invite",
+      "modalText": "This withdraws the invite before it's accepted. The recipient's link will stop working immediately."
+    },
+    "errors": {
+      "forbidden": "You do not have permission to do this.",
+      "invalidInvite": "This invite is invalid.",
+      "inviteNotFound": "This invite no longer exists.",
+      "emailTaken": "This email already has an sPark account.",
+      "invalidData": "Enter a valid email address.",
+      "genericError": "Something went wrong. Try again."
+    },
+    "validation": {
+      "emailInvalid": "Enter a valid email address.",
+      "displayNameTooLong": "Display name must be at most 200 characters."
+    },
+    "accept": {
+      "tagline": "Make Parking Smart",
+      "title": "Set your password",
+      "context": "You're setting up your sPark platform administrator account (<b>{email}</b>).",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "passwordTooLong": "Password must be at most 200 characters.",
+      "passwordsMismatch": "Passwords do not match.",
+      "genericError": "Enter a valid password.",
+      "submit": "Set password",
+      "submitting": "Setting up…",
+      "goToLogin": "Go to sign in",
+      "invalidTitle": "Invalid invite link",
+      "invalidMessage": "This invite link doesn't exist. Ask a platform administrator to send a new one.",
+      "invalidGenericMessage": "We couldn't load this invite. Please try again shortly.",
+      "expiredTitle": "Invite expired",
+      "expiredMessage": "This invite has expired or is no longer valid. Contact a platform administrator for a new invite.",
+      "alreadyUsed": "This invite was already used.",
+      "expired": "This invite has expired. Ask a platform administrator to send a new one.",
+      "invalidLink": "This invite link is invalid.",
+      "unreachable": "Unable to reach the server right now. Please try again.",
+      "somethingWentWrong": "Something went wrong. Please try again."
     }
   },
   "overview": {
@@ -1121,6 +1210,10 @@
         "inviteAccepted": "accepted an invite",
         "inviteResent": "resent an invite",
         "inviteRevoked": "revoked an invite",
+        "adminInviteCreated": "invited a platform admin",
+        "adminInviteResent": "resent a platform admin invite",
+        "adminInviteRevoked": "revoked a platform admin invite",
+        "adminInviteAccepted": "accepted a platform admin invite",
         "lifecyclePurgeRequested": "requested a permanent deletion",
         "lifecyclePurgeApproved": "approved a permanent deletion",
         "lifecyclePurgeRejected": "rejected a permanent deletion",

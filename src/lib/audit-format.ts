@@ -113,6 +113,11 @@ const ACTION_META: Record<string, { key: string; tone: AuditTone }> = {
   'invite.resent': { key: 'inviteResent', tone: 'primary' },
   'invite.revoked': { key: 'inviteRevoked', tone: 'danger' },
 
+  'admin_invite.created': { key: 'adminInviteCreated', tone: 'success' },
+  'admin_invite.resent': { key: 'adminInviteResent', tone: 'primary' },
+  'admin_invite.revoked': { key: 'adminInviteRevoked', tone: 'danger' },
+  'admin_invite.accepted': { key: 'adminInviteAccepted', tone: 'success' },
+
   'lifecycle.purge_requested': { key: 'lifecyclePurgeRequested', tone: 'warning' },
   'lifecycle.purge_approved': { key: 'lifecyclePurgeApproved', tone: 'danger' },
   'lifecycle.purge_rejected': { key: 'lifecyclePurgeRejected', tone: 'primary' },

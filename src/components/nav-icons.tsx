@@ -9,6 +9,7 @@ import {
   ScrollText,
   Trash2,
   ShieldCheck,
+  ShieldPlus,
   Store,
   Users,
 } from 'lucide-react'
@@ -28,4 +29,5 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   trash: Trash2,
   approvals: ShieldCheck,
   users: Users,
+  admins: ShieldPlus,
 }
