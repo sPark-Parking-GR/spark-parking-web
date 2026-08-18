@@ -18,6 +18,12 @@ export class ApiError extends Error {
     message: string,
     readonly status: number,
     readonly errors?: ApiFieldError[],
+    /**
+     * Machine-readable discriminator the API attaches when one status covers several
+     * genuinely different refusals — a 409 that is a seat limit and a 409 that is a taken
+     * address need opposite remedies, and the number alone cannot tell them apart.
+     */
+    readonly code?: string,
   ) {
     super(message)
     this.name = 'ApiError'
@@ -309,12 +315,14 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
     const body = (await response.json().catch(() => ({}))) as {
       message?: string
       errors?: ApiFieldError[]
+      code?: string
     }
     const errors = Array.isArray(body.errors) ? body.errors : undefined
     throw new ApiError(
       body.message ?? `Request failed: ${response.status}`,
       response.status,
       errors,
+      typeof body.code === 'string' ? body.code : undefined,
     )
   }
 

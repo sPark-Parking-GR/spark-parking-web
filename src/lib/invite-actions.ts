@@ -102,6 +102,11 @@ export async function sendInviteAction(
     if (err instanceof AuthRequiredError) redirect('/login')
     if (err instanceof ApiError) {
       if (err.status === 403) return { ok: false, errorKey: 'errors.sendInviteForbidden' }
+      // The address already has an account. Refused at issue rather than discovered by the
+      // recipient at redeem, so the admin who can act on it is the one who is told.
+      if (err.status === 409) {
+        return { ok: false, errorKey: 'errors.genericError', detail: err.message || undefined }
+      }
       if (err.status === 400) {
         const detail = err.errors
           ?.map((issue) => (issue.path ? `${issue.path}: ${issue.message}` : issue.message))
@@ -191,7 +196,15 @@ export async function acceptInviteAction(
 
   if (!response.ok) {
     if (response.status === 409) {
-      return { ok: false, errorKey: 'alreadyUsed', loginHint: true }
+      // Two different conflicts share this status, and they are opposites: a link that was
+      // genuinely redeemed already, versus an address that already has an account. Reporting
+      // the second as the first is how a live invite looks like a reused one.
+      const body = (await response.json().catch(() => ({}))) as { code?: string }
+      return {
+        ok: false,
+        errorKey: body.code === 'EMAIL_TAKEN' ? 'emailTaken' : 'alreadyUsed',
+        loginHint: true,
+      }
     }
     if (response.status === 410) {
       return { ok: false, errorKey: 'expired' }

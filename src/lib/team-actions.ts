@@ -76,8 +76,9 @@ export async function inviteMemberAction(
     if (err instanceof AuthRequiredError) redirect('/login')
     // A seat-quota 409 is a plan limit, not a failure — kept distinct from every other
     // conflict this endpoint can raise so the form can offer an upgrade path instead of
-    // a red error toast.
-    if (err instanceof ApiError && err.status === 409) {
+    // a red error toast. An address that already has an account is also a 409 and is NOT a
+    // plan limit, so it must not be offered an upgrade it would not fix.
+    if (err instanceof ApiError && err.status === 409 && err.code !== 'EMAIL_TAKEN') {
       return { ok: false, errorKey: 'errors.seatLimitReached', detail: err.message || undefined }
     }
     return mapWriteError(err)

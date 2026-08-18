@@ -213,7 +213,15 @@ export async function acceptAdminInviteAction(
 
   if (!response.ok) {
     if (response.status === 409) {
-      return { ok: false, errorKey: 'alreadyUsed', loginHint: true }
+      // Two different conflicts share this status, and they are opposites: a link that was
+      // genuinely redeemed already, versus an address that already has an account. Reporting
+      // the second as the first is how a live invite looks like a reused one.
+      const body = (await response.json().catch(() => ({}))) as { code?: string }
+      return {
+        ok: false,
+        errorKey: body.code === 'EMAIL_TAKEN' ? 'emailTaken' : 'alreadyUsed',
+        loginHint: true,
+      }
     }
     if (response.status === 410) {
       return { ok: false, errorKey: 'expired' }
