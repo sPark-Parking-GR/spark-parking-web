@@ -87,6 +87,7 @@ const ACTION_META: Record<string, { key: string; tone: AuditTone }> = {
 
   'operator_member.removed': { key: 'operatorMemberRemoved', tone: 'danger' },
   'operator_member.role_changed': { key: 'operatorMemberRoleChanged', tone: 'warning' },
+  'operator_member.scopes_changed': { key: 'operatorMemberScopesChanged', tone: 'warning' },
 
   'operator_subscription.assigned': { key: 'operatorSubscriptionAssigned', tone: 'success' },
   'operator_subscription.override_set': {

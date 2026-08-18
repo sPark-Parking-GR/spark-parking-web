@@ -5,6 +5,7 @@
     "tariffs": "Tariffs",
     "bookings": "Bookings",
     "scan": "Scan",
+    "team": "Team",
     "capacity": "Capacity",
     "analytics": "Analytics",
     "operatorDirectory": "Operator directory",
@@ -20,6 +21,7 @@
       "tariffs": "Pricing plans, rates and caps",
       "bookings": "Active and past customer bookings",
       "scan": "Scan booking QR codes at the barrier",
+      "team": "Invite and manage your operator's team members",
       "operatorDirectory": "Browse every operator with lifecycle and membership controls",
       "onboarding": "Invite new operator businesses onto sPark",
       "analytics": "Revenue and occupancy insights",
@@ -1192,6 +1194,7 @@
         "operatorReactivated": "reactivated an operator",
         "operatorMemberRemoved": "removed a team member",
         "operatorMemberRoleChanged": "changed a team member's role",
+        "operatorMemberScopesChanged": "changed a team member's access",
         "operatorSubscriptionAssigned": "assigned a subscription plan",
         "operatorSubscriptionOverrideSet": "overrode subscription entitlements",
         "subscriptionPlanCreated": "created a subscription plan",
@@ -1500,6 +1503,140 @@
         "title": "Recent activity",
         "empty": "No recorded activity for this account yet."
       }
+    }
+  },
+  "team": {
+    "title": "Team",
+    "description": "Manage who has access to your operator account and what they can do.",
+    "explainer": "Invite people to help run your business on sPark. Staff members start with day-to-day access — bookings, the scanner and reporting — and you can fine-tune exactly what each one can do. Admins have full access to everything, including the team itself.",
+    "cancel": "Cancel",
+    "form": {
+      "heading": "Invite a team member",
+      "emailLabel": "Email",
+      "roleLabel": "Role",
+      "sendInvite": "Send invite",
+      "sending": "Sending…",
+      "sent": "Invite sent.",
+      "sentNotDelivered": "The invite was created, but the email failed to send. The recipient cannot use this invite until you send a new one.",
+      "seatLimitMessage": "You've used all the staff seats on your plan. Upgrade your plan to invite more team members, or remove someone first."
+    },
+    "roleOptions": {
+      "ADMIN": "Admin",
+      "STAFF": "Staff"
+    },
+    "table": {
+      "email": "Email",
+      "role": "Role",
+      "scopes": "Access",
+      "joined": "Joined",
+      "actions": "Actions"
+    },
+    "scopesSummary": {
+      "fullAccess": "Full access",
+      "adminHint": "Admins hold every permission by definition",
+      "count": "{count, plural, =0 {No permissions granted} one {# of {total} permission} other {# of {total} permissions}}"
+    },
+    "selfNote": "This is you",
+    "soleAdminNote": "Sole admin — promote another member first",
+    "changeRole": {
+      "trigger": "Change role",
+      "modalTitle": "Change role for {email}",
+      "roleLabel": "Role",
+      "confirm": "Save",
+      "confirming": "Saving…"
+    },
+    "remove": {
+      "trigger": "Remove",
+      "modalTitle": "Remove member",
+      "body": "This removes {email} from your team. They lose all access immediately.",
+      "confirm": "Remove member",
+      "confirming": "Removing…"
+    },
+    "scopesEditor": {
+      "trigger": "Manage access",
+      "modalTitle": "Manage access for {email}",
+      "signOutWarning": "Saving this signs {email} out immediately — they'll need to sign in again before the new access applies.",
+      "cancel": "Cancel",
+      "confirm": "Save changes",
+      "confirming": "Saving…",
+      "scopes": {
+        "facilityRead": {
+          "label": "View facilities",
+          "description": "See this operator's parking facilities."
+        },
+        "facilityWrite": {
+          "label": "Manage facilities",
+          "description": "Create, edit and publish this operator's facilities."
+        },
+        "tariffRead": {
+          "label": "View tariffs",
+          "description": "See this operator's tariff plans."
+        },
+        "tariffWrite": {
+          "label": "Manage tariffs",
+          "description": "Create and edit tariff plans and their rates."
+        },
+        "bookingRead": {
+          "label": "View bookings",
+          "description": "See bookings made at this operator's facilities."
+        },
+        "bookingWrite": {
+          "label": "Manage bookings",
+          "description": "Cancel, refund or otherwise act on those bookings."
+        },
+        "scanExecute": {
+          "label": "Scan tickets",
+          "description": "Scan and verify tickets at the barrier."
+        },
+        "statsRead": {
+          "label": "View reporting",
+          "description": "See occupancy, revenue and other reporting."
+        },
+        "memberManage": {
+          "label": "Manage team",
+          "description": "Invite, re-scope and remove this operator's members."
+        },
+        "billingView": {
+          "label": "View billing",
+          "description": "See the plan, seat usage and invoices."
+        }
+      }
+    },
+    "invites": {
+      "title": "Invites",
+      "empty": "No invites sent yet.",
+      "table": {
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "expiresAt": "Expires",
+        "createdAt": "Sent"
+      },
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      }
+    },
+    "empty": {
+      "title": "No team members yet",
+      "message": "Invite someone to help run your business."
+    },
+    "operatorMissing": {
+      "title": "Could not load your team",
+      "message": "We could not determine your operator account. Try again shortly, or contact support if the problem continues."
+    },
+    "errors": {
+      "forbidden": "You do not have permission to do this.",
+      "notFound": "This member no longer exists.",
+      "conflict": "This action can no longer be applied — try refreshing the page.",
+      "seatLimitReached": "You've used all the staff seats on your plan.",
+      "invalidData": "Enter a valid email address.",
+      "genericError": "Something went wrong. Try again."
+    },
+    "validation": {
+      "emailInvalid": "Enter a valid email address."
     }
   }
 }

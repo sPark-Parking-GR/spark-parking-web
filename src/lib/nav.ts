@@ -7,6 +7,7 @@ export type NavIcon =
   | 'tariffs'
   | 'bookings'
   | 'scan'
+  | 'team'
   | 'operatorDirectory'
   | 'onboarding'
   | 'analytics'
@@ -48,6 +49,7 @@ const OPERATOR_NAV_ITEMS: OperatorNavItem[] = [
   { href: '/dashboard/tariffs', icon: 'tariffs', roles: OPERATOR_ADMIN_ROLES },
   { href: '/dashboard/bookings', icon: 'bookings', roles: OPERATOR_STAFF_ROLES },
   { href: '/dashboard/scan', icon: 'scan', roles: OPERATOR_ROLES },
+  { href: '/dashboard/team', icon: 'team', roles: OPERATOR_ADMIN_ROLES },
 ]
 
 const ADMIN_NAV_ITEMS: NavItem[] = [

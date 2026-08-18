@@ -12,6 +12,7 @@ import {
   ShieldPlus,
   Store,
   Users,
+  UsersRound,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { NavIcon } from '@/lib/nav'
@@ -22,6 +23,7 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   tariffs: Receipt,
   bookings: CalendarClock,
   scan: ScanLine,
+  team: UsersRound,
   operatorDirectory: Store,
   onboarding: UserPlus,
   analytics: BarChart3,
