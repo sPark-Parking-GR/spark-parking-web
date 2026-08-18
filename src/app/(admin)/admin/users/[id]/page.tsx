@@ -283,7 +283,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
               <div className="panel-card__header">
                 <h3 className="panel-card__title">{t('role.title')}</h3>
               </div>
-              <div className="panel-card__body">
+              <div className="panel-card__body panel-card__body--stack">
                 {user.role === 'SUPER_ADMIN' ? (
                   <p className="text-secondary">{t('role.superAdminNote')}</p>
                 ) : isSelf ? (
@@ -300,7 +300,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
               <div className="panel-card__header">
                 <h3 className="panel-card__title">{t('demote.title')}</h3>
               </div>
-              <div className="panel-card__body">
+              <div className="panel-card__body panel-card__body--stack">
                 <p className="text-secondary">{t('demote.explain')}</p>
                 {isSelf ? (
                   <p className="text-secondary">{t('demote.selfNote')}</p>
@@ -316,7 +316,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
               <div className="panel-card__header">
                 <h3 className="panel-card__title">{t('approval.title')}</h3>
               </div>
-              <div className="panel-card__body">
+              <div className="panel-card__body panel-card__body--stack">
                 <p className="text-secondary">
                   {t('approval.body', {
                     requestedByRole: pendingApproval.requestedByRole,

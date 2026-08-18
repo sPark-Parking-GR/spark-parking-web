@@ -1205,6 +1205,15 @@ select.input {
   justify-content: center;
 }
 
+/* Action panels: prose followed by a control, rather than the single centred empty state
+   the base body is shaped for. Without this the two become row siblings and the control is
+   stretched to the card's full min-height — a 190px-tall button beside its own caption. */
+.panel-card__body--stack {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
 .audit-card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -2404,6 +2413,11 @@ select.input {
 }
 
 .btn--danger {
+  /* .btn deliberately sets no background — each variant supplies its own. Without one here
+     the outline danger button fell through to the user-agent default (#f0f0f0 buttonface),
+     which reads as a light-grey chip on the dark surface. Every danger action in the app
+     shared it: cancel booking, delete facility, revoke invite, suspend operator, demote. */
+  background: transparent;
   color: var(--color-error);
   border-color: var(--color-error);
 }
