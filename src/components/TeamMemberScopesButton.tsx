@@ -64,7 +64,7 @@ export function TeamMemberScopesButton({ operatorId, userId, email, scopes }: Pr
       <Modal open={open} onClose={() => setOpen(false)} title={t('modalTitle', { email })} wide>
         <p className="form-banner form-banner--warning" role="status">
           <AlertTriangle size={16} strokeWidth={2} aria-hidden="true" />
-          {t('signOutWarning')}
+          {t('signOutWarning', { email })}
         </p>
 
         {error ? (
