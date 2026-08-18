@@ -3062,8 +3062,15 @@ select.input {
   inset: 0;
   z-index: 100;
   display: flex;
-  align-items: center;
+  /* NOT align-items: center. Centring a flex child that is taller than its container
+     clips it at BOTH ends and leaves the overflow unreachable — the scroll range of a
+     flex container does not extend past its start edge. A tall dialog (the team scope
+     editor is ~950px) lost its Cancel and Save buttons below the fold on any laptop.
+     flex-start plus auto margins on the child centres it when there is room and lets it
+     scroll when there is not. */
+  align-items: flex-start;
   justify-content: center;
+  overflow-y: auto;
   padding: var(--space-lg);
   background: rgba(2, 12, 20, 0.55);
   backdrop-filter: blur(4px);
@@ -3072,6 +3079,9 @@ select.input {
 }
 
 .modal {
+  /* Centres the dialog while there is free space, collapses to 0 once it overflows, which
+     is what keeps the top edge reachable. */
+  margin: auto;
   width: 100%;
   max-width: 440px;
   background: var(--color-surface);
