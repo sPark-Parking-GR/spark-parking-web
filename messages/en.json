@@ -582,10 +582,10 @@
       "open24h": "Open 24 hours",
       "hoursNotSet": "Hours not set",
       "closed": "Closed",
-      "onlineAvailability": "Online availability",
+      "onlineAvailability": "Online occupancy",
       "activeHours": "Active hours",
       "activeHoursSub": "Configured opening hours per day",
-      "ringHint": "{onlineQuota} of {totalCapacity} spots configured for online booking.",
+      "ringHint": "{booked} of {onlineQuota} online spots booked right now.",
       "amenities": "Amenities",
       "noAmenities": "No amenities listed.",
       "days": {

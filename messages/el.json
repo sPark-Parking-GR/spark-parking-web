@@ -582,10 +582,10 @@
       "open24h": "Ανοιχτό 24 ώρες",
       "hoursNotSet": "Δεν έχει οριστεί ωράριο",
       "closed": "Κλειστό",
-      "onlineAvailability": "Διαθεσιμότητα online",
+      "onlineAvailability": "Πληρότητα online",
       "activeHours": "Ώρες λειτουργίας",
       "activeHoursSub": "Διαμορφωμένο ωράριο ανά ημέρα",
-      "ringHint": "{onlineQuota} από {totalCapacity} θέσεις διαμορφωμένες για online κράτηση.",
+      "ringHint": "{booked} από {onlineQuota} online θέσεις κρατημένες αυτή τη στιγμή.",
       "amenities": "Ανέσεις",
       "noAmenities": "Δεν υπάρχουν καταχωρημένες ανέσεις.",
       "days": {

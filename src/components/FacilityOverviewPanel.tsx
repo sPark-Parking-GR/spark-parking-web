@@ -44,9 +44,9 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
     return { day, leftPct, rightPct, label }
   })
 
-  const onlinePct =
-    facility.totalCapacity > 0
-      ? Math.round((facility.onlineQuota / facility.totalCapacity) * 100)
+  const bookedPct =
+    facility.onlineQuota > 0
+      ? Math.round((facility.bookedOnlineSpots / facility.onlineQuota) * 100)
       : 0
 
   return (
@@ -138,13 +138,13 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
             {t('overview.onlineAvailability')}
           </h3>
           <div className="facility-overview__ring">
-            <ProgressRing pct={onlinePct}>
-              <span className="facility-overview__ring-value">{onlinePct}%</span>
+            <ProgressRing pct={bookedPct}>
+              <span className="facility-overview__ring-value">{bookedPct}%</span>
             </ProgressRing>
             <p className="text-secondary facility-overview__ring-hint">
               {t('overview.ringHint', {
+                booked: facility.bookedOnlineSpots,
                 onlineQuota: facility.onlineQuota,
-                totalCapacity: facility.totalCapacity,
               })}
             </p>
           </div>
