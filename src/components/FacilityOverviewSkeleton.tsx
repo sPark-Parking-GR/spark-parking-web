@@ -19,10 +19,10 @@ export function FacilityOverviewSkeleton() {
           </div>
         </div>
 
-        <div className="stat-grid facility-overview__stats">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} height={84} radius={12} />
-          ))}
+        <div className="capacity-summary">
+          <Skeleton width={90} height={56} radius={10} />
+          <Skeleton height={56} radius={10} style={{ flex: 1 }} />
+          <Skeleton height={56} radius={10} style={{ flex: 1 }} />
         </div>
       </Card>
 

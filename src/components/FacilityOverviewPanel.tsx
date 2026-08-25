@@ -1,9 +1,10 @@
 import { getTranslations } from 'next-intl/server'
 import { Badge, Card, ProgressRing } from '@spark/ui'
-import { MapPin, Car } from 'lucide-react'
-import { StatCard } from '@/components/StatCard'
+import { MapPin } from 'lucide-react'
 import { SparkMark } from '@/components/SparkMark'
+import { VEHICLE_ICON } from '@/components/vehicle-icons'
 import type { AdminFacility } from '@/lib/api'
+import type { VehicleType } from '@spark/types'
 
 const WEEKDAYS = [
   'monday',
@@ -72,30 +73,39 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
           </div>
         </div>
 
-        <div className="stat-grid facility-overview__stats">
-          <StatCard
-            label={t('stats.totalSpots')}
-            value={String(facility.totalCapacity)}
-            icon={Car}
-            tone="primary"
-          />
-          <StatCard
-            label={t('stats.onlineQuota')}
-            value={String(facility.onlineQuota)}
-            icon={Car}
-            tone="success"
-            index={1}
-          />
-          <StatCard
-            label={t('stats.vehicleTypes')}
-            value={
-              facility.vehicleTypes.length <= 2
-                ? facility.vehicleTypes.join(', ') || '—'
-                : String(facility.vehicleTypes.length)
-            }
-            tone="neutral"
-            index={2}
-          />
+        <div className="capacity-summary">
+          <div className="capacity-summary__figure">
+            <span className="capacity-summary__number">{facility.totalCapacity}</span>
+            <span className="capacity-summary__label">{t('stats.totalSpots')}</span>
+          </div>
+
+          <div className="capacity-summary__divider" aria-hidden="true" />
+
+          <div className="capacity-summary__figure">
+            <span className="capacity-summary__number">{facility.onlineQuota}</span>
+            <span className="capacity-summary__label">{t('stats.onlineQuota')}</span>
+          </div>
+
+          <div className="capacity-summary__divider" aria-hidden="true" />
+
+          <div className="capacity-summary__segment">
+            <span className="capacity-summary__label">{t('stats.vehicleTypes')}</span>
+            {facility.vehicleTypes.length === 0 ? (
+              <span className="text-secondary">—</span>
+            ) : (
+              <div className="capacity-summary__pills">
+                {facility.vehicleTypes.map((vehicleType) => {
+                  const Icon = VEHICLE_ICON[vehicleType.toLowerCase() as VehicleType]
+                  return (
+                    <span key={vehicleType} className="capacity-summary__pill">
+                      <Icon size={14} strokeWidth={2} aria-hidden="true" />
+                      {t(`vehicleTypes.${vehicleType.toLowerCase()}`)}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </Card>
 

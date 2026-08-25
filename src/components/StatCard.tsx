@@ -1,5 +1,6 @@
 import { Info } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 export type StatTone = 'primary' | 'success' | 'warning' | 'neutral' | 'error'
 
@@ -13,7 +14,7 @@ export function StatCard({
   trend,
 }: {
   label: string
-  value: string
+  value: ReactNode
   hint?: string
   icon?: LucideIcon
   tone?: StatTone
