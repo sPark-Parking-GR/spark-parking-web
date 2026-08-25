@@ -60,9 +60,9 @@ const commonFields = {
   ),
   isActive: z.coerce.boolean().optional(),
   operatorId: z.string().trim().nullable().optional(),
-  // Only ever submitted by the platform-admin kind selector; absent from every other
-  // caller's form data, so z.optional() (not nullable) is the correct match.
-  kind: z.enum(FACILITY_KINDS).optional(),
+  // Only ever submitted by the platform-admin kind selector; every other caller's form
+  // omits the field, which FormData reads back as null rather than a missing key.
+  kind: z.preprocess(nullToUndefined, z.enum(FACILITY_KINDS).optional()),
 }
 
 const quotaWithinCapacity = {
