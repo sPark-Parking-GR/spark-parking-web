@@ -176,7 +176,10 @@ export function FacilityForm({
     return key ? t(key) : undefined
   }
 
-  const showVisibilitySection = mode === 'edit' || (mode === 'create' && isPlatformAdmin)
+  // isActive is platform-admin-only (mirrors the kind selector's gating below), and the
+  // operator picker only ever renders for a platform admin creating a facility — so with
+  // no isPlatformAdmin, this section would render its heading over nothing.
+  const showVisibilitySection = isPlatformAdmin
 
   return (
     <div className="facility-form-layout">
@@ -436,7 +439,7 @@ export function FacilityForm({
             <div className="editor-section__head">
               <h3 className="h-heading">{t('form.visibility')}</h3>
             </div>
-            {mode === 'edit' ? (
+            {mode === 'edit' && isPlatformAdmin ? (
               <div className="field">
                 <label className="checkbox-label">
                   <input

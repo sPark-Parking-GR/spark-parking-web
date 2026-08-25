@@ -220,7 +220,7 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
                       <tr>
                         <th>{tFacilities('table.name')}</th>
                         <th>{tFacilities('table.status')}</th>
-                        <th>{tFacilities('table.verified')}</th>
+                        <th>{tFacilities('table.published')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -240,10 +240,10 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
                             )}
                           </td>
                           <td>
-                            {f.isVerified ? (
-                              <Badge variant="ok">{tFacilities('status.verified')}</Badge>
+                            {f.isPublished ? (
+                              <Badge variant="ok">{tFacilities('status.published')}</Badge>
                             ) : (
-                              <Badge variant="warn">{tFacilities('status.pending')}</Badge>
+                              <Badge variant="warn">{tFacilities('status.unpublished')}</Badge>
                             )}
                           </td>
                         </tr>

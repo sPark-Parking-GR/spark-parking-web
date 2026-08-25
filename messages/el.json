@@ -447,8 +447,6 @@
       "deploy": "Δημοσίευση",
       "enable": "Ενεργοποίηση",
       "disable": "Απενεργοποίηση",
-      "activate": "Ενεργοποίηση",
-      "deactivate": "Απενεργοποίηση",
       "publish": "Δημοσίευση",
       "unpublish": "Απόσυρση δημοσίευσης",
       "assignTariff": "Ανάθεση τιμολογίου",
@@ -457,9 +455,8 @@
     "status": {
       "active": "Ενεργός",
       "inactive": "Ανενεργός",
-      "verified": "Επιβεβαιωμένος",
-      "pending": "Σε εκκρεμότητα",
-      "pendingVerification": "Εκκρεμεί επαλήθευση",
+      "published": "Δημοσιευμένος",
+      "unpublished": "Μη δημοσιευμένος",
       "live": "Σε λειτουργία"
     },
     "kind": {
@@ -485,15 +482,17 @@
       "kind": "Τύπος",
       "capacity": "Χωρητικότητα",
       "status": "Κατάσταση",
-      "verified": "Επαλήθευση",
+      "published": "Δημοσίευση",
       "selectAll": "Επιλογή όλων σε αυτή τη σελίδα",
       "selectOne": "Επιλογή {name}",
       "actionsCol": "Ενέργειες",
       "bulkActionsLabel": "Μαζικές ενέργειες",
       "selectedCount": "{count, plural, one {# επιλεγμένο} other {# επιλεγμένα}}",
-      "tooltipDeploy": "Δημοσίευση (ενεργοποίηση + επαλήθευση)",
+      "tooltipDeploy": "Ανάπτυξη (ενεργοποίηση + δημοσίευση)",
       "tooltipDisable": "Απενεργοποίηση",
       "tooltipEnable": "Ενεργοποίηση",
+      "tooltipPublish": "Δημοσίευση",
+      "tooltipUnpublish": "Απόσυρση δημοσίευσης",
       "tooltipAssignTariff": "Ανάθεση τιμολογίου",
       "tooltipEdit": "Επεξεργασία",
       "tooltipDelete": "Διαγραφή"
@@ -520,10 +519,10 @@
     },
     "filters": {
       "statusAria": "Φιλτράρισμα κατά κατάσταση",
-      "verifiedAria": "Φιλτράρισμα κατά επαλήθευση",
+      "publishedAria": "Φιλτράρισμα κατά δημοσίευση",
       "kindAria": "Φιλτράρισμα κατά τύπο",
       "anyStatus": "Οποιαδήποτε κατάσταση",
-      "anyVerification": "Οποιαδήποτε επαλήθευση",
+      "anyPublished": "Οποιαδήποτε δημοσίευση",
       "anyKind": "Οποιοσδήποτε τύπος"
     },
     "form": {

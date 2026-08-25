@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Banknote, Pencil, Power, PowerOff, Rocket, Trash2 } from 'lucide-react'
+import { Banknote, Eye, EyeOff, Pencil, Power, PowerOff, Rocket, Trash2 } from 'lucide-react'
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import { AssignTariffModal } from './AssignTariffModal'
@@ -208,6 +208,24 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
             <button
               type="button"
               className="btn btn--secondary btn--sm"
+              disabled={pending}
+              onClick={() => run('publish', selectedIds)}
+            >
+              <Eye size={15} strokeWidth={2} aria-hidden="true" />
+              {t('actions.publish')}
+            </button>
+            <button
+              type="button"
+              className="btn btn--secondary btn--sm"
+              disabled={pending}
+              onClick={() => run('unpublish', selectedIds)}
+            >
+              <EyeOff size={15} strokeWidth={2} aria-hidden="true" />
+              {t('actions.unpublish')}
+            </button>
+            <button
+              type="button"
+              className="btn btn--secondary btn--sm"
               disabled={pending || assignLoading}
               onClick={() => openAssign(selectedIds)}
             >
@@ -249,14 +267,14 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
               <th>{t('table.kind')}</th>
               <th>{t('table.capacity')}</th>
               <th>{t('table.status')}</th>
-              <th>{t('table.verified')}</th>
+              <th>{t('table.published')}</th>
               <th className="table__actions-col" aria-label={t('table.actionsCol')} />
             </tr>
           </thead>
           <tbody>
             {items.map((item) => {
               const kind = KIND_META[item.kind]
-              const live = item.isActive && item.isVerified
+              const live = item.isActive && item.isPublished
               const isSelected = selected.has(item.id)
               return (
                 <tr key={item.id} className={isSelected ? 'is-selected' : undefined}>
@@ -296,10 +314,10 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                     )}
                   </td>
                   <td>
-                    {item.isVerified ? (
-                      <span className="badge badge--success">{t('status.verified')}</span>
+                    {item.isPublished ? (
+                      <span className="badge badge--success">{t('status.published')}</span>
                     ) : (
-                      <span className="badge badge--warning">{t('status.pending')}</span>
+                      <span className="badge badge--warning">{t('status.unpublished')}</span>
                     )}
                   </td>
                   <td>
@@ -340,6 +358,31 @@ export function FacilitiesManager({ items, tariffPlans }: Props) {
                           data-tooltip-pos="bottom"
                         >
                           <Power size={17} strokeWidth={2} aria-hidden="true" />
+                        </button>
+                      )}
+                      {item.isPublished ? (
+                        <button
+                          type="button"
+                          className="btn btn--icon btn--ghost"
+                          disabled={pending}
+                          onClick={() => run('unpublish', [item.id])}
+                          aria-label={t('actions.unpublish')}
+                          data-tooltip={t('table.tooltipUnpublish')}
+                          data-tooltip-pos="bottom"
+                        >
+                          <EyeOff size={17} strokeWidth={2} aria-hidden="true" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn--icon btn--ghost"
+                          disabled={pending}
+                          onClick={() => run('publish', [item.id])}
+                          aria-label={t('actions.publish')}
+                          data-tooltip={t('table.tooltipPublish')}
+                          data-tooltip-pos="bottom"
+                        >
+                          <Eye size={17} strokeWidth={2} aria-hidden="true" />
                         </button>
                       )}
                       <button

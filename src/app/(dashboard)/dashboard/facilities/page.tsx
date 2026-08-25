@@ -22,7 +22,7 @@ interface PageProps {
     q?: string
     skip?: string
     status?: string
-    verified?: string
+    published?: string
     kind?: string
     view?: string
     facilityLimit?: string
@@ -40,8 +40,8 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
 
   const isActive =
     params.status === 'active' ? true : params.status === 'inactive' ? false : undefined
-  const isVerified =
-    params.verified === 'verified' ? true : params.verified === 'pending' ? false : undefined
+  const isPublished =
+    params.published === 'published' ? true : params.published === 'unpublished' ? false : undefined
   const kind = KINDS.includes(params.kind as FacilityKind)
     ? (params.kind as FacilityKind)
     : undefined
@@ -49,7 +49,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
   const filterParams = {
     q: q || undefined,
     status: params.status,
-    verified: params.verified,
+    published: params.published,
     kind,
     view: params.view,
   }
@@ -108,7 +108,10 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
         {header}
         {limitBanner}
         {toolbar}
-        <FacilityMapView filters={{ q: q || undefined, isActive, isVerified, kind }} />
+        <FacilityMapView
+          filters={{ q: q || undefined, isActive, isPublished, kind }}
+          role={session.user.role}
+        />
       </>
     )
   }
@@ -119,7 +122,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
       take: PAGE_SIZE,
       ...(q ? { q } : {}),
       ...(isActive !== undefined ? { isActive } : {}),
-      ...(isVerified !== undefined ? { isVerified } : {}),
+      ...(isPublished !== undefined ? { isPublished } : {}),
       ...(kind ? { kind } : {}),
     }),
   )
@@ -127,7 +130,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
   const buildHref = (nextSkip: number) =>
     buildQuery('/dashboard/facilities', { ...filterParams, skip: nextSkip })
 
-  const hasFilters = Boolean(q || isActive !== undefined || isVerified !== undefined || kind)
+  const hasFilters = Boolean(q || isActive !== undefined || isPublished !== undefined || kind)
 
   return (
     <>

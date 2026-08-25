@@ -67,8 +67,8 @@ export async function FacilityOverviewPanel({ facility }: { facility: AdminFacil
             <Badge variant={facility.isActive ? 'ok' : 'neutral'}>
               {facility.isActive ? t('status.active') : t('status.inactive')}
             </Badge>
-            <Badge variant={facility.isVerified ? 'ok' : 'warn'}>
-              {facility.isVerified ? t('status.verified') : t('status.pendingVerification')}
+            <Badge variant={facility.isPublished ? 'ok' : 'warn'}>
+              {facility.isPublished ? t('status.published') : t('status.unpublished')}
             </Badge>
           </div>
         </div>

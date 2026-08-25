@@ -10,8 +10,10 @@ import {
   useMap,
   type MapCameraChangedEvent,
 } from '@vis.gl/react-google-maps'
-import { Power, PowerOff, Rocket, X } from 'lucide-react'
+import { Eye, EyeOff, Power, PowerOff, Rocket, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { isPlatformRole } from '@spark/types'
+import type { UserRole } from '@spark/types'
 import { Spinner } from './Spinner'
 import { bulkFacilityAction, fetchMapFacilitiesAction } from '@/lib/facility-actions'
 import { KIND_META } from '@/lib/facility-display'
@@ -23,12 +25,13 @@ const GREECE = { lat: 38.5, lng: 24.0 }
 interface Filters {
   q?: string
   isActive?: boolean
-  isVerified?: boolean
+  isPublished?: boolean
   kind?: FacilityKind
 }
 
 interface Props {
   filters: Filters
+  role: UserRole
 }
 
 // Zooms/pans exactly once, the first time real data arrives, to fit every facility
@@ -57,13 +60,15 @@ function AutoFitBounds({ positions }: { positions: { lat: number; lng: number }[
 }
 
 function pinClass(point: AdminMapPoint): string {
-  if (point.isActive && point.isVerified) return 'map-pin--live'
+  if (point.isActive && point.isPublished) return 'map-pin--live'
   if (point.isActive) return 'map-pin--active'
   return 'map-pin--inactive'
 }
 
-export function FacilityMapView({ filters }: Props) {
+export function FacilityMapView({ filters, role }: Props) {
   const t = useTranslations('facilities')
+  const isPlatformTier = isPlatformRole(role)
+  const canTogglePublish = isPlatformTier || role === 'operator_admin'
   // Rendered from both the operator list (/dashboard/facilities) and the platform-admin
   // one (/admin/facilities), so detail links stay on the surface the user is already on.
   const pathname = usePathname()
@@ -99,14 +104,23 @@ export function FacilityMapView({ filters }: Props) {
       setSelected(null)
       setData((prev) => {
         if (!prev) return prev
-        const patch = (p: AdminMapPoint): AdminMapPoint =>
-          p.id !== point.id
-            ? p
-            : action === 'deploy'
-              ? { ...p, isActive: true, isVerified: true }
-              : action === 'enable'
-                ? { ...p, isActive: true }
-                : { ...p, isActive: false }
+        const patch = (p: AdminMapPoint): AdminMapPoint => {
+          if (p.id !== point.id) return p
+          switch (action) {
+            case 'deploy':
+              return { ...p, isActive: true, isPublished: true }
+            case 'enable':
+              return { ...p, isActive: true }
+            case 'disable':
+              return { ...p, isActive: false }
+            case 'publish':
+              return { ...p, isPublished: true }
+            case 'unpublish':
+              return { ...p, isPublished: false }
+            default:
+              return p
+          }
+        }
         return { ...prev, points: prev.points.map(patch) }
       })
     })
@@ -205,41 +219,68 @@ export function FacilityMapView({ filters }: Props) {
           <h3 className="map-popup__title">{selected.name}</h3>
           <p className="map-popup__meta text-secondary">
             {selected.isActive ? t('status.active') : t('status.inactive')} ·{' '}
-            {selected.isVerified ? t('status.verified') : t('status.pending')}
+            {selected.isPublished ? t('status.published') : t('status.unpublished')}
           </p>
           <div className="map-popup__actions">
-            {!(selected.isActive && selected.isVerified) ? (
-              <button
-                type="button"
-                className="btn btn--primary btn--sm"
-                disabled={pending}
-                onClick={() => act('deploy', selected)}
-              >
-                <Rocket size={15} strokeWidth={2} aria-hidden="true" />
-                {t('actions.deploy')}
-              </button>
+            {isPlatformTier ? (
+              <>
+                {!(selected.isActive && selected.isPublished) ? (
+                  <button
+                    type="button"
+                    className="btn btn--primary btn--sm"
+                    disabled={pending}
+                    onClick={() => act('deploy', selected)}
+                  >
+                    <Rocket size={15} strokeWidth={2} aria-hidden="true" />
+                    {t('actions.deploy')}
+                  </button>
+                ) : null}
+                {selected.isActive ? (
+                  <button
+                    type="button"
+                    className="btn btn--secondary btn--sm"
+                    disabled={pending}
+                    onClick={() => act('disable', selected)}
+                  >
+                    <PowerOff size={15} strokeWidth={2} aria-hidden="true" />
+                    {t('actions.disable')}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn--secondary btn--sm"
+                    disabled={pending}
+                    onClick={() => act('enable', selected)}
+                  >
+                    <Power size={15} strokeWidth={2} aria-hidden="true" />
+                    {t('actions.enable')}
+                  </button>
+                )}
+              </>
             ) : null}
-            {selected.isActive ? (
-              <button
-                type="button"
-                className="btn btn--secondary btn--sm"
-                disabled={pending}
-                onClick={() => act('disable', selected)}
-              >
-                <PowerOff size={15} strokeWidth={2} aria-hidden="true" />
-                {t('actions.disable')}
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="btn btn--secondary btn--sm"
-                disabled={pending}
-                onClick={() => act('enable', selected)}
-              >
-                <Power size={15} strokeWidth={2} aria-hidden="true" />
-                {t('actions.enable')}
-              </button>
-            )}
+            {canTogglePublish ? (
+              selected.isPublished ? (
+                <button
+                  type="button"
+                  className="btn btn--secondary btn--sm"
+                  disabled={pending}
+                  onClick={() => act('unpublish', selected)}
+                >
+                  <EyeOff size={15} strokeWidth={2} aria-hidden="true" />
+                  {t('actions.unpublish')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn--secondary btn--sm"
+                  disabled={pending}
+                  onClick={() => act('publish', selected)}
+                >
+                  <Eye size={15} strokeWidth={2} aria-hidden="true" />
+                  {t('actions.publish')}
+                </button>
+              )
+            ) : null}
             <Link
               href={`${pathname}/${selected.id}`}
               className="btn btn--secondary btn--sm"

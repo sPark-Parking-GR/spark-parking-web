@@ -19,10 +19,10 @@ export function FacilityFilters() {
     { value: 'inactive', label: t('status.inactive') },
   ]
 
-  const VERIFIED_OPTIONS = [
-    { value: '', label: t('filters.anyVerification') },
-    { value: 'verified', label: t('status.verified') },
-    { value: 'pending', label: t('status.pending') },
+  const PUBLISHED_OPTIONS = [
+    { value: '', label: t('filters.anyPublished') },
+    { value: 'published', label: t('status.published') },
+    { value: 'unpublished', label: t('status.unpublished') },
   ]
 
   const setParam = (key: string, value: string) => {
@@ -50,11 +50,11 @@ export function FacilityFilters() {
       </select>
       <select
         className="input filter-bar__select"
-        aria-label={t('filters.verifiedAria')}
-        value={searchParams.get('verified') ?? ''}
-        onChange={(e) => setParam('verified', e.target.value)}
+        aria-label={t('filters.publishedAria')}
+        value={searchParams.get('published') ?? ''}
+        onChange={(e) => setParam('published', e.target.value)}
       >
-        {VERIFIED_OPTIONS.map((o) => (
+        {PUBLISHED_OPTIONS.map((o) => (
           <option key={o.label} value={o.value}>
             {o.label}
           </option>

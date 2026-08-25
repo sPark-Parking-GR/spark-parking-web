@@ -193,6 +193,9 @@ export async function updateFacilityAction(
   _prev: FacilityActionResult,
   formData: FormData,
 ): Promise<FacilityActionResult> {
+  const session = await getActiveSession()
+  const isPlatform = session.user !== undefined && isPlatformRole(session.user.role)
+
   const raw = {
     name: formData.get('name'),
     address: formData.get('address'),
@@ -244,7 +247,10 @@ export async function updateFacilityAction(
     address,
     lat,
     lng,
-    isActive: isActive ?? false,
+    // Only a platform admin's form renders the isActive checkbox; every other caller's
+    // submission must never carry it, or an operator's plain save would silently disable
+    // their own facility (FormData reports an absent checkbox as false, not missing).
+    ...(isPlatform ? { isActive: isActive ?? false } : {}),
     ...(totalCapacity !== undefined ? { totalCapacity } : {}),
     ...(onlineQuota !== undefined ? { onlineQuota } : {}),
     ...(vehicleTypes && vehicleTypes.length > 0 ? { vehicleTypes } : {}),
@@ -340,7 +346,7 @@ export async function fetchMapFacilitiesAction(params: {
   west: number
   q?: string
   isActive?: boolean
-  isVerified?: boolean
+  isPublished?: boolean
   kind?: FacilityKind
 }): Promise<MapFacilitiesResult> {
   try {

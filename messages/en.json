@@ -447,8 +447,6 @@
       "deploy": "Deploy",
       "enable": "Enable",
       "disable": "Disable",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
       "publish": "Publish",
       "unpublish": "Unpublish",
       "assignTariff": "Assign tariff",
@@ -457,9 +455,8 @@
     "status": {
       "active": "Active",
       "inactive": "Inactive",
-      "verified": "Verified",
-      "pending": "Pending",
-      "pendingVerification": "Pending verification",
+      "published": "Published",
+      "unpublished": "Unpublished",
       "live": "Live"
     },
     "kind": {
@@ -485,15 +482,17 @@
       "kind": "Kind",
       "capacity": "Capacity",
       "status": "Status",
-      "verified": "Verified",
+      "published": "Published",
       "selectAll": "Select all on this page",
       "selectOne": "Select {name}",
       "actionsCol": "Actions",
       "bulkActionsLabel": "Bulk actions",
       "selectedCount": "{count, plural, one {# selected} other {# selected}}",
-      "tooltipDeploy": "Deploy (activate + verify)",
+      "tooltipDeploy": "Deploy (activate + publish)",
       "tooltipDisable": "Disable",
       "tooltipEnable": "Enable",
+      "tooltipPublish": "Publish",
+      "tooltipUnpublish": "Unpublish",
       "tooltipAssignTariff": "Assign tariff",
       "tooltipEdit": "Edit",
       "tooltipDelete": "Delete"
@@ -520,10 +519,10 @@
     },
     "filters": {
       "statusAria": "Filter by status",
-      "verifiedAria": "Filter by verification",
+      "publishedAria": "Filter by publication",
       "kindAria": "Filter by kind",
       "anyStatus": "Any status",
-      "anyVerification": "Any verification",
+      "anyPublished": "Any publication",
       "anyKind": "Any kind"
     },
     "form": {

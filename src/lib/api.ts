@@ -78,7 +78,7 @@ export interface AdminFacilityListItem {
   totalCapacity: number
   onlineQuota: number
   isActive: boolean
-  isVerified: boolean
+  isPublished: boolean
   kind: FacilityKind
   source: FacilitySource
   operatorId: string | null
@@ -100,7 +100,7 @@ export interface AdminMapPoint {
   lng: number
   kind: FacilityKind
   isActive: boolean
-  isVerified: boolean
+  isPublished: boolean
 }
 
 export interface AdminMapCluster {
@@ -133,7 +133,7 @@ export interface AdminFacility {
   amenities: string[]
   cancellationPolicy: string
   isActive: boolean
-  isVerified: boolean
+  isPublished: boolean
   rank: number
   createdAt: string
   updatedAt: string
@@ -338,7 +338,7 @@ export function listFacilities(params: {
   take?: number
   q?: string
   isActive?: boolean
-  isVerified?: boolean
+  isPublished?: boolean
   kind?: FacilityKind
   operatorId?: string
 }): Promise<FacilityListResponse> {
@@ -347,7 +347,7 @@ export function listFacilities(params: {
   if (params.take !== undefined) query.set('take', String(params.take))
   if (params.q) query.set('q', params.q)
   if (params.isActive !== undefined) query.set('isActive', String(params.isActive))
-  if (params.isVerified !== undefined) query.set('isVerified', String(params.isVerified))
+  if (params.isPublished !== undefined) query.set('isPublished', String(params.isPublished))
   if (params.kind) query.set('kind', params.kind)
   if (params.operatorId) query.set('operatorId', params.operatorId)
   const qs = query.toString()
@@ -395,7 +395,7 @@ export function adminMapFacilities(params: {
   west: number
   q?: string
   isActive?: boolean
-  isVerified?: boolean
+  isPublished?: boolean
   kind?: FacilityKind
   operatorId?: string
 }): Promise<AdminMapResponse> {
@@ -406,7 +406,7 @@ export function adminMapFacilities(params: {
   query.set('west', String(params.west))
   if (params.q) query.set('q', params.q)
   if (params.isActive !== undefined) query.set('isActive', String(params.isActive))
-  if (params.isVerified !== undefined) query.set('isVerified', String(params.isVerified))
+  if (params.isPublished !== undefined) query.set('isPublished', String(params.isPublished))
   if (params.kind) query.set('kind', params.kind)
   if (params.operatorId) query.set('operatorId', params.operatorId)
   return apiFetch<AdminMapResponse>(`/facilities/map?${query.toString()}`)

@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Eye, EyeOff, Power, PowerOff, Trash2 } from 'lucide-react'
+import { Eye, EyeOff, Trash2 } from 'lucide-react'
 import { Badge } from '@spark/ui'
 import type { UserRole } from '@spark/types'
 import { Modal } from './Modal'
@@ -83,24 +83,6 @@ export function FacilityCardGrid({ items, role }: Props) {
               type="button"
               className="btn btn--secondary btn--sm"
               disabled={pending}
-              onClick={() => run('enable', selectedIds)}
-            >
-              <Power size={15} strokeWidth={2} aria-hidden="true" />
-              {t('actions.activate')}
-            </button>
-            <button
-              type="button"
-              className="btn btn--secondary btn--sm"
-              disabled={pending}
-              onClick={() => run('disable', selectedIds)}
-            >
-              <PowerOff size={15} strokeWidth={2} aria-hidden="true" />
-              {t('actions.deactivate')}
-            </button>
-            <button
-              type="button"
-              className="btn btn--secondary btn--sm"
-              disabled={pending}
               onClick={() => run('publish', selectedIds)}
             >
               <Eye size={15} strokeWidth={2} aria-hidden="true" />
@@ -160,8 +142,8 @@ export function FacilityCardGrid({ items, role }: Props) {
                   <Badge variant={item.isActive ? 'ok' : 'warn'}>
                     {item.isActive ? t('status.active') : t('status.inactive')}
                   </Badge>
-                  <Badge variant={item.isVerified ? 'ok' : 'warn'}>
-                    {item.isVerified ? t('status.verified') : t('status.pending')}
+                  <Badge variant={item.isPublished ? 'ok' : 'warn'}>
+                    {item.isPublished ? t('status.published') : t('status.unpublished')}
                   </Badge>
                   <span className={`badge ${kind.badge}`}>{t(kind.labelKey)}</span>
                 </div>
