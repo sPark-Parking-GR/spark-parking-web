@@ -394,6 +394,22 @@ export async function updateFacilityManagersAction(
   }
 }
 
+export async function updateFacilityPublishedAction(
+  id: string,
+  isPublished: boolean,
+): Promise<FacilityActionResult> {
+  try {
+    await updateFacility(id, { isPublished })
+  } catch (err) {
+    return mapApiError(err)
+  }
+
+  const basePath = await facilitiesPath()
+  revalidatePath(basePath)
+  revalidatePath(`${basePath}/${id}`)
+  return { ok: true }
+}
+
 export async function deleteFacilityAction(formData: FormData): Promise<void> {
   const id = String(formData.get('id'))
   if (!id) return

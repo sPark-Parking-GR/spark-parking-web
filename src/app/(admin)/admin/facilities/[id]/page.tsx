@@ -5,6 +5,7 @@ import { ChevronLeft } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { FacilityForm } from '@/components/FacilityForm'
 import { DeleteFacilityButton } from '@/components/DeleteFacilityButton'
+import { PublishFacilityToggle } from '@/components/PublishFacilityToggle'
 import { FacilityDetailTabs } from '@/components/FacilityDetailTabs'
 import { FacilityOverviewPanel } from '@/components/FacilityOverviewPanel'
 import { ManagersPanel } from '@/components/ManagersPanel'
@@ -70,7 +71,15 @@ export default async function AdminEditFacilityPage({ params, searchParams }: Pa
         {t('overview.backToFacilities')}
       </Link>
 
-      <PageHeader title={facility.name} titleAccessory={<DeleteFacilityButton id={id} />} />
+      <PageHeader
+        title={facility.name}
+        titleAccessory={
+          <>
+            <PublishFacilityToggle id={id} initialIsPublished={facility.isPublished} />
+            <DeleteFacilityButton id={id} />
+          </>
+        }
+      />
       <FacilityDetailTabs active={activeTab} showManagers={managers !== null} />
       {activeTab === 'manage' ? (
         <FacilityForm mode="edit" facility={facility} isPlatformAdmin tariff={tariff} />

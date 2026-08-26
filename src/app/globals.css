@@ -2174,6 +2174,54 @@ select.input {
   color: var(--ink);
 }
 
+.publish-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.publish-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 50px;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--card2);
+  transition: background var(--dur) var(--ease);
+}
+
+.publish-switch[aria-checked='true'] {
+  background: linear-gradient(180deg, var(--pri), var(--pri2));
+}
+
+.publish-switch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--priSoft);
+}
+
+.publish-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  transition: left var(--dur) var(--ease);
+}
+
+.publish-switch[aria-checked='true'] .publish-switch__knob {
+  left: 25px;
+  color: var(--pri);
+}
+
 .opening-hours-row {
   display: flex;
   flex-wrap: wrap;

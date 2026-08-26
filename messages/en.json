@@ -605,6 +605,10 @@
       "deleting": "Deleting…",
       "confirm": "Delete facility"
     },
+    "publishToggle": {
+      "published": "Published — visible in the mobile app",
+      "unpublished": "Unpublished — hidden from the mobile app"
+    },
     "tariff": {
       "heading": "Tariff plans",
       "default": "Default",

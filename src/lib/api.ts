@@ -210,6 +210,7 @@ export interface UpdateFacilityInput {
   amenities?: string[]
   cancellationPolicy?: string
   isActive?: boolean
+  isPublished?: boolean
   kind?: FacilityKind
 }
 
