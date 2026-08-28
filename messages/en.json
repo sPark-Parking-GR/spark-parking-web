@@ -112,6 +112,10 @@
     "tagline": "Make Parking Smart",
     "title": "Set your password",
     "context": "You're setting up <b>{businessName}</b>'s sPark account ({email}).",
+    "contextOnboarding": "You're setting up your sPark operator account ({email}).",
+    "businessNameLabel": "Business name",
+    "businessNameRequired": "Business name is required.",
+    "businessNameTooLong": "Business name must be at most 200 characters.",
     "passwordLabel": "Password",
     "confirmPasswordLabel": "Confirm password",
     "passwordTooShort": "Password must be at least 8 characters.",
@@ -138,7 +142,6 @@
     "description": "Invite new parking-facility businesses onto sPark.",
     "form": {
       "heading": "Send an invite",
-      "businessNameLabel": "Business name",
       "emailLabel": "Email",
       "sendInvite": "Send invite",
       "sending": "Sending…",
@@ -289,8 +292,6 @@
       "invalidInput": "Invalid input."
     },
     "validation": {
-      "businessNameRequired": "Business name is required.",
-      "businessNameTooLong": "Business name must be at most 200 characters.",
       "emailInvalid": "Enter a valid email address."
     }
   },

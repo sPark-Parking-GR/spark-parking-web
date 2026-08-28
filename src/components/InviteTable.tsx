@@ -44,7 +44,7 @@ export async function InviteTable({ items }: Props) {
             const badge = STATUS_BADGE[item.status]
             return (
               <tr key={item.id}>
-                <td className="table-facility">{item.businessName}</td>
+                <td className="table-facility">{item.businessName || '—'}</td>
                 <td className="text-secondary">{item.email}</td>
                 <td>
                   <Badge variant={badge.variant}>{t(badge.labelKey)}</Badge>

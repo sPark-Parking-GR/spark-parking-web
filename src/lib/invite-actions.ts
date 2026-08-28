@@ -23,9 +23,12 @@ export interface InviteSummary {
   acceptedAt: string | null
 }
 
+export type InviteKind = 'ONBOARDING' | 'MEMBER'
+
 export interface InviteValidation {
   businessName: string
   email: string
+  kind: InviteKind
   expired: boolean
 }
 
@@ -63,11 +66,6 @@ export type AcceptInviteResult = {
 }
 
 const sendInviteSchema = z.object({
-  businessName: z
-    .string()
-    .trim()
-    .min(1, 'validation.businessNameRequired')
-    .max(200, 'validation.businessNameTooLong'),
   email: z.string().trim().email('validation.emailInvalid'),
 })
 
@@ -75,6 +73,12 @@ const setPasswordSchema = z
   .object({
     password: z.string().min(8, 'passwordTooShort').max(128, 'passwordTooLong'),
     confirmPassword: z.string(),
+    businessName: z
+      .string()
+      .trim()
+      .min(1, 'businessNameRequired')
+      .max(200, 'businessNameTooLong')
+      .optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'passwordsMismatch',
@@ -86,7 +90,6 @@ export async function sendInviteAction(
   formData: FormData,
 ): Promise<SendInviteResult> {
   const parsed = sendInviteSchema.safeParse({
-    businessName: formData.get('businessName'),
     email: formData.get('email'),
   })
   if (!parsed.success) {
@@ -175,7 +178,7 @@ export async function validateInviteAction(token: string): Promise<InviteValidat
 
 export async function acceptInviteAction(
   token: string,
-  input: { password: string; confirmPassword: string },
+  input: { password: string; confirmPassword: string; businessName?: string },
 ): Promise<AcceptInviteResult> {
   const parsed = setPasswordSchema.safeParse(input)
   if (!parsed.success) {
@@ -187,7 +190,10 @@ export async function acceptInviteAction(
     response = await fetch(`${BASE_URL}/invites/${encodeURIComponent(token)}/accept`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: parsed.data.password }),
+      body: JSON.stringify({
+        password: parsed.data.password,
+        businessName: parsed.data.businessName,
+      }),
       cache: 'no-store',
     })
   } catch {

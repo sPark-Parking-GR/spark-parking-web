@@ -55,16 +55,6 @@ export function InviteForm() {
 
         <div className="field-grid">
           <label className="field">
-            <span className="field__label">{t('form.businessNameLabel')}</span>
-            <input
-              className="input"
-              type="text"
-              name="businessName"
-              required
-              disabled={isPending}
-            />
-          </label>
-          <label className="field">
             <span className="field__label">{t('form.emailLabel')}</span>
             <input className="input" type="email" name="email" required disabled={isPending} />
           </label>

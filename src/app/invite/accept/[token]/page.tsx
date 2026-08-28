@@ -59,13 +59,15 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
               {t('title')}
             </h1>
             <p className="auth-card__context">
-              {t.rich('context', {
-                businessName: result.data.businessName,
-                b: (chunks) => <strong>{chunks}</strong>,
-                email: result.data.email,
-              })}
+              {result.data.kind === 'ONBOARDING'
+                ? t('contextOnboarding', { email: result.data.email })
+                : t.rich('context', {
+                    businessName: result.data.businessName,
+                    b: (chunks) => <strong>{chunks}</strong>,
+                    email: result.data.email,
+                  })}
             </p>
-            <SetPasswordForm token={token} />
+            <SetPasswordForm token={token} requiresBusinessName={result.data.kind === 'ONBOARDING'} />
           </>
         )}
       </section>
