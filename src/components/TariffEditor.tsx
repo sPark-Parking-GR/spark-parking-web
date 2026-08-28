@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useFormStatus } from 'react-dom'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import { saveTariffPlanAction } from '@/lib/tariff-actions'
@@ -235,7 +236,16 @@ export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = fals
         {state && !state.ok && !state.requiresDefaultReplacement ? (
           <p className="form-banner form-banner--error" role="alert">
             <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-            {state.detail ?? t(state.errorKey)}
+            {state.errorKey === 'errors.limitExceeded' && !isPlatformAdmin ? (
+              <span className="form-banner__body">
+                <span>{state.detail ?? t(state.errorKey)}</span>
+                <Link href="/dashboard/billing" className="btn btn--sm btn--secondary">
+                  {t('upgradeCta')}
+                </Link>
+              </span>
+            ) : (
+              state.detail ?? t(state.errorKey)
+            )}
           </p>
         ) : null}
 

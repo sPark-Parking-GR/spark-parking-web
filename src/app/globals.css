@@ -4306,3 +4306,82 @@ td.table-amount {
   min-height: 56px;
   font-size: 17px;
 }
+
+.driver-plan-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 860px;
+  min-width: 0;
+}
+
+/* panel-card__body--stack shrink-wraps its children; the subscription forms need the
+   panel's full width. */
+.driver-subscription-panel {
+  gap: var(--space-md);
+}
+
+.driver-subscription-panel > * {
+  width: 100%;
+}
+
+/* ─── Operator billing (plan & usage) ─────────────────────────────────────── */
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: 16px;
+}
+
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.plan-card--current {
+  border-color: var(--color-primary);
+}
+
+.plan-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.plan-card__price {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.plan-card__interval {
+  margin-left: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.plan-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  list-style: none;
+  font-size: 13px;
+}
+
+/* Pinned to the bottom so cards with unequal copy still line their buttons up. */
+.plan-card__actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.stat-card-link {
+  display: flex;
+}
+
+.stat-card-link > .stat-card {
+  flex: 1;
+}

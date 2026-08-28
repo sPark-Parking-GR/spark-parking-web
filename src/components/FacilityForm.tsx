@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { buildFacilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
@@ -187,7 +188,16 @@ export function FacilityForm({
         {state && !state.ok ? (
           <p className="form-banner form-banner--error" role="alert">
             <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-            {state.detail ?? t(state.errorKey)}
+            {state.errorKey === 'errors.limitExceeded' && !isPlatformAdmin ? (
+              <span className="form-banner__body">
+                <span>{state.detail ?? t(state.errorKey)}</span>
+                <Link href="/dashboard/billing" className="btn btn--sm btn--secondary">
+                  {t('upgradeCta')}
+                </Link>
+              </span>
+            ) : (
+              state.detail ?? t(state.errorKey)
+            )}
           </p>
         ) : null}
         {state && state.ok && mode === 'edit' && hasSubmitted && !isPending ? (

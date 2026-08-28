@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from 'react'
 import { useFormStatus } from 'react-dom'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { inviteMemberAction } from '@/lib/team-actions'
@@ -47,7 +48,12 @@ export function TeamInviteForm() {
         {hasSubmitted && !isPending && !state.ok && isSeatLimit ? (
           <p className="form-banner form-banner--warning" role="status">
             <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
-            {t('form.seatLimitMessage')}
+            <span className="form-banner__body">
+              <span>{state.detail ?? t('form.seatLimitMessage')}</span>
+              <Link href="/dashboard/billing" className="btn btn--sm btn--secondary">
+                {t('upgradeCta')}
+              </Link>
+            </span>
           </p>
         ) : null}
         {hasSubmitted && !isPending && !state.ok && !isSeatLimit ? (

@@ -12,10 +12,14 @@ import { AssignUserRoleButton } from '@/components/AssignUserRoleButton'
 import { DemoteUserButton } from '@/components/DemoteUserButton'
 import { ApproveUserDemotionButton } from '@/components/ApproveUserDemotionButton'
 import { RejectUserDemotionButton } from '@/components/RejectUserDemotionButton'
+import { DriverSubscriptionPanel } from '@/components/DriverSubscriptionPanel'
 import { ApiError, AuthRequiredError } from '@/lib/api'
 import { requireSession } from '@/lib/dal'
 import { getUserDetail, listUserApprovals } from '@/lib/identity-api'
 import type { IdentityLifecycleStatus, IdentityRole, IdentityUserDetail } from '@/lib/identity-api'
+import { getDriverSubscription, listDriverPlans } from '@/lib/driver-plan-api'
+import type { DriverSubscriptionDetail } from '@/lib/driver-plan-types'
+import type { DriverPlanOption } from '@/components/DriverSubscriptionPanel'
 import { actionLabel, actionTone, formatRelativeTime } from '@/lib/audit-format'
 
 interface PageProps {
@@ -52,6 +56,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
   }
   const canWriteLifecycle = hasPlatformPermission(session.user.role, 'identity:user.lifecycle')
   const canAssignRole = hasPlatformPermission(session.user.role, 'identity:role.assign')
+  const canManageBilling = hasPlatformPermission(session.user.role, 'platform:billing.manage')
 
   const { id } = await params
   const [t, tRole, tStatus, tAudit, tMemberRole] = await Promise.all([
@@ -79,6 +84,26 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
       pendingApproval = approvals.items.find((a) => a.resourceId === user!.id) ?? null
     } catch {
       pendingApproval = null
+    }
+  }
+
+  // Only a plain rider can hold a driver subscription; operator staff and administrators
+  // are billed through the operator catalog, so the panel is absent rather than empty.
+  let driverSubscription: DriverSubscriptionDetail | null = null
+  let driverPlans: DriverPlanOption[] = []
+  if (user && canManageBilling && user.role === 'USER' && !user.anonymisedAt) {
+    try {
+      const [detail, plans] = await Promise.all([getDriverSubscription(user.id), listDriverPlans()])
+      driverSubscription = detail
+      driverPlans = plans.map((plan) => ({
+        id: plan.id,
+        code: plan.code,
+        name: plan.name,
+        priceCents: plan.priceCents,
+        currency: plan.currency,
+      }))
+    } catch {
+      driverSubscription = null
     }
   }
 
@@ -277,6 +302,14 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
+
+          {driverSubscription ? (
+            <DriverSubscriptionPanel
+              userId={user.id}
+              subscription={driverSubscription}
+              plans={driverPlans}
+            />
+          ) : null}
 
           {canAssignRole && !user.anonymisedAt ? (
             <div className="panel-card panel-card--wide">

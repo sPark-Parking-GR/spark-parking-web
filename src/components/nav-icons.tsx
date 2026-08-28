@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Building2,
   Receipt,
+  CreditCard,
   CalendarClock,
   ScanLine,
   UserPlus,
@@ -13,6 +14,8 @@ import {
   Store,
   Users,
   UsersRound,
+  Car,
+  Gem,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { NavIcon } from '@/lib/nav'
@@ -21,9 +24,12 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   overview: LayoutDashboard,
   facilities: Building2,
   tariffs: Receipt,
+  operatorPlans: CreditCard,
+  driverPlans: Car,
   bookings: CalendarClock,
   scan: ScanLine,
   team: UsersRound,
+  billing: Gem,
   operatorDirectory: Store,
   onboarding: UserPlus,
   analytics: BarChart3,

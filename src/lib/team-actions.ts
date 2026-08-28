@@ -6,6 +6,7 @@ import { z } from 'zod'
 import type { OrgPermission } from '@spark/types'
 import { apiFetch, ApiError, AuthRequiredError } from './api'
 import { TEAM_MEMBER_ROLES } from './team-types'
+import { isFeatureRequiredMessage } from './plan-limit'
 import type { TeamMemberRole } from './team-types'
 
 const TEAM_PATH = '/dashboard/team'
@@ -16,6 +17,7 @@ export type TeamErrorKey =
   | 'errors.conflict'
   | 'errors.invalidData'
   | 'errors.genericError'
+  | 'errors.featureRequired'
 
 export type TeamActionResult = { ok: true } | { ok: false; errorKey: TeamErrorKey; detail?: string }
 
@@ -31,7 +33,15 @@ export type InviteMemberResult =
 function mapWriteError(err: unknown): { ok: false; errorKey: TeamErrorKey; detail?: string } {
   if (err instanceof AuthRequiredError) redirect('/login')
   if (err instanceof ApiError) {
-    if (err.status === 403) return { ok: false, errorKey: 'errors.forbidden' }
+    if (err.status === 403) {
+      // Scopes-editor 403s are either "you may not manage this team" (plain forbidden) or
+      // "your plan doesn't include team.management" (a feature gate) — same status, opposite
+      // remedies, so the feature-gated one needs its own key to render an upgrade CTA.
+      if (isFeatureRequiredMessage(err.message)) {
+        return { ok: false, errorKey: 'errors.featureRequired', detail: err.message || undefined }
+      }
+      return { ok: false, errorKey: 'errors.forbidden' }
+    }
     if (err.status === 404) return { ok: false, errorKey: 'errors.notFound' }
     if (err.status === 409) {
       return { ok: false, errorKey: 'errors.conflict', detail: err.message || undefined }

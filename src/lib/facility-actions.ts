@@ -17,6 +17,7 @@ import {
   AuthRequiredError,
 } from './api'
 import { buildFacilityFormSchema } from './facility-schema'
+import { isEntitlementLimitMessage } from './plan-limit'
 import { getActiveSession } from './session'
 import type {
   AdminMapResponse,
@@ -51,6 +52,7 @@ export type FacilityErrorKey =
   | 'errors.tariffPlanNotFound'
   | 'errors.facilityOrTariffNotFound'
   | 'errors.mapLoadFailed'
+  | 'errors.limitExceeded'
 
 export type FacilityActionResult =
   | { ok: true }
@@ -64,6 +66,11 @@ function mapApiError(err: unknown): FacilityActionResult {
     if (err.status === 403) return { ok: false, errorKey: 'errors.forbidden' }
     if (err.status === 404) return { ok: false, errorKey: 'errors.notFound' }
     if (err.status === 409) {
+      // A quota refusal reads and remedies differently than every other 409 this endpoint
+      // can raise (e.g. an unverified operator) — it names the CTA is an upgrade, not a retry.
+      if (isEntitlementLimitMessage(err.message)) {
+        return { ok: false, errorKey: 'errors.limitExceeded', detail: err.message || undefined }
+      }
       return { ok: false, errorKey: 'errors.genericError', detail: err.message || undefined }
     }
     if (err.status === 400) {

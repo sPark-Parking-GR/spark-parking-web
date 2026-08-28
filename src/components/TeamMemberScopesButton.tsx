@@ -2,10 +2,13 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { AlertTriangle } from 'lucide-react'
-import { ORG_PERMISSIONS } from '@spark/types'
+import { ORG_PERMISSIONS, isStaffGrantableScope } from '@spark/types'
 import type { OrgPermission } from '@spark/types'
+
+const STAFF_EDITABLE_PERMISSIONS = ORG_PERMISSIONS.filter(isStaffGrantableScope)
 import { Modal } from './Modal'
 import { Spinner } from './Spinner'
 import { setMemberScopesAction } from '@/lib/team-actions'
@@ -24,7 +27,7 @@ export function TeamMemberScopesButton({ operatorId, userId, email, scopes }: Pr
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<Set<OrgPermission>>(() => new Set(scopes))
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ message: string; isFeatureRequired: boolean } | null>(null)
   const [pending, startTransition] = useTransition()
 
   function toggle(scope: OrgPermission) {
@@ -47,7 +50,10 @@ export function TeamMemberScopesButton({ operatorId, userId, email, scopes }: Pr
     startTransition(async () => {
       const result = await setMemberScopesAction(operatorId, userId, Array.from(selected))
       if (!result.ok) {
-        setError(result.detail ?? tCommon(result.errorKey))
+        setError({
+          message: result.detail ?? tCommon(result.errorKey),
+          isFeatureRequired: result.errorKey === 'errors.featureRequired',
+        })
         return
       }
       setOpen(false)
@@ -69,12 +75,21 @@ export function TeamMemberScopesButton({ operatorId, userId, email, scopes }: Pr
 
         {error ? (
           <p className="form-banner form-banner--error" role="alert">
-            {error}
+            {error.isFeatureRequired ? (
+              <span className="form-banner__body">
+                <span>{error.message}</span>
+                <Link href="/dashboard/billing" className="btn btn--sm btn--secondary">
+                  {tCommon('upgradeCta')}
+                </Link>
+              </span>
+            ) : (
+              error.message
+            )}
           </p>
         ) : null}
 
         <div className="assign-rows">
-          {ORG_PERMISSIONS.map((scope) => {
+          {STAFF_EDITABLE_PERMISSIONS.map((scope) => {
             const key = SCOPE_I18N_KEY[scope]
             return (
               <label key={scope} className="assign-row checkbox-label">

@@ -3,6 +3,8 @@
     "overview": "Overview",
     "facilities": "Facilities",
     "tariffs": "Tariffs",
+    "operatorPlans": "Operator plans",
+    "driverPlans": "Driver plans",
     "bookings": "Bookings",
     "scan": "Scan",
     "team": "Team",
@@ -19,6 +21,8 @@
       "overview": "Snapshot of your parking operations",
       "facilities": "Manage your parking facilities and locations",
       "tariffs": "Pricing plans, rates and caps",
+      "operatorPlans": "Subscription plans, entitlements and operator assignments",
+      "driverPlans": "Rider subscription plans and the perks they grant",
       "bookings": "Active and past customer bookings",
       "scan": "Scan booking QR codes at the barrier",
       "team": "Invite and manage your operator's team members",
@@ -29,8 +33,10 @@
       "trash": "Archived and tombstoned resources, with restore and purge",
       "approvals": "Pending two-person purge approvals",
       "users": "Browse every account with role and lifecycle controls",
-      "admins": "Invite new platform administrators"
-    }
+      "admins": "Invite new platform administrators",
+      "billing": "Your subscription plan, usage and upgrade requests"
+    },
+    "billing": "Plan & billing"
   },
   "dateRange": {
     "ariaLabel": "Date range",
@@ -431,6 +437,7 @@
     }
   },
   "facilities": {
+    "upgradeCta": "Upgrade your plan",
     "list": {
       "title": "Facilities",
       "searchPlaceholder": "Search facilities…",
@@ -516,7 +523,8 @@
       "selectAtLeastOne": "Select at least one facility.",
       "tariffPlanNotFound": "Tariff plan not found.",
       "facilityOrTariffNotFound": "Facility or tariff plan not found.",
-      "mapLoadFailed": "Could not load map data."
+      "mapLoadFailed": "Could not load map data.",
+      "limitExceeded": "Your plan does not allow any more facilities."
     },
     "filters": {
       "statusAria": "Filter by status",
@@ -680,6 +688,7 @@
     }
   },
   "tariffs": {
+    "upgradeCta": "Upgrade your plan",
     "list": {
       "title": "Tariffs",
       "description": "Manage pricing plans and assign them to facilities.",
@@ -925,7 +934,8 @@
       "fixConfigToPreview": "Fix the tariff configuration to preview a quote.",
       "invalidWindow": "Enter a valid start and end time.",
       "endBeforeStart": "End time must be after start time.",
-      "quoteFailed": "Could not compute a quote."
+      "quoteFailed": "Could not compute a quote.",
+      "limitExceeded": "Your plan does not allow any more tariff plans."
     },
     "validation": {
       "dateInvalid": "Enter a valid date.",
@@ -948,6 +958,376 @@
       "perBlockNeedsBlockSize": "Per-block tiers need a positive block size.",
       "windowKeysUnique": "Window keys must be unique.",
       "rateGridIncomplete": "Every tier × window cell needs a price. The rate grid is incomplete."
+    }
+  },
+  "operatorPlans": {
+    "list": {
+      "title": "Operator plans",
+      "description": "Subscription plans operators can be placed on, with the capacity and features each one grants.",
+      "newPlan": "New plan",
+      "count": "{count, plural, one {# plan} other {# plans}}",
+      "empty": {
+        "title": "No operator plans yet",
+        "default": "Create the first subscription plan to start placing operators on it."
+      }
+    },
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "price": "Price",
+      "interval": "Billing",
+      "subscribers": "Subscribers",
+      "visibility": "Visibility",
+      "status": "Status",
+      "actions": "Actions",
+      "public": "Public",
+      "private": "Private",
+      "intervalValue": {
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      },
+      "lifecycle": {
+        "ACTIVE": "Active",
+        "ARCHIVED": "Archived",
+        "TOMBSTONED": "Deleted",
+        "PURGED": "Purged"
+      }
+    },
+    "new": {
+      "pageTitle": "New operator plan",
+      "description": "The plan code is permanent once saved — everything else can be changed later."
+    },
+    "detail": {
+      "description": "{count, plural, =0 {No operator is on this plan.} one {# operator is on this plan.} other {# operators are on this plan.}}"
+    },
+    "editor": {
+      "saving": "Saving…",
+      "createPlan": "Create plan",
+      "saveChanges": "Save changes",
+      "fixBeforeSaving": "Fix before saving"
+    },
+    "meta": {
+      "heading": "Plan details",
+      "code": "Plan code",
+      "name": "Plan name",
+      "description": "Description",
+      "price": "Price",
+      "currency": "Currency",
+      "interval": "Billing interval",
+      "codeImmutable": "The code is permanent and cannot be changed after the plan is created.",
+      "intervalOptions": {
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      },
+      "info": {
+        "code": "Stable, machine-readable identifier used by billing and by the platform's own default-plan lookup. Lowercase letters, digits, dashes and underscores only. It cannot be changed after creation.",
+        "name": "Name shown to administrators and, for public plans, to operators choosing a plan.",
+        "description": "Short summary of what the plan includes. Optional — leave empty to show nothing.",
+        "price": "Recurring amount charged per billing interval, entered in whole currency units (e.g. 49.90).",
+        "currency": "ISO 4217 code the price is charged in, e.g. EUR. Three uppercase letters.",
+        "interval": "How often the price recurs. Changing it does not re-price existing subscribers on its own."
+      }
+    },
+    "entitlements": {
+      "heading": "Entitlements",
+      "hint": "What the plan grants. Leave a limit at a number to cap it, or tick Unlimited to remove the cap entirely — 0 is a real limit that permits nothing.",
+      "maxFacilities": "Facilities",
+      "maxTariffPlans": "Tariff plans",
+      "maxStaffSeats": "Staff seats",
+      "unlimited": "Unlimited",
+      "unlimitedShort": "∞",
+      "commission": "Commission (%)",
+      "featuresLabel": "Features",
+      "features": {
+        "analyticsAdvanced": "Advanced analytics",
+        "supportPriority": "Priority support",
+        "teamManagement": "Team management"
+      },
+      "info": {
+        "maxFacilities": "How many facilities the operator may have at once. Creating one past the limit is refused until they upgrade or remove one.",
+        "maxTariffPlans": "How many tariff plans the operator may keep at once, counted across all their facilities.",
+        "maxStaffSeats": "How many team members the operator may have, counting pending invites.",
+        "commissionBps": "The platform's take on each booking, as a percentage of the stay total. Stored as basis points; enter it as a percentage, e.g. 2.50.",
+        "features": "Capabilities the plan unlocks. Each one gates a real surface — an unticked feature is refused, not merely hidden."
+      }
+    },
+    "visibility": {
+      "heading": "Visibility",
+      "isPublic": "Public plan",
+      "sortOrder": "Sort order",
+      "info": {
+        "isPublic": "Public plans are offered to operators. A private plan still works exactly the same once assigned by an administrator — it is simply not advertised.",
+        "sortOrder": "Position in the catalog, lowest first. Plans with the same sort order fall back to their code."
+      }
+    },
+    "archive": {
+      "buttonLabel": "Archive plan",
+      "tooltip": "Archive plan",
+      "title": "Archive {name}",
+      "body": "An archived plan disappears from the catalog and can no longer be assigned. Operators already on it are unaffected.",
+      "subscribers": "{count, plural, one {# operator is currently on this plan and archiving will be refused.} other {# operators are currently on this plan and archiving will be refused.}}",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Why is this plan being retired?",
+      "reasonTooShort": "Give at least 3 characters, or leave the reason empty.",
+      "cancel": "Cancel",
+      "confirm": "Archive plan",
+      "archiving": "Archiving…"
+    },
+    "subscription": {
+      "heading": "Subscription",
+      "currentPlan": "Current plan",
+      "noPlan": "No subscription",
+      "status": "Status",
+      "noStatus": "None",
+      "source": "Entitlements from",
+      "commission": "Commission",
+      "commissionValue": "{percent}%",
+      "usageHeading": "Resource",
+      "usageColumn": "Used / limit",
+      "usageValue": "{current} / {limit}",
+      "statusOptions": {
+        "trialing": "Trialing",
+        "active": "Active",
+        "pastDue": "Past due",
+        "cancelled": "Cancelled"
+      },
+      "sources": {
+        "exempt": "Exempt — no limits apply",
+        "subscription": "The assigned plan",
+        "subscriptionOverride": "The assigned plan, with a negotiated override",
+        "default": "The platform default plan"
+      },
+      "info": {
+        "source": "Where the limits in force come from: an exemption, the assigned plan, that plan adjusted by a negotiated override, or the platform's default plan when there is no subscription."
+      },
+      "assign": {
+        "heading": "Assign a plan",
+        "description": "Moving an operator to a smaller plan is refused if they already hold more than it allows — the refusal names exactly what is over the limit.",
+        "planLabel": "Plan",
+        "choosePlan": "Choose a plan…",
+        "statusLabel": "Status",
+        "submit": "Save subscription",
+        "saving": "Saving…",
+        "saved": "Subscription saved."
+      },
+      "override": {
+        "heading": "Negotiated override",
+        "description": "Tick only the terms that deviate from the plan; everything left unticked keeps following the catalog. Unticking all of them removes the override entirely.",
+        "submit": "Save override",
+        "saving": "Saving…",
+        "saved": "Override saved."
+      }
+    },
+    "errors": {
+      "forbidden": "You are not allowed to manage subscription plans.",
+      "notFound": "Plan not found.",
+      "conflict": "This change conflicts with the current state.",
+      "invalidData": "Some values were rejected. Check the form and try again.",
+      "genericError": "Something went wrong. Please try again.",
+      "missingDraft": "Missing draft payload.",
+      "invalidJson": "Draft payload is not valid JSON.",
+      "invalidConfig": "Invalid plan configuration."
+    },
+    "validation": {
+      "codeRequired": "Plan code must be at least 2 characters.",
+      "codeTooLong": "Plan code must be 50 characters or fewer.",
+      "codeFormat": "Plan code must be lowercase letters or digits, optionally with - or _.",
+      "nameRequired": "Plan name must be at least 2 characters.",
+      "nameTooLong": "Plan name must be 100 characters or fewer.",
+      "descriptionTooLong": "Description must be 500 characters or fewer.",
+      "priceInvalid": "Enter a price as a number, e.g. 49.90.",
+      "priceMin": "Price must be 0 or greater.",
+      "priceMax": "Price is too large.",
+      "currencyFormat": "Currency must be a 3-letter ISO code, e.g. EUR.",
+      "intervalInvalid": "Choose a billing interval.",
+      "limitInvalid": "Enter a whole number, or tick Unlimited.",
+      "limitMin": "A limit must be 0 or greater.",
+      "limitMax": "That limit is too large.",
+      "commissionInvalid": "Enter a commission as a percentage, e.g. 2.50.",
+      "commissionMin": "Commission must be 0% or greater.",
+      "commissionMax": "Commission cannot exceed 100%.",
+      "featuresInvalid": "Unrecognised feature selection.",
+      "isPublicInvalid": "Visibility must be on or off.",
+      "sortOrderInvalid": "Sort order must be a whole number.",
+      "sortOrderMin": "Sort order must be 0 or greater.",
+      "sortOrderMax": "Sort order is too large.",
+      "planRequired": "Choose a plan.",
+      "statusInvalid": "Choose a subscription status."
+    }
+  },
+  "driverPlans": {
+    "list": {
+      "title": "Driver plans",
+      "description": "Manage rider subscription plans, pricing and the perks each one grants.",
+      "newPlan": "New plan",
+      "count": "{count, plural, one {# plan} other {# plans}}",
+      "empty": {
+        "title": "No driver plans yet",
+        "default": "Create your first rider plan to start selling perks."
+      }
+    },
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "price": "Price",
+      "interval": "Billing",
+      "visibility": "Visibility",
+      "subscribers": "Subscribers",
+      "status": "Status",
+      "actions": "Actions",
+      "public": "Public",
+      "private": "Hidden"
+    },
+    "interval": {
+      "MONTHLY": "Monthly",
+      "YEARLY": "Yearly"
+    },
+    "status": {
+      "TRIALING": "Trialing",
+      "ACTIVE": "Active",
+      "PAST_DUE": "Past due",
+      "CANCELLED": "Cancelled"
+    },
+    "lifecycle": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archived",
+      "TOMBSTONED": "Tombstoned",
+      "PURGED": "Purged"
+    },
+    "new": {
+      "pageTitle": "New driver plan",
+      "description": "The plan code is permanent once saved — everything else can be changed later.",
+      "defaultName": "New driver plan"
+    },
+    "detail": {
+      "description": "{count, plural, one {# live subscriber.} other {# live subscribers.}}",
+      "archivedNotice": "This plan is archived. It stays readable for history, but no new rider can be assigned to it."
+    },
+    "editor": {
+      "saving": "Saving…",
+      "createPlan": "Create plan",
+      "saveChanges": "Save changes",
+      "fixBeforeSaving": "Fix before saving"
+    },
+    "meta": {
+      "heading": "Plan details",
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "price": "Price (€)",
+      "currency": "Currency",
+      "interval": "Billing interval",
+      "sortOrder": "Sort order",
+      "isPublic": "Publicly listed",
+      "info": {
+        "code": "Permanent machine identifier for this plan, used in audit entries and payment-provider metadata. Lowercase letters, digits, - and _ only. It cannot be changed after the plan is created.",
+        "codeImmutable": "Set when the plan was created and permanent — audit entries and payment-provider records already reference it.",
+        "name": "Name riders see when they compare plans.",
+        "description": "Short summary of what the plan gives a rider. Shown alongside the name wherever plans are listed.",
+        "price": "Amount charged each billing interval, entered in euros. Stored as integer cents, so 9.90 is billed as €9.90 exactly.",
+        "currency": "ISO 4217 code, three uppercase letters (e.g. EUR). Applies to this plan's price.",
+        "interval": "How often the rider is charged. Changing it does not re-price anyone already subscribed.",
+        "sortOrder": "Lower numbers appear first wherever plans are listed. Ties fall back to the plan code.",
+        "isPublic": "Hidden plans stay fully usable and can still be assigned by an administrator — they just never appear in the rider-facing catalog."
+      }
+    },
+    "entitlements": {
+      "heading": "Perks",
+      "hint": "What a rider on this plan gets. Every field here is what the booking flow reads at price time.",
+      "bookingDiscount": "Booking discount (%)",
+      "noDiscount": "No discount",
+      "bookingFeeWaived": "Booking fee waived",
+      "freeCancellations": "Free cancellations",
+      "unlimited": "Unlimited",
+      "features": "Features",
+      "featureLabels": {
+        "support": {
+          "priority": "Priority support"
+        }
+      },
+      "info": {
+        "bookingDiscount": "Percentage taken off the booking price for this rider. Tick “No discount” for a plan that sells other perks but not a price cut.",
+        "bookingFeeWaived": "Drops the platform booking fee entirely for riders on this plan.",
+        "freeCancellations": "How many cancellations a rider may make without a fee per billing period. Tick “Unlimited” for no cap at all — zero and unlimited are opposite answers, so pick deliberately.",
+        "features": "Non-numeric perks this plan unlocks. Each one is checked by name in the code that grants it."
+      }
+    },
+    "archive": {
+      "trigger": "Archive",
+      "buttonLabel": "Archive driver plan",
+      "tooltip": "Archive plan",
+      "title": "Archive driver plan",
+      "body": "Archiving “{name}” removes it from the catalog. Existing history is kept and nothing is deleted, but no rider can be assigned to it afterwards.",
+      "subscribers": "{count, plural, one {# rider is subscribed and archiving will be refused until they are moved.} other {# riders are subscribed and archiving will be refused until they are moved.}}",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Why is this plan being retired?",
+      "reasonTooShort": "Give at least 3 characters, or leave the reason empty.",
+      "cancel": "Cancel",
+      "confirm": "Archive plan",
+      "archiving": "Archiving…"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "freeTier": "This rider is on the free tier — the normal state for an account that has never bought a plan. They book at standard prices with no plan perks.",
+      "openEnded": "Open-ended",
+      "none": "None",
+      "yes": "Yes",
+      "no": "No",
+      "source": {
+        "free": "Free tier",
+        "subscription": "Plan",
+        "subscription+override": "Plan with negotiated override"
+      },
+      "fields": {
+        "plan": "Plan",
+        "status": "Status",
+        "period": "Current period",
+        "trialEndsAt": "Trial ends",
+        "cancelAtPeriodEnd": "Cancels at period end",
+        "provider": "Provider subscription",
+        "source": "Entitlement source"
+      },
+      "assign": {
+        "heading": "Assign a plan",
+        "hint": "Sets the rider's plan and subscription status directly, without going through checkout.",
+        "planLabel": "Plan",
+        "statusLabel": "Status",
+        "noPlans": "No active driver plan exists yet. Create one before assigning.",
+        "submit": "Save subscription",
+        "saving": "Saving…"
+      },
+      "override": {
+        "heading": "Negotiated override",
+        "hint": "Only the perks you tick are overridden — everything left unticked keeps following the plan, including later catalog changes.",
+        "needsPlan": "An override amends a plan. Assign this rider a plan first.",
+        "clear": "Clear override",
+        "submit": "Save override",
+        "saving": "Saving…"
+      }
+    },
+    "errors": {
+      "forbidden": "You are not allowed to manage driver plans.",
+      "notFound": "Driver plan not found.",
+      "conflict": "That change conflicts with the current state of the catalog.",
+      "invalidData": "The server rejected this data.",
+      "genericError": "Something went wrong. Please try again.",
+      "missingDraft": "Missing draft payload.",
+      "invalidJson": "Draft payload is not valid JSON.",
+      "invalidConfig": "Invalid plan configuration."
+    },
+    "validation": {
+      "codeFormat": "Code must be 2–50 characters: lowercase letters, digits, - or _, starting with a letter or digit.",
+      "nameRequired": "Name must be at least 2 characters.",
+      "nameTooLong": "Name must be 100 characters or fewer.",
+      "descriptionTooLong": "Description must be 500 characters or fewer.",
+      "priceRange": "Price must be between €0.00 and €1,000,000.00.",
+      "currencyFormat": "Currency must be a three-letter ISO 4217 code, e.g. EUR.",
+      "discountRange": "Discount must be between 0% and 100%.",
+      "freeCancellationsRange": "Free cancellations must be a whole number between 0 and 1,000,000.",
+      "sortOrderRange": "Sort order must be a whole number between 0 and 10,000.",
+      "reasonTooShort": "Give at least 3 characters, or leave the reason empty.",
+      "planRequired": "Choose a plan first.",
+      "statusInvalid": "Choose a valid subscription status."
     }
   },
   "bookings": {
@@ -1203,9 +1583,18 @@
         "operatorMemberScopesChanged": "changed a team member's access",
         "operatorSubscriptionAssigned": "assigned a subscription plan",
         "operatorSubscriptionOverrideSet": "overrode subscription entitlements",
+        "operatorSubscriptionUpgradeRequested": "requested a subscription upgrade",
+        "operatorSubscriptionQuotaThresholdWarned": "was warned about a plan limit",
         "subscriptionPlanCreated": "created a subscription plan",
         "subscriptionPlanUpdated": "updated a subscription plan",
         "subscriptionPlanArchived": "archived a subscription plan",
+        "driverSubscriptionAssigned": "assigned a driver plan",
+        "driverSubscriptionOverrideSet": "overrode driver plan entitlements",
+        "driverSubscriptionPlanCreated": "created a driver plan",
+        "driverSubscriptionPlanUpdated": "updated a driver plan",
+        "driverSubscriptionPlanArchived": "archived a driver plan",
+        "driverSubscriptionBillingEventProcessed": "processed a driver billing event",
+        "driverSubscriptionSavingsSummarySent": "sent a driver savings summary",
         "userArchived": "archived a user",
         "userRestored": "restored a user",
         "userTombstoned": "marked a user for deletion",
@@ -1516,6 +1905,7 @@
     "description": "Manage who has access to your operator account and what they can do.",
     "explainer": "Invite people to help run your business on sPark. Staff members start with day-to-day access — bookings, the scanner and reporting — and you can fine-tune exactly what each one can do. Admins have full access to everything, including the team itself.",
     "cancel": "Cancel",
+    "upgradeCta": "Upgrade your plan",
     "form": {
       "heading": "Invite a team member",
       "emailLabel": "Email",
@@ -1638,11 +2028,111 @@
       "notFound": "This member no longer exists.",
       "conflict": "This action can no longer be applied — try refreshing the page.",
       "seatLimitReached": "You've used all the staff seats on your plan.",
+      "featureRequired": "Your plan does not include custom access for staff members.",
       "invalidData": "Enter a valid email address.",
       "genericError": "Something went wrong. Try again."
     },
     "validation": {
       "emailInvalid": "Enter a valid email address."
+    }
+  },
+  "billing": {
+    "title": "Plan & billing",
+    "description": "The plan your business is on, what it includes, and how much of it you are using.",
+    "current": {
+      "heading": "Your plan",
+      "subtitle": "What your subscription covers right now.",
+      "plan": "Plan",
+      "noPlan": "No plan",
+      "status": "Status",
+      "noStatus": "None",
+      "period": "Billing period",
+      "periodValue": "{start} — {end}",
+      "noPeriod": "Not started yet",
+      "commission": "Commission",
+      "commissionValue": "{percent}%",
+      "trialEnds": "Your trial ends on {date}.",
+      "cancelling": "Your plan ends on {date} and will not renew.",
+      "exempt": "Your account is exempt from plan limits — nothing below is capped.",
+      "statusOptions": {
+        "trialing": "Trialing",
+        "active": "Active",
+        "pastDue": "Past due",
+        "cancelled": "Cancelled"
+      }
+    },
+    "usage": {
+      "resource": "Resource",
+      "column": "Used / limit",
+      "value": "{current} / {limit}",
+      "maxFacilities": "Facilities",
+      "maxTariffPlans": "Tariff plans",
+      "maxStaffSeats": "Staff seats",
+      "unlimitedShort": "∞",
+      "nearLimit": "You are close to your plan limit for: {resources}. Nothing is blocked yet.",
+      "atLimit": "You have reached your plan limit for: {resources}. Further additions will be refused.",
+      "nearLimitBadge": "Near limit",
+      "atLimitBadge": "At limit"
+    },
+    "features": {
+      "heading": "Included features",
+      "none": "Your plan includes no extra features.",
+      "names": {
+        "analyticsAdvanced": "Advanced analytics",
+        "supportPriority": "Priority support",
+        "teamManagement": "Team management"
+      }
+    },
+    "plans": {
+      "heading": "Available plans",
+      "subtitle": "Move onto another plan yourself at checkout, or message a platform admin first if you would rather talk it through.",
+      "currentBadge": "Your current plan",
+      "quota": "{resource}: {limit}",
+      "commission": "Commission: {percent}%",
+      "upgradeNow": "Upgrade now",
+      "startingCheckout": "Opening checkout…",
+      "messageInstead": "Have questions? Message us instead",
+      "alreadySubscribed": "You are already on this plan.",
+      "interval": {
+        "monthly": "per month",
+        "yearly": "per year"
+      },
+      "empty": {
+        "title": "No plans to show",
+        "message": "The plan catalog could not be loaded. Try again in a moment."
+      }
+    },
+    "checkoutReturn": {
+      "success": "Your plan has been updated.",
+      "cancelled": "Checkout was cancelled — nothing changed and you stay on your current plan."
+    },
+    "upgrade": {
+      "title": "Request {plan}",
+      "body": "We pass this to a platform admin, who confirms the price and moves your account over. Nothing is charged now and your current plan keeps working.",
+      "messageLabel": "Message (optional)",
+      "messagePlaceholder": "Anything we should know — timing, how many seats, questions.",
+      "cancel": "Cancel",
+      "submit": "Send request",
+      "sending": "Sending…",
+      "sent": "Request sent — a platform admin will follow up.",
+      "sentDetail": "Nothing has changed yet. You stay on your current plan until the switch is confirmed with you.",
+      "done": "Close"
+    },
+    "teaser": {
+      "label": "Plan",
+      "hint": "Your subscription plan and how much of its facility allowance you are using.",
+      "usage": "{current} / {limit} facilities used"
+    },
+    "errors": {
+      "forbidden": "Only the operator's owner can manage the plan.",
+      "notFound": "That plan is no longer available.",
+      "conflict": "This request conflicts with your current plan.",
+      "invalidData": "Some values were rejected. Check the form and try again.",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "validation": {
+      "planRequired": "Choose a plan to request.",
+      "messageTooLong": "Message must be 1000 characters or fewer."
     }
   }
 }

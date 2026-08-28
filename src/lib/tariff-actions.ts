@@ -15,6 +15,7 @@ import {
   updateTariffPlanManagers,
 } from './tariff-api'
 import { tariffDraftSchema } from './tariff-schema'
+import { isEntitlementLimitMessage } from './plan-limit'
 import { getActiveSession } from './session'
 import type { SimulateRequest, SimulateQuote, PlanAssignments } from './tariff-api'
 
@@ -39,6 +40,12 @@ function mapApiError(err: unknown): TariffActionResult {
     if (err.status === 403) return { ok: false, errorKey: 'errors.forbidden' }
     if (err.status === 404) return { ok: false, errorKey: 'errors.notFound' }
     if (err.status === 409) {
+      // A quota refusal only ever happens on create (no default-plan replacement makes
+      // sense there), while every other 409 here comes from removing an in-use default —
+      // keep the two apart so the plan-limit one gets an upgrade CTA, not the replacement modal.
+      if (isEntitlementLimitMessage(err.message)) {
+        return { ok: false, errorKey: 'errors.limitExceeded', detail: err.message || undefined }
+      }
       return {
         ok: false,
         errorKey: 'errors.genericError',

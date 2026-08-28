@@ -5,9 +5,12 @@ export type NavIcon =
   | 'overview'
   | 'facilities'
   | 'tariffs'
+  | 'operatorPlans'
+  | 'driverPlans'
   | 'bookings'
   | 'scan'
   | 'team'
+  | 'billing'
   | 'operatorDirectory'
   | 'onboarding'
   | 'analytics'
@@ -50,12 +53,15 @@ const OPERATOR_NAV_ITEMS: OperatorNavItem[] = [
   { href: '/dashboard/bookings', icon: 'bookings', roles: OPERATOR_STAFF_ROLES },
   { href: '/dashboard/scan', icon: 'scan', roles: OPERATOR_ROLES },
   { href: '/dashboard/team', icon: 'team', roles: OPERATOR_ADMIN_ROLES },
+  { href: '/dashboard/billing', icon: 'billing', roles: OPERATOR_ADMIN_ROLES },
 ]
 
 const ADMIN_NAV_ITEMS: NavItem[] = [
   { href: '/admin/operators', icon: 'operatorDirectory', permission: 'platform:tenant.read' },
   { href: '/admin/facilities', icon: 'facilities' },
   { href: '/admin/tariffs', icon: 'tariffs' },
+  { href: '/admin/operator-plans', icon: 'operatorPlans', permission: 'platform:billing.manage' },
+  { href: '/admin/driver-plans', icon: 'driverPlans', permission: 'platform:billing.manage' },
   { href: '/admin/bookings', icon: 'bookings' },
   { href: '/admin/onboarding', icon: 'onboarding' },
   { href: '/admin/analytics', icon: 'analytics' },

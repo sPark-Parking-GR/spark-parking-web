@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { Building2, CalendarCheck, Gauge, Wallet, AlertCircle } from 'lucide-react'
+import { Building2, CalendarCheck, Gauge, Gem, Wallet, AlertCircle } from 'lucide-react'
 import { ProgressBar } from '@spark/ui'
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
@@ -13,7 +13,9 @@ import { isPlatformRole } from '@spark/types'
 import { listFacilities, ApiError, AuthRequiredError } from '@/lib/api'
 import { listBookings } from '@/lib/booking-api'
 import { getAnalyticsSummary, getRevenueSeries } from '@/lib/analytics-api'
+import { getMyOperatorSubscription } from '@/lib/operator-subscription-api'
 import type { AnalyticsSummary, RevenueSeries } from '@/lib/analytics-api'
+import type { MyOperatorSubscription } from '@/lib/operator-subscription-api'
 import { formatMoney } from '@/lib/booking-format'
 import { formatRatio, formatHours } from '@/lib/analytics-format'
 import { buildQuery, loadPage, requireSession } from '@/lib/dal'
@@ -31,7 +33,19 @@ interface PageProps {
 export default async function DashboardOverviewPage({ searchParams }: PageProps) {
   const session = await requireSession()
   const t = await getTranslations('overview')
+  const tBilling = await getTranslations('billing')
   const bookingsHref = isPlatformRole(session.user.role) ? '/admin/bookings' : '/dashboard/bookings'
+
+  // Owner-only: /operator-subscriptions/me refuses a STAFF caller, and staff have no
+  // business seeing what the operator pays either way.
+  let subscription: MyOperatorSubscription | null = null
+  if (session.user.role === 'operator_admin') {
+    try {
+      subscription = await getMyOperatorSubscription()
+    } catch {
+      // The teaser is secondary — the overview still renders without it.
+    }
+  }
 
   const params = await searchParams
   const preset = parseRangePreset(params.range)
@@ -101,6 +115,25 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
           tone="neutral"
           index={3}
         />
+        {subscription ? (
+          <Link href="/dashboard/billing" className="stat-card-link">
+            <StatCard
+              label={tBilling('teaser.label')}
+              value={subscription.planName ?? tBilling('current.noPlan')}
+              hint={tBilling('teaser.hint')}
+              icon={Gem}
+              tone="primary"
+              index={4}
+              trend={tBilling('teaser.usage', {
+                current: subscription.usage.facilities,
+                limit:
+                  subscription.entitlements.maxFacilities === null
+                    ? tBilling('usage.unlimitedShort')
+                    : String(subscription.entitlements.maxFacilities),
+              })}
+            />
+          </Link>
+        ) : null}
       </div>
 
       <div className="panel-row">

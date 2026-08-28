@@ -19,9 +19,11 @@ import { SuspendOperatorButton } from '@/components/SuspendOperatorButton'
 import { ReactivateOperatorButton } from '@/components/ReactivateOperatorButton'
 import { LifecycleActionButton } from '@/components/LifecycleActionButton'
 import { OperatorMembersTable } from '@/components/OperatorMembersTable'
+import { OperatorSubscriptionPanel } from '@/components/OperatorSubscriptionPanel'
 import { ApiError, AuthRequiredError } from '@/lib/api'
 import { requireSession } from '@/lib/dal'
 import { getOperatorDetail } from '@/lib/operator-api'
+import { getOperatorBillingAction } from '@/lib/operator-plan-actions'
 import type {
   OperatorDetail,
   OperatorLifecycleStatus,
@@ -59,8 +61,15 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
   const canWrite = hasPlatformPermission(session.user.role, 'platform:tenant.write')
   const canPurge = hasPlatformPermission(session.user.role, 'platform:tenant.purge')
   const canGrantRoles = hasPlatformPermission(session.user.role, 'platform:role.grant')
+  const canManageBilling = hasPlatformPermission(session.user.role, 'platform:billing.manage')
 
   const { id } = await params
+
+  // Kicked off before the operator await below so it resolves concurrently rather than
+  // adding a serial round trip; the action swallows 403/404 to null, so the panel is
+  // simply absent when billing is unreadable instead of failing the whole page.
+  const billingPromise = canManageBilling ? getOperatorBillingAction(id) : Promise.resolve(null)
+
   const [t, tOnboarding, tFacilities, tTariffs, tAdminLifecycle] = await Promise.all([
     getTranslations('onboarding.detail'),
     getTranslations('onboarding'),
@@ -77,6 +86,8 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
     if (err instanceof ApiError && err.status === 404) notFound()
     if (err instanceof ApiError && err.status === 403) redirect('/login?error=restricted')
   }
+
+  const billing = await billingPromise
 
   return (
     <>
@@ -297,6 +308,14 @@ export default async function AdminOperatorDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
+
+          {billing ? (
+            <OperatorSubscriptionPanel
+              operatorId={operator.id}
+              subscription={billing.subscription}
+              plans={billing.plans}
+            />
+          ) : null}
 
           <div className="panel-card panel-card--wide">
             <div className="panel-card__header">

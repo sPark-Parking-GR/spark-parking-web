@@ -94,10 +94,37 @@ const ACTION_META: Record<string, { key: string; tone: AuditTone }> = {
     key: 'operatorSubscriptionOverrideSet',
     tone: 'warning',
   },
+  'operator_subscription.upgrade_requested': {
+    key: 'operatorSubscriptionUpgradeRequested',
+    tone: 'primary',
+  },
+  'operator_subscription.quota_threshold_warned': {
+    key: 'operatorSubscriptionQuotaThresholdWarned',
+    tone: 'warning',
+  },
 
   'subscription_plan.created': { key: 'subscriptionPlanCreated', tone: 'success' },
   'subscription_plan.updated': { key: 'subscriptionPlanUpdated', tone: 'warning' },
   'subscription_plan.archived': { key: 'subscriptionPlanArchived', tone: 'danger' },
+
+  'driver_subscription.assigned': { key: 'driverSubscriptionAssigned', tone: 'success' },
+  'driver_subscription.override_set': {
+    key: 'driverSubscriptionOverrideSet',
+    tone: 'warning',
+  },
+
+  'driver_subscription.billing_event_processed': {
+    key: 'driverSubscriptionBillingEventProcessed',
+    tone: 'primary',
+  },
+  'driver_subscription.savings_summary_sent': {
+    key: 'driverSubscriptionSavingsSummarySent',
+    tone: 'primary',
+  },
+
+  'driver_subscription_plan.created': { key: 'driverSubscriptionPlanCreated', tone: 'success' },
+  'driver_subscription_plan.updated': { key: 'driverSubscriptionPlanUpdated', tone: 'warning' },
+  'driver_subscription_plan.archived': { key: 'driverSubscriptionPlanArchived', tone: 'danger' },
 
   'user.archived': { key: 'userArchived', tone: 'danger' },
   'user.restored': { key: 'userRestored', tone: 'success' },
