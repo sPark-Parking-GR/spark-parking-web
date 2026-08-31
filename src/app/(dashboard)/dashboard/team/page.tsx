@@ -8,6 +8,7 @@ import { TeamInvitesTable } from '@/components/TeamInvitesTable'
 import { ApiError, AuthRequiredError } from '@/lib/api'
 import { requireSession } from '@/lib/dal'
 import { getMyOperatorId, getOperatorMembers, listMemberInvites } from '@/lib/team-api'
+import { hasHeadroomFor } from '@/lib/plan-headroom'
 import type { TeamMemberInvite, TeamMemberSummary } from '@/lib/team-types'
 
 export default async function TeamPage() {
@@ -55,7 +56,7 @@ export default async function TeamPage() {
       <PageHeader title={t('title')} description={t('description')} />
       <p className="text-secondary">{t('explainer')}</p>
 
-      <TeamInviteForm />
+      <TeamInviteForm hasSeatHeadroom={await hasHeadroomFor('staffSeats')} />
 
       {members.length === 0 ? (
         <EmptyState title={t('empty.title')} message={t('empty.message')} />

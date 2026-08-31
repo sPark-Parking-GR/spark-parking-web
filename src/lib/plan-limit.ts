@@ -1,18 +1,17 @@
-// Neither EntitlementLimitExceededError nor SubscriptionFeatureRequiredError attaches a
-// machine-readable `code` to its HTTP response (unlike the EMAIL_TAKEN case on invites), so
-// the only way to tell "this 403/409 is a plan-limit refusal" apart from every other 403/409
-// on the same endpoint is the message shape the API already commits to in
-// apps/api/src/common/errors/domain.errors.ts. These patterns mirror that shape exactly.
-const ENTITLEMENT_LIMIT_PATTERN =
-  /^This operator's plan allows \d+ .+ and \d+ are already in use\. Upgrade the plan or remove one first\.$/
+import { ApiError } from './api'
 
-const FEATURE_REQUIRED_PATTERN =
-  /^This operator's plan does not include ".+"\. Upgrade the plan to unlock it\.$/
+// The API attaches these on the two plan refusals, alongside the parts a client needs to
+// render an upgrade prompt (resource/limit/current, or feature). Matching on the code is
+// what lets the server reword — or translate — those messages without silently turning
+// every upgrade CTA in the product into a generic error toast, which is what the previous
+// regex-on-English-prose approach did.
+const ENTITLEMENT_LIMIT_CODE = 'ENTITLEMENT_LIMIT_EXCEEDED'
+const FEATURE_REQUIRED_CODE = 'SUBSCRIPTION_FEATURE_REQUIRED'
 
-export function isEntitlementLimitMessage(message: string | undefined): boolean {
-  return typeof message === 'string' && ENTITLEMENT_LIMIT_PATTERN.test(message)
+export function isEntitlementLimitError(err: unknown): boolean {
+  return err instanceof ApiError && err.code === ENTITLEMENT_LIMIT_CODE
 }
 
-export function isFeatureRequiredMessage(message: string | undefined): boolean {
-  return typeof message === 'string' && FEATURE_REQUIRED_PATTERN.test(message)
+export function isFeatureRequiredError(err: unknown): boolean {
+  return err instanceof ApiError && err.code === FEATURE_REQUIRED_CODE
 }

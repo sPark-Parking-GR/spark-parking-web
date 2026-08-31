@@ -17,7 +17,7 @@ import {
   AuthRequiredError,
 } from './api'
 import { buildFacilityFormSchema } from './facility-schema'
-import { isEntitlementLimitMessage } from './plan-limit'
+import { isEntitlementLimitError } from './plan-limit'
 import { getActiveSession } from './session'
 import type {
   AdminMapResponse,
@@ -68,7 +68,7 @@ function mapApiError(err: unknown): FacilityActionResult {
     if (err.status === 409) {
       // A quota refusal reads and remedies differently than every other 409 this endpoint
       // can raise (e.g. an unverified operator) — it names the CTA is an upgrade, not a retry.
-      if (isEntitlementLimitMessage(err.message)) {
+      if (isEntitlementLimitError(err)) {
         return { ok: false, errorKey: 'errors.limitExceeded', detail: err.message || undefined }
       }
       return { ok: false, errorKey: 'errors.genericError', detail: err.message || undefined }
@@ -401,12 +401,18 @@ export async function updateFacilityManagersAction(
   }
 }
 
-export async function updateFacilityPublishedAction(
+// Public visibility needs isActive AND isPublished, so going live writes both. Coming off
+// leaves isActive alone: hiding a facility from the app must not fight the guard that
+// refuses to deactivate one with bookings still to honour.
+export async function updateFacilityLiveAction(
   id: string,
-  isPublished: boolean,
+  isLive: boolean,
 ): Promise<FacilityActionResult> {
   try {
-    await updateFacility(id, { isPublished })
+    await updateFacility(
+      id,
+      isLive ? { isActive: true, isPublished: true } : { isPublished: false },
+    )
   } catch (err) {
     return mapApiError(err)
   }

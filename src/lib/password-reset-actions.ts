@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
@@ -11,7 +12,7 @@ const forgotPasswordSchema = z.object({
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
-  password: z.string().min(8).max(128),
+  password: z.string().min(PASSWORD_MIN).max(PASSWORD_MAX),
 })
 
 export type ForgotPasswordResult = { ok: true } | { ok: false; errorKey: 'genericError' }

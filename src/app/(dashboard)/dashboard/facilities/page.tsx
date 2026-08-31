@@ -10,6 +10,7 @@ import { FacilityMapView } from '@/components/FacilityMapView'
 import { SearchInput } from '@/components/SearchInput'
 import { Pagination } from '@/components/Pagination'
 import { listFacilities } from '@/lib/api'
+import { hasHeadroomFor } from '@/lib/plan-headroom'
 import type { FacilityKind } from '@/lib/api'
 import { buildQuery, loadPage, requireSession } from '@/lib/dal'
 
@@ -66,7 +67,7 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
     </>
   )
 
-  const canCreateFacility = (await loadPage(() => listFacilities({ take: 1 }))).total === 0
+  const canCreateFacility = await hasHeadroomFor('facilities')
 
   const header = (
     <PageHeader
@@ -98,7 +99,12 @@ export default async function FacilitiesPage({ searchParams }: PageProps) {
     params.facilityLimit === '1' ? (
       <p className="form-banner form-banner--warning" role="alert">
         <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-        {t('list.facilityLimitReached')}
+        <span className="form-banner__body">
+          <span>{t('list.facilityLimitReached')}</span>
+          <Link href="/dashboard/billing" className="btn btn--sm btn--secondary">
+            {t('actions.upgradePlan')}
+          </Link>
+        </span>
       </p>
     ) : null
 

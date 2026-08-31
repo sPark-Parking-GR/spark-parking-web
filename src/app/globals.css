@@ -798,9 +798,14 @@ select.input {
   background: linear-gradient(180deg, var(--pri), var(--pri2));
 }
 
-.sidebar__promo-cta:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.sidebar__promo-cta {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.sidebar__promo-cta:hover {
+  filter: brightness(1.08);
 }
 
 .navlink {
@@ -1652,6 +1657,16 @@ select.input {
     border-right: none;
     border-bottom: 1px solid var(--line);
     padding: var(--space-sm) var(--space-md);
+    /* The base rule pins this to a 236px column. As a horizontal rail in a single-column
+       grid that left a 236px strip of navigation beside an empty gap, with most of the
+       items scrolled out of reach inside it. */
+    width: auto;
+  }
+
+  /* An upsell card is a poor use of a horizontal rail, and it pushed the nav items it sat
+     beside off-screen. Plan and billing is one tap away in that same rail. */
+  .sidebar__promo {
+    display: none;
   }
 
   .sidebar__brand {
@@ -1687,14 +1702,16 @@ select.input {
     padding: 0 var(--space-md);
   }
 
-  .topbar__titles {
-    display: none;
-  }
+  /* .topbar__titles is hidden in the mobile block at the end of the Topbar chrome section
+     instead of here: the base rule for it is declared further down this file, and at equal
+     specificity the later declaration won — so this override never applied and the page
+     title kept wrapping over three lines into the controls beside it. */
 
   .topbar__user {
-    width: 100%;
+    width: auto;
     justify-content: flex-end;
     gap: var(--space-sm);
+    min-width: 0;
   }
 
   .topbar__name {
@@ -1789,6 +1806,9 @@ select.input {
   align-items: center;
   gap: var(--space-md);
   margin-bottom: var(--space-md);
+  /* Search plus a view toggle plus a count does not fit one narrow row; without this the
+     toggle is squeezed flat against the right edge. */
+  flex-wrap: wrap;
 }
 
 .table-search {
@@ -4008,6 +4028,26 @@ td.table-amount {
   background: var(--line);
 }
 
+/* Declared AFTER the chrome rules above so these actually win — see the note in the
+   720px block earlier in this file. */
+@media (max-width: 720px) {
+  .topbar__titles {
+    display: none;
+  }
+
+  /* Non-functional today ("Search — coming soon") and the widest thing in the bar, so it
+     was pushing the account chip and the sign-out control off the right edge. */
+  .topbar__search {
+    display: none;
+  }
+
+  .topbar__controls {
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
 .topbar__bell-dot {
   position: absolute;
   top: 8px;
@@ -4384,4 +4424,102 @@ td.table-amount {
 
 .stat-card-link > .stat-card {
   flex: 1;
+}
+
+.invite-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.invite-resend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.invite-resend__message {
+  color: var(--color-warning);
+  font-size: 0.8rem;
+}
+
+.not-found__mark {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-md);
+}
+
+.password-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.password-meter__track {
+  height: 4px;
+  border-radius: var(--pill);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.password-meter__fill {
+  height: 100%;
+  border-radius: var(--pill);
+  transition:
+    width var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+}
+
+.password-meter__fill[data-score='0'] {
+  width: 20%;
+  background: var(--color-danger);
+}
+
+.password-meter__fill[data-score='1'] {
+  width: 40%;
+  background: var(--color-danger);
+}
+
+.password-meter__fill[data-score='2'] {
+  width: 60%;
+  background: var(--color-warning);
+}
+
+.password-meter__fill[data-score='3'] {
+  width: 80%;
+  background: var(--color-success);
+}
+
+.password-meter__fill[data-score='4'] {
+  width: 100%;
+  background: var(--color-success);
+}
+
+.password-meter__label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.field__hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.topbar__account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-sm);
+  padding: 2px 4px;
+  transition: background-color var(--dur) var(--ease);
+}
+
+.topbar__account:hover,
+.topbar__account:focus-visible {
+  background: var(--card2);
 }

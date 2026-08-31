@@ -23,6 +23,10 @@ interface Props {
   plans: FacilityTariffPlan[]
   initialAssignments: FacilityTariffAssignment[] | null
   defaultPlan?: { id: string; name: string } | null
+  // The vehicle types this facility actually accepts. Offering a plan slot for a lorry at a
+  // car-only garage invites an assignment that can never price a real booking; omitted
+  // (platform bulk assignment across a mixed selection) it falls back to all four.
+  acceptedVehicleTypes?: FacilityVehicleType[]
   pending: boolean
   error: string | null
   onSubmit: (assignments: AssignTariffInput[]) => void
@@ -85,12 +89,17 @@ export function AssignTariffModal({
   plans,
   initialAssignments,
   defaultPlan,
+  acceptedVehicleTypes,
   pending,
   error,
   onSubmit,
 }: Props) {
   const t = useTranslations('facilities')
-  const ROWS = rowsFor(t)
+  const allRows = rowsFor(t)
+  const ROWS =
+    acceptedVehicleTypes && acceptedVehicleTypes.length > 0
+      ? allRows.filter((row) => acceptedVehicleTypes.includes(row.vehicleType))
+      : allRows
   const isBulk = initialAssignments === null
 
   const [selection, setSelection] = useState<Record<string, string>>(() =>

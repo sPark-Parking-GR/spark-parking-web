@@ -6,7 +6,7 @@ import { z } from 'zod'
 import type { OrgPermission } from '@spark/types'
 import { apiFetch, ApiError, AuthRequiredError } from './api'
 import { TEAM_MEMBER_ROLES } from './team-types'
-import { isFeatureRequiredMessage } from './plan-limit'
+import { isFeatureRequiredError } from './plan-limit'
 import type { TeamMemberRole } from './team-types'
 
 const TEAM_PATH = '/dashboard/team'
@@ -37,7 +37,7 @@ function mapWriteError(err: unknown): { ok: false; errorKey: TeamErrorKey; detai
       // Scopes-editor 403s are either "you may not manage this team" (plain forbidden) or
       // "your plan doesn't include team.management" (a feature gate) — same status, opposite
       // remedies, so the feature-gated one needs its own key to render an upgrade CTA.
-      if (isFeatureRequiredMessage(err.message)) {
+      if (isFeatureRequiredError(err)) {
         return { ok: false, errorKey: 'errors.featureRequired', detail: err.message || undefined }
       }
       return { ok: false, errorKey: 'errors.forbidden' }

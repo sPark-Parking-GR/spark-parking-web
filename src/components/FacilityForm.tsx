@@ -196,7 +196,7 @@ export function FacilityForm({
                 </Link>
               </span>
             ) : (
-              state.detail ?? t(state.errorKey)
+              (state.detail ?? t(state.errorKey))
             )}
           </p>
         ) : null}
@@ -217,6 +217,11 @@ export function FacilityForm({
             assignments={tariff.assignments}
             defaultPlan={tariff.defaultPlan}
             tariffPlans={tariff.tariffPlans}
+            // Live form state, not the saved facility: a slot the operator is in the middle
+            // of removing should stop being offered a plan straight away.
+            acceptedVehicleTypes={vehicleTypes.map(
+              (value) => value.toUpperCase() as 'CAR' | 'MOTORCYCLE' | 'VAN' | 'TRUCK',
+            )}
           />
         ) : null}
 

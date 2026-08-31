@@ -68,7 +68,8 @@
     "searchComingSoon": "Search — coming soon",
     "upgradeTitle": "Growth plan",
     "upgradeSub": "Unlock dynamic pricing and API sync.",
-    "upgradeCta": "Upgrade"
+    "upgradeCta": "Upgrade",
+    "brandTagOperator": "Operator"
   },
   "login": {
     "tagline": "Make Parking Smart",
@@ -141,7 +142,12 @@
     "expired": "This invite has expired. Ask the platform to send a new one.",
     "invalidLink": "This invite link is invalid.",
     "unreachable": "Unable to reach the server right now. Please try again.",
-    "somethingWentWrong": "Something went wrong. Please try again."
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "alreadyAcceptedTitle": "Invite already used",
+    "alreadyAcceptedMessage": "This invite has already been set up. Sign in with the email it was sent to.",
+    "yourNameLabel": "Your name",
+    "yourNameRequired": "Enter your name.",
+    "yourNameTooLong": "Name must be at most 120 characters."
   },
   "onboarding": {
     "title": "Onboard Operators",
@@ -151,7 +157,8 @@
       "emailLabel": "Email",
       "sendInvite": "Send invite",
       "sending": "Sending…",
-      "sent": "Invite sent."
+      "sent": "Invite sent.",
+      "notDelivered": "The invite was created but the email could not be sent. The recipient has no link yet — check the email provider, then use Resend."
     },
     "table": {
       "businessName": "Business",
@@ -299,6 +306,11 @@
     },
     "validation": {
       "emailInvalid": "Enter a valid email address."
+    },
+    "resend": {
+      "trigger": "Resend",
+      "sending": "Sending…",
+      "notDelivered": "Still could not send. The previous link no longer works."
     }
   },
   "adminInvites": {
@@ -361,7 +373,7 @@
     },
     "validation": {
       "emailInvalid": "Enter a valid email address.",
-      "displayNameTooLong": "Display name must be at most 200 characters."
+      "displayNameTooLong": "Name must be at most 120 characters."
     },
     "accept": {
       "tagline": "Make Parking Smart",
@@ -445,7 +457,7 @@
       "emptyTitle": "No facilities found",
       "emptyFiltered": "No facilities match your search or filters.",
       "emptyDefault": "Create your first facility to get started.",
-      "facilityLimitReached": "Your account is limited to one facility. Contact the platform to change this."
+      "facilityLimitReached": "You have used every facility your plan includes. Upgrade your plan to add another."
     },
     "actions": {
       "newFacility": "New facility",
@@ -458,7 +470,8 @@
       "publish": "Publish",
       "unpublish": "Unpublish",
       "assignTariff": "Assign tariff",
-      "clear": "Clear"
+      "clear": "Clear",
+      "upgradePlan": "Upgrade plan"
     },
     "status": {
       "active": "Active",
@@ -615,8 +628,8 @@
       "confirm": "Delete facility"
     },
     "publishToggle": {
-      "published": "Published — visible in the mobile app",
-      "unpublished": "Unpublished — hidden from the mobile app"
+      "live": "Live — bookable in the mobile app",
+      "notLive": "Not live — hidden from the mobile app"
     },
     "tariff": {
       "heading": "Tariff plans",
@@ -1930,7 +1943,7 @@
     "scopesSummary": {
       "fullAccess": "Full access",
       "adminHint": "Admins hold every permission by definition",
-      "count": "{count, plural, =0 {No permissions granted} one {# of {total} permission} other {# of {total} permissions}}"
+      "count": "{count, plural, =0 {No permissions granted} other {# of {total} permissions}}"
     },
     "selfNote": "This is you",
     "soleAdminNote": "Sole admin — promote another member first",
@@ -2045,10 +2058,10 @@
       "plan": "Plan",
       "noPlan": "No plan",
       "status": "Status",
-      "noStatus": "None",
+      "noStatus": "Free plan",
       "period": "Billing period",
       "periodValue": "{start} — {end}",
-      "noPeriod": "Not started yet",
+      "noPeriod": "No billing — the free plan",
       "commission": "Commission",
       "commissionValue": "{percent}%",
       "trialEnds": "Your trial ends on {date}.",
@@ -2133,6 +2146,37 @@
     "validation": {
       "planRequired": "Choose a plan to request.",
       "messageTooLong": "Message must be 1000 characters or fewer."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "This page does not exist, or it belongs to an account you do not have access to.",
+    "backToDashboard": "Back to your dashboard"
+  },
+  "password": {
+    "hint": "At least {min} characters. Longer is stronger than complicated.",
+    "meterLabel": "Password strength",
+    "strength": {
+      "veryWeak": "Very weak — easy to guess",
+      "weak": "Weak — still easy to guess",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    }
+  },
+  "profile": {
+    "title": "Your profile",
+    "description": "How you appear to the rest of your team.",
+    "heading": "Your details",
+    "nameLabel": "Your name",
+    "nameHint": "Shown wherever you are listed — your team, facility managers and the audit log. Leave empty to be shown as {email}.",
+    "emailLabel": "Email",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Profile updated.",
+    "errors": {
+      "nameTooLong": "Name must be at most 120 characters.",
+      "genericError": "Something went wrong. Please try again."
     }
   }
 }

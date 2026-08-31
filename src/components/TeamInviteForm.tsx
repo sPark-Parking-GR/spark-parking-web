@@ -11,17 +11,26 @@ import { TEAM_MEMBER_ROLES } from '@/lib/team-types'
 
 const INITIAL_STATE: InviteMemberResult = { ok: true, delivered: true }
 
-function SubmitButton() {
+function SubmitButton({ atSeatLimit }: { atSeatLimit: boolean }) {
   const t = useTranslations('team')
   const { pending } = useFormStatus()
   return (
-    <button type="submit" className="btn btn--primary" disabled={pending}>
+    <button
+      type="submit"
+      className="btn btn--primary"
+      disabled={pending || atSeatLimit}
+      aria-disabled={atSeatLimit ? true : undefined}
+      data-tooltip={atSeatLimit ? t('form.seatLimitMessage') : undefined}
+      data-tooltip-pos="bottom"
+    >
       {pending ? t('form.sending') : t('form.sendInvite')}
     </button>
   )
 }
 
-export function TeamInviteForm() {
+// The facilities page has always disabled its create button at the plan limit; this form
+// let you fill it in and refused at submit instead. Same limit, two different manners.
+export function TeamInviteForm({ hasSeatHeadroom = true }: { hasSeatHeadroom?: boolean }) {
   const t = useTranslations('team')
   const tRole = useTranslations('team.roleOptions')
   const formRef = useRef<HTMLFormElement>(null)
@@ -37,6 +46,9 @@ export function TeamInviteForm() {
   )
 
   const isSeatLimit = !state.ok && state.errorKey === 'errors.seatLimitReached'
+  // A refusal at submit also means no headroom, even if the page rendered before the last
+  // seat went — so the control locks either way.
+  const atSeatLimit = !hasSeatHeadroom || isSeatLimit
 
   return (
     <form ref={formRef} action={formAction} onSubmit={() => setHasSubmitted(true)} noValidate>
@@ -45,6 +57,17 @@ export function TeamInviteForm() {
           <h3 className="h-heading">{t('form.heading')}</h3>
         </div>
 
+        {!hasSeatHeadroom && !isSeatLimit ? (
+          <p className="form-banner form-banner--warning" role="status">
+            <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
+            <span className="form-banner__body">
+              <span>{t('form.seatLimitMessage')}</span>
+              <Link href="/dashboard/billing" className="btn btn--sm btn--secondary">
+                {t('upgradeCta')}
+              </Link>
+            </span>
+          </p>
+        ) : null}
         {hasSubmitted && !isPending && !state.ok && isSeatLimit ? (
           <p className="form-banner form-banner--warning" role="status">
             <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
@@ -93,7 +116,7 @@ export function TeamInviteForm() {
         </div>
 
         <div className="form-actions">
-          <SubmitButton />
+          <SubmitButton atSeatLimit={atSeatLimit} />
         </div>
       </section>
     </form>

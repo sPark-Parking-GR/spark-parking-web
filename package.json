@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "dotenv -e .env -- next dev",
+    "dev": "dotenv -e .env -- next dev --turbopack",
     "start": "dotenv -e .env -- next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
@@ -14,6 +14,8 @@
     "@spark/types": "workspace:*",
     "@spark/ui": "workspace:*",
     "@vis.gl/react-google-maps": "^1.8.3",
+    "@zxcvbn-ts/core": "^4.2.0",
+    "@zxcvbn-ts/language-common": "^4.1.3",
     "iron-session": "^8.0.4",
     "jsqr": "^1.4.0",
     "lucide-react": "^1.21.0",

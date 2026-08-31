@@ -76,7 +76,11 @@ export default async function EditFacilityPage({ params, searchParams }: PagePro
         title={facility.name}
         titleAccessory={
           <>
-            <PublishFacilityToggle id={id} initialIsPublished={facility.isPublished} />
+            <PublishFacilityToggle
+              id={id}
+              initialIsActive={facility.isActive}
+              initialIsPublished={facility.isPublished}
+            />
             <DeleteFacilityButton id={id} />
           </>
         }

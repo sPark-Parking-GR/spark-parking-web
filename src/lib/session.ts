@@ -143,6 +143,29 @@ export async function establishSessions(data: SessionData): Promise<void> {
   legacySession.destroy()
 }
 
+/**
+ * Patches the user snapshot the session cookie carries, on whichever cookie arrived.
+ *
+ * The topbar and every `requireSession()` caller read the user from the cookie, not from
+ * the API, so a profile change made against the database would otherwise stay invisible
+ * until the session was next established — up to fourteen days for the dashboard cookie.
+ * Deliberately narrow: it patches the snapshot, it does not re-authenticate.
+ */
+export async function refreshSessionUser(
+  patch: Partial<Omit<AuthUser, 'displayName'>> & { displayName?: string | null },
+): Promise<void> {
+  for (const scope of ['dashboard', 'admin'] as const) {
+    const session = await getSession(scope)
+    if (!isAuthenticated(session)) continue
+    const { displayName, ...rest } = patch
+    session.user = { ...session.user, ...rest }
+    // A null name means "no name": leaving the old key in place would keep rendering it.
+    if (displayName === null) delete session.user.displayName
+    else if (displayName !== undefined) session.user.displayName = displayName
+    await session.save()
+  }
+}
+
 export async function clearAllSessions(): Promise<void> {
   await clearSession('dashboard')
   await clearSession('admin')

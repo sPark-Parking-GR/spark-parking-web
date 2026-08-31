@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { apiFetch, ApiError, AuthRequiredError } from './api'
 import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
+import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 import type {
   AdminInviteIssued,
   AdminInviteSummary,
@@ -53,14 +54,16 @@ const sendAdminInviteSchema = z.object({
   displayName: z
     .string()
     .trim()
-    .max(200, 'validation.displayNameTooLong')
+    // 120, matching createAdminInviteSchema. At 200 the browser accepted a name the API
+    // then rejected, so the only feedback was a generic failure after submit.
+    .max(120, 'validation.displayNameTooLong')
     .optional()
     .transform((value) => (value ? value : undefined)),
 })
 
 const setPasswordSchema = z
   .object({
-    password: z.string().min(8, 'passwordTooShort').max(200, 'passwordTooLong'),
+    password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -169,14 +172,11 @@ export async function revokeAdminInviteAction(
   return { ok: true }
 }
 
-export async function validateAdminInviteAction(
-  token: string,
-): Promise<ValidateAdminInviteResult> {
+export async function validateAdminInviteAction(token: string): Promise<ValidateAdminInviteResult> {
   try {
-    const response = await fetch(
-      `${BASE_URL}/admin-invites/token/${encodeURIComponent(token)}`,
-      { cache: 'no-store' },
-    )
+    const response = await fetch(`${BASE_URL}/admin-invites/token/${encodeURIComponent(token)}`, {
+      cache: 'no-store',
+    })
     if (!response.ok) {
       return { ok: false, status: response.status }
     }
@@ -198,15 +198,12 @@ export async function acceptAdminInviteAction(
 
   let response: Response
   try {
-    response = await fetch(
-      `${BASE_URL}/admin-invites/token/${encodeURIComponent(token)}/accept`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: parsed.data.password }),
-        cache: 'no-store',
-      },
-    )
+    response = await fetch(`${BASE_URL}/admin-invites/token/${encodeURIComponent(token)}/accept`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: parsed.data.password }),
+      cache: 'no-store',
+    })
   } catch {
     return { ok: false, errorKey: 'unreachable' }
   }

@@ -75,7 +75,11 @@ export default async function AdminEditFacilityPage({ params, searchParams }: Pa
         title={facility.name}
         titleAccessory={
           <>
-            <PublishFacilityToggle id={id} initialIsPublished={facility.isPublished} />
+            <PublishFacilityToggle
+              id={id}
+              initialIsActive={facility.isActive}
+              initialIsPublished={facility.isPublished}
+            />
             <DeleteFacilityButton id={id} />
           </>
         }

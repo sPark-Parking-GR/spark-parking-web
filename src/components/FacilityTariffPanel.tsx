@@ -15,9 +15,16 @@ interface Props {
   assignments: FacilityTariffAssignment[]
   defaultPlan: { id: string; name: string } | null
   tariffPlans: FacilityTariffPlan[]
+  acceptedVehicleTypes: FacilityTariffAssignment['vehicleType'][]
 }
 
-export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tariffPlans }: Props) {
+export function FacilityTariffPanel({
+  facilityId,
+  assignments,
+  defaultPlan,
+  tariffPlans,
+  acceptedVehicleTypes,
+}: Props) {
   const t = useTranslations('facilities')
   const router = useRouter()
 
@@ -105,6 +112,7 @@ export function FacilityTariffPanel({ facilityId, assignments, defaultPlan, tari
         plans={tariffPlans}
         initialAssignments={assignments}
         defaultPlan={defaultPlan}
+        acceptedVehicleTypes={acceptedVehicleTypes}
         pending={pending}
         error={null}
         onSubmit={submit}

@@ -7,7 +7,7 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { sendInviteAction } from '@/lib/invite-actions'
 import type { SendInviteResult } from '@/lib/invite-actions'
 
-const INITIAL_STATE: SendInviteResult = { ok: true }
+const INITIAL_STATE: SendInviteResult = { ok: true, delivered: true }
 
 function SubmitButton() {
   const t = useTranslations('onboarding')
@@ -23,11 +23,18 @@ export function InviteForm() {
   const t = useTranslations('onboarding')
   const formRef = useRef<HTMLFormElement>(null)
   const [hasSubmitted, setHasSubmitted] = useState(false)
+  // Controlled so a refusal (already registered, not permitted) leaves the address in
+  // place: React 19 clears an uncontrolled action form, and retyping it was the price of
+  // every error message.
+  const [email, setEmail] = useState('')
 
   const [state, formAction, isPending] = useActionState(
     async (prev: SendInviteResult, formData: FormData) => {
       const result = await sendInviteAction(prev, formData)
-      if (result.ok) formRef.current?.reset()
+      if (result.ok) {
+        formRef.current?.reset()
+        setEmail('')
+      }
       return result
     },
     INITIAL_STATE,
@@ -46,17 +53,32 @@ export function InviteForm() {
             {state.detail ?? t(state.errorKey)}
           </p>
         ) : null}
-        {hasSubmitted && !isPending && state.ok ? (
+        {hasSubmitted && !isPending && state.ok && state.delivered ? (
           <p className="form-banner form-banner--success" role="status">
             <CheckCircle2 size={18} strokeWidth={2} aria-hidden="true" />
             {t('form.sent')}
+          </p>
+        ) : null}
+        {hasSubmitted && !isPending && state.ok && !state.delivered ? (
+          <p className="form-banner form-banner--warning" role="alert">
+            <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
+            {t('form.notDelivered')}
           </p>
         ) : null}
 
         <div className="field-grid">
           <label className="field">
             <span className="field__label">{t('form.emailLabel')}</span>
-            <input className="input" type="email" name="email" required disabled={isPending} />
+            <input
+              id="invite-email"
+              className="input"
+              type="email"
+              name="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              disabled={isPending}
+            />
           </label>
         </div>
 

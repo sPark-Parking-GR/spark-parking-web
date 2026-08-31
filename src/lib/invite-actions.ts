@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { apiFetch, ApiError, AuthRequiredError } from './api'
 import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
+import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
@@ -23,6 +24,12 @@ export interface InviteSummary {
   acceptedAt: string | null
 }
 
+// What POST /invites and POST /invites/:id/resend return: the summary plus the one field
+// the list endpoint cannot carry, because delivery is not persisted anywhere.
+export interface InviteIssued extends InviteSummary {
+  delivered: boolean
+}
+
 export type InviteKind = 'ONBOARDING' | 'MEMBER'
 
 export interface InviteValidation {
@@ -30,6 +37,7 @@ export interface InviteValidation {
   email: string
   kind: InviteKind
   expired: boolean
+  alreadyAccepted: boolean
 }
 
 export type InviteValidationResult =
@@ -42,8 +50,12 @@ export type SendInviteErrorKey =
   | 'errors.genericError'
   | string
 
+// `delivered` is the provider's own answer, not a guess: the invite row is written before
+// the mail is handed over and the send never throws, so a rejected sender identity or a
+// dead provider leaves a PENDING invite nobody can redeem. Reporting that as success is
+// how an admin waits days for an operator who was never written to.
 export type SendInviteResult =
-  | { ok: true }
+  | { ok: true; delivered: boolean }
   | { ok: false; errorKey: SendInviteErrorKey; detail?: string }
 
 export type InviteActionResult =
@@ -53,6 +65,18 @@ export type InviteActionResult =
       errorKey:
         | 'errors.invalidInvite'
         | 'errors.revokeForbidden'
+        | 'errors.inviteNotFound'
+        | 'errors.genericError'
+      detail?: string
+    }
+
+export type ResendInviteResult =
+  | { ok: true; delivered: boolean }
+  | {
+      ok: false
+      errorKey:
+        | 'errors.invalidInvite'
+        | 'errors.sendInviteForbidden'
         | 'errors.inviteNotFound'
         | 'errors.genericError'
       detail?: string
@@ -71,7 +95,7 @@ const sendInviteSchema = z.object({
 
 const setPasswordSchema = z
   .object({
-    password: z.string().min(8, 'passwordTooShort').max(128, 'passwordTooLong'),
+    password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
     confirmPassword: z.string(),
     businessName: z
       .string()
@@ -79,6 +103,7 @@ const setPasswordSchema = z
       .min(1, 'businessNameRequired')
       .max(200, 'businessNameTooLong')
       .optional(),
+    displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'passwordsMismatch',
@@ -96,8 +121,9 @@ export async function sendInviteAction(
     return { ok: false, errorKey: parsed.error.issues[0]?.message ?? 'errors.invalidInput' }
   }
 
+  let issued: InviteIssued
   try {
-    await apiFetch('/invites', {
+    issued = await apiFetch<InviteIssued>('/invites', {
       method: 'POST',
       body: JSON.stringify(parsed.data),
     })
@@ -125,7 +151,32 @@ export async function sendInviteAction(
   }
 
   revalidatePath(ONBOARDING_PATH)
-  return { ok: true }
+  return { ok: true, delivered: issued.delivered }
+}
+
+export async function resendInviteAction(
+  _prev: ResendInviteResult,
+  formData: FormData,
+): Promise<ResendInviteResult> {
+  const id = String(formData.get('id'))
+  if (!id) return { ok: false, errorKey: 'errors.invalidInvite' }
+
+  let issued: InviteIssued
+  try {
+    issued = await apiFetch<InviteIssued>(`/invites/${id}/resend`, { method: 'POST' })
+  } catch (err) {
+    if (err instanceof AuthRequiredError) redirect('/login')
+    if (err instanceof ApiError) {
+      if (err.status === 403) return { ok: false, errorKey: 'errors.sendInviteForbidden' }
+      if (err.status === 404) return { ok: false, errorKey: 'errors.inviteNotFound' }
+      if (err.status === 409)
+        return { ok: false, errorKey: 'errors.genericError', detail: err.message }
+    }
+    return { ok: false, errorKey: 'errors.genericError' }
+  }
+
+  revalidatePath(ONBOARDING_PATH)
+  return { ok: true, delivered: issued.delivered }
 }
 
 export async function listInvitesAction(): Promise<InviteSummary[]> {
@@ -178,7 +229,7 @@ export async function validateInviteAction(token: string): Promise<InviteValidat
 
 export async function acceptInviteAction(
   token: string,
-  input: { password: string; confirmPassword: string; businessName?: string },
+  input: { password: string; confirmPassword: string; businessName?: string; displayName: string },
 ): Promise<AcceptInviteResult> {
   const parsed = setPasswordSchema.safeParse(input)
   if (!parsed.success) {
@@ -193,6 +244,7 @@ export async function acceptInviteAction(
       body: JSON.stringify({
         password: parsed.data.password,
         businessName: parsed.data.businessName,
+        displayName: parsed.data.displayName,
       }),
       cache: 'no-store',
     })

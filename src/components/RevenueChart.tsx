@@ -44,10 +44,10 @@ export function RevenueChart({ points, currency, bucket, ariaLabel }: Props) {
               rx={2}
               className="revenue-chart__bar"
             >
-              <title>
-                {formatBucketLabel(point.bucketStart, bucket)} —{' '}
-                {formatMoney(point.netRevenueCents, currency)}
-              </title>
+              {/* One expression, not three children: SSR and hydration disagree about the
+                  whitespace between adjacent text nodes inside an SVG <title>, and the
+                  mismatch made the whole dashboard tree re-render on the client. */}
+              <title>{`${formatBucketLabel(point.bucketStart, bucket)} — ${formatMoney(point.netRevenueCents, currency)}`}</title>
             </rect>
           )
         })}

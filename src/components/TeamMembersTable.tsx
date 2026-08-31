@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import { Badge } from '@spark/ui'
 import type { BadgeVariant } from '@spark/ui'
-import { ORG_PERMISSIONS } from '@spark/types'
+import { ORG_PERMISSIONS, isStaffGrantableScope } from '@spark/types'
 import { TeamChangeRoleButton } from './TeamChangeRoleButton'
 import { TeamMemberScopesButton } from './TeamMemberScopesButton'
 import { TeamRemoveMemberButton } from './TeamRemoveMemberButton'
@@ -24,7 +24,10 @@ const dateFmt = new Intl.DateTimeFormat('en-GB', {
   year: 'numeric',
 })
 
-const TOTAL_SCOPES = ORG_PERMISSIONS.length
+// The denominator a staff member is actually measured against. ORG_PERMISSIONS.length would
+// count the scopes no staff-reachable route honours, so a fully-privileged attendant would
+// read as "5 of 10" and look half-configured for ever.
+const TOTAL_SCOPES = ORG_PERMISSIONS.filter(isStaffGrantableScope).length
 
 export async function TeamMembersTable({ operatorId, members, currentUserId }: Props) {
   const t = await getTranslations('team')

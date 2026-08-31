@@ -44,6 +44,21 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
               <Link href="/login">{t('goToLogin')}</Link>
             </p>
           </>
+        ) : result.data.alreadyAccepted ? (
+          // A redeemed link is not a dead one: the account exists, so the person is one
+          // click from where they were going. Telling them it "expired" sent them back to
+          // the admin for a replacement invite they do not need.
+          <>
+            <h1 id="accept-invite-title" className="h-heading auth-card__title">
+              {t('alreadyAcceptedTitle')}
+            </h1>
+            <p className="auth-alert" role="alert">
+              {t('alreadyAcceptedMessage')}
+            </p>
+            <p className="auth-card__forgot">
+              <Link href="/login">{t('goToLogin')}</Link>
+            </p>
+          </>
         ) : result.data.expired ? (
           <>
             <h1 id="accept-invite-title" className="h-heading auth-card__title">
@@ -51,6 +66,12 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
             </h1>
             <p className="auth-alert" role="alert">
               {t('expiredMessage')}
+            </p>
+            {/* The invalid-link branch has always offered this; a lapsed link needs it just
+                as much, since signing in is the right move for anyone who already accepted
+                an earlier one. */}
+            <p className="auth-card__forgot">
+              <Link href="/login">{t('goToLogin')}</Link>
             </p>
           </>
         ) : (
@@ -67,7 +88,10 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
                     email: result.data.email,
                   })}
             </p>
-            <SetPasswordForm token={token} requiresBusinessName={result.data.kind === 'ONBOARDING'} />
+            <SetPasswordForm
+              token={token}
+              requiresBusinessName={result.data.kind === 'ONBOARDING'}
+            />
           </>
         )}
       </section>

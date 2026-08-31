@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
 import { signInAction } from '@/lib/auth-actions'
@@ -12,6 +12,11 @@ const INITIAL_STATE: LoginState = { error: null }
 
 export function LoginForm({ from }: { from?: string }) {
   const t = useTranslations('login')
+  // React 19 resets an uncontrolled form once its action resolves, so a wrong password
+  // used to wipe the address too and make the retry a full re-type. Controlling the email
+  // keeps it; the password is deliberately left uncontrolled, since clearing that one on a
+  // failed sign-in is the behaviour people expect.
+  const [email, setEmail] = useState('')
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: LoginState, formData: FormData): Promise<LoginState> => {
@@ -55,6 +60,8 @@ export function LoginForm({ from }: { from?: string }) {
           name="email"
           placeholder="admin@centralpark.gr"
           autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
           required
           disabled={isPending}
           aria-invalid={state.error ? true : undefined}

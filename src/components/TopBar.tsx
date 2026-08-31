@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Bell, Search } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { SignOutButton } from '@/components/SignOutButton'
@@ -53,18 +54,18 @@ export async function TopBar({ user }: { user: AuthUser }) {
           <span className="topbar__bell-dot" aria-hidden="true" />
         </button>
         <span className="topbar__divider" aria-hidden="true" />
-        <span className="topbar__identity">
-          <span className="topbar__name">{name}</span>
-          <span className="topbar__role">{ROLE_LABELS[user.role]}</span>
-        </span>
-        <span
-          className="topbar__avatar"
-          data-tooltip={user.email}
-          tabIndex={0}
-          aria-label={t('signedInAs', { name })}
-        >
-          {initials(name)}
-        </span>
+        {/* The identity chip is where someone looks for "that is not my name" — so it is
+            the link to the page that fixes it, rather than a nav item competing with the
+            operator's actual work. */}
+        <Link href="/dashboard/profile" className="topbar__account" data-tooltip={user.email}>
+          <span className="topbar__identity">
+            <span className="topbar__name">{name}</span>
+            <span className="topbar__role">{ROLE_LABELS[user.role]}</span>
+          </span>
+          <span className="topbar__avatar" aria-label={t('signedInAs', { name })}>
+            {initials(name)}
+          </span>
+        </Link>
         <SignOutButton />
       </div>
     </header>

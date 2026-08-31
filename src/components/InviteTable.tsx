@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import { Badge } from '@spark/ui'
 import type { BadgeVariant } from '@spark/ui'
+import { ResendInviteButton } from './ResendInviteButton'
 import { RevokeInviteButton } from './RevokeInviteButton'
 import type { InviteStatus, InviteSummary } from '@/lib/invite-actions'
 
@@ -53,7 +54,10 @@ export async function InviteTable({ items }: Props) {
                 <td className="text-secondary">{dateFmt.format(new Date(item.createdAt))}</td>
                 <td>
                   {item.status === 'PENDING' ? (
-                    <RevokeInviteButton id={item.id} />
+                    <div className="invite-actions">
+                      <ResendInviteButton id={item.id} />
+                      <RevokeInviteButton id={item.id} />
+                    </div>
                   ) : (
                     <span className="text-secondary">—</span>
                   )}
