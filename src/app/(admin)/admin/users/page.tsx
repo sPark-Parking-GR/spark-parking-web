@@ -27,10 +27,14 @@ function parseRole(value: string | undefined): IdentityRole | undefined {
   return IDENTITY_ROLES.includes(value as IdentityRole) ? (value as IdentityRole) : undefined
 }
 
+const DEFAULT_LIFECYCLE_STATUS: IdentityLifecycleStatus = 'ACTIVE'
+
 function parseLifecycleStatus(value: string | undefined): IdentityLifecycleStatus | undefined {
+  if (value === undefined) return DEFAULT_LIFECYCLE_STATUS
+  if (value === 'ALL') return undefined
   return IDENTITY_LIFECYCLE_STATUSES.includes(value as IdentityLifecycleStatus)
     ? (value as IdentityLifecycleStatus)
-    : undefined
+    : DEFAULT_LIFECYCLE_STATUS
 }
 
 export default async function AdminUsersPage({ searchParams }: PageProps) {
@@ -62,10 +66,11 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
     loadFailed = true
   }
 
+  const lifecycleStatusParam = params.lifecycleStatus ?? DEFAULT_LIFECYCLE_STATUS
   const buildHref = (nextSkip: number) =>
-    buildQuery('/admin/users', { q, role, lifecycleStatus, skip: nextSkip })
+    buildQuery('/admin/users', { q, role, lifecycleStatus: lifecycleStatusParam, skip: nextSkip })
 
-  const hasFilters = Boolean(q || role || lifecycleStatus)
+  const hasFilters = Boolean(q || role || params.lifecycleStatus)
 
   return (
     <>

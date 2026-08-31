@@ -40,10 +40,10 @@ export function UsersFilters() {
       <select
         className="input filter-bar__select"
         aria-label={t('filters.statusAria')}
-        value={searchParams.get('lifecycleStatus') ?? ''}
+        value={searchParams.get('lifecycleStatus') ?? 'ACTIVE'}
         onChange={(e) => setParam('lifecycleStatus', e.target.value)}
       >
-        <option value="">{t('filters.anyStatus')}</option>
+        <option value="ALL">{t('filters.anyStatus')}</option>
         {IDENTITY_LIFECYCLE_STATUSES.map((status) => (
           <option key={status} value={status}>
             {t(`status.${status}`)}
