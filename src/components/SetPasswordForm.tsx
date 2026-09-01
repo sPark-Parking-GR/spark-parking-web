@@ -15,9 +15,14 @@ const INITIAL_STATE: SetPasswordState = { error: null }
 export function SetPasswordForm({
   token,
   requiresBusinessName = false,
+  requiresExistingPassword = false,
 }: {
   token: string
   requiresBusinessName?: boolean
+  // True when this address already has a mobile-only sPark account: accepting attaches
+  // this invite to it instead of creating a new one, so the form collects the EXISTING
+  // password (verified by sign-in) rather than letting the person choose a new one.
+  requiresExistingPassword?: boolean
 }) {
   const t = useTranslations('acceptInvite')
   // React 19 resets an uncontrolled form once its action resolves, which meant a mistyped
@@ -31,12 +36,15 @@ export function SetPasswordForm({
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: SetPasswordState, formData: FormData): Promise<SetPasswordState> => {
+      // An existing password is verified by sign-in server-side, not chosen here — no
+      // strength floor and no confirmation field to match against.
+      const passwordField = requiresExistingPassword
+        ? z.string().min(1, t('passwordRequired'))
+        : z.string().min(PASSWORD_MIN, t('passwordTooShort')).max(PASSWORD_MAX, t('passwordTooLong'))
+
       const passwordSchema = z
         .object({
-          password: z
-            .string()
-            .min(PASSWORD_MIN, t('passwordTooShort'))
-            .max(PASSWORD_MAX, t('passwordTooLong')),
+          password: passwordField,
           confirmPassword: z.string(),
           businessName: requiresBusinessName
             ? z.string().trim().min(1, t('businessNameRequired')).max(200, t('businessNameTooLong'))
@@ -49,14 +57,16 @@ export function SetPasswordForm({
             .min(1, t('yourNameRequired'))
             .max(120, t('yourNameTooLong')),
         })
-        .refine((data) => data.password === data.confirmPassword, {
+        .refine((data) => requiresExistingPassword || data.password === data.confirmPassword, {
           message: t('passwordsMismatch'),
           path: ['confirmPassword'],
         })
 
+      const password = formData.get('password')
       const parsed = passwordSchema.safeParse({
-        password: formData.get('password'),
-        confirmPassword: formData.get('confirmPassword'),
+        password,
+        // No confirmation field is rendered for an existing password — nothing to mismatch.
+        confirmPassword: requiresExistingPassword ? password : formData.get('confirmPassword'),
         businessName: formData.get('businessName') ?? undefined,
         displayName: formData.get('displayName'),
       })
@@ -111,38 +121,46 @@ export function SetPasswordForm({
       ) : null}
 
       <label className="field">
-        <span className="field__label">{t('passwordLabel')}</span>
+        <span className="field__label">
+          {requiresExistingPassword ? t('existingPasswordLabel') : t('passwordLabel')}
+        </span>
         <input
           className="input"
           type="password"
           name="password"
           placeholder="••••••••"
-          autoComplete="new-password"
+          autoComplete={requiresExistingPassword ? 'current-password' : 'new-password'}
           required
           disabled={isPending}
           aria-invalid={state.error ? true : undefined}
           onChange={(event) => setPassword(event.target.value)}
-          aria-describedby="accept-password-hint"
+          aria-describedby={requiresExistingPassword ? undefined : 'accept-password-hint'}
         />
-        <p id="accept-password-hint" className="field__hint">
-          {tPassword('hint', { min: PASSWORD_MIN })}
-        </p>
-        <PasswordStrengthMeter password={password} />
+        {requiresExistingPassword ? null : (
+          <>
+            <p id="accept-password-hint" className="field__hint">
+              {tPassword('hint', { min: PASSWORD_MIN })}
+            </p>
+            <PasswordStrengthMeter password={password} />
+          </>
+        )}
       </label>
 
-      <label className="field">
-        <span className="field__label">{t('confirmPasswordLabel')}</span>
-        <input
-          className="input"
-          type="password"
-          name="confirmPassword"
-          placeholder="••••••••"
-          autoComplete="new-password"
-          required
-          disabled={isPending}
-          aria-invalid={state.error ? true : undefined}
-        />
-      </label>
+      {requiresExistingPassword ? null : (
+        <label className="field">
+          <span className="field__label">{t('confirmPasswordLabel')}</span>
+          <input
+            className="input"
+            type="password"
+            name="confirmPassword"
+            placeholder="••••••••"
+            autoComplete="new-password"
+            required
+            disabled={isPending}
+            aria-invalid={state.error ? true : undefined}
+          />
+        </label>
+      )}
 
       {state.error ? (
         <p className="auth-alert" role="alert">

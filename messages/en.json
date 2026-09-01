@@ -85,6 +85,7 @@
     "credentialsInvalid": "Enter a valid email and password.",
     "forgot": "Forgot password?",
     "resetSuccess": "Password updated. Sign in with your new password.",
+    "accountLinked": "Invite accepted. Sign in with your existing password to continue.",
     "invalidCredentials": "Invalid email or password.",
     "signInFailed": "Unable to sign in right now. Please try again.",
     "notAuthorized": "This account is not authorized to access the dashboard."
@@ -147,7 +148,10 @@
     "alreadyAcceptedMessage": "This invite has already been set up. Sign in with the email it was sent to.",
     "yourNameLabel": "Your name",
     "yourNameRequired": "Enter your name.",
-    "yourNameTooLong": "Name must be at most 120 characters."
+    "yourNameTooLong": "Name must be at most 120 characters.",
+    "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
+    "existingPasswordLabel": "Existing password",
+    "passwordRequired": "Enter your password."
   },
   "onboarding": {
     "title": "Onboard Operators",

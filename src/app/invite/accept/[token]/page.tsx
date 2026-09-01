@@ -88,9 +88,13 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
                     email: result.data.email,
                   })}
             </p>
+            {result.data.requiresExistingPassword ? (
+              <p className="auth-card__context">{t('linkedAccountNotice')}</p>
+            ) : null}
             <SetPasswordForm
               token={token}
               requiresBusinessName={result.data.kind === 'ONBOARDING'}
+              requiresExistingPassword={result.data.requiresExistingPassword}
             />
           </>
         )}

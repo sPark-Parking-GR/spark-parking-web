@@ -38,6 +38,10 @@ export interface InviteValidation {
   kind: InviteKind
   expired: boolean
   alreadyAccepted: boolean
+  // True when this address already has a mobile-only sPark account: accepting attaches
+  // this invite to it instead of creating a new one, so the accept form must collect the
+  // EXISTING password rather than let the person choose a new one.
+  requiresExistingPassword: boolean
 }
 
 export type InviteValidationResult =
@@ -277,7 +281,17 @@ export async function acceptInviteAction(
     return { ok: false, errorKey: 'somethingWentWrong' }
   }
 
-  const result = (await response.json()) as AuthResult
+  const result = (await response.json()) as AuthResult | { linked: true }
+
+  if ('linked' in result) {
+    // The account existed before this request (a mobile-only sign-up) and was attached to
+    // the new operator role, not created — no session is minted for it here (see
+    // invite.service.ts#accept): a token issued in the same instant as the role's
+    // revocation-watermark bump risks landing in the same whole second and being dead on
+    // arrival. The person just proved they know this password; they sign in with it.
+    redirect('/login?linked=success')
+  }
+
   await establishSessions({
     accessToken: result.session.accessToken,
     refreshToken: result.session.refreshToken,

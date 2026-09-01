@@ -9,11 +9,12 @@ interface LoginPageProps {
     from?: string
     error?: 'forbidden' | 'restricted'
     reset?: 'success'
+    linked?: 'success'
   }>
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { from, error, reset } = await searchParams
+  const { from, error, reset, linked } = await searchParams
   const t = await getTranslations('login')
 
   return (
@@ -51,6 +52,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         {reset === 'success' ? (
           <p className="auth-card__context" role="status">
             {t('resetSuccess')}
+          </p>
+        ) : null}
+        {linked === 'success' ? (
+          <p className="auth-card__context" role="status">
+            {t('accountLinked')}
           </p>
         ) : null}
 
