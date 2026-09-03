@@ -64,7 +64,13 @@ export default async function AcceptAdminInvitePage({ params }: AcceptAdminInvit
                 b: (chunks) => <strong>{chunks}</strong>,
               })}
             </p>
-            <SetAdminPasswordForm token={token} />
+            {result.data.requiresExistingPassword ? (
+              <p className="auth-card__context">{t('linkedAccountNotice')}</p>
+            ) : null}
+            <SetAdminPasswordForm
+              token={token}
+              requiresExistingPassword={result.data.requiresExistingPassword}
+            />
           </>
         )}
       </section>

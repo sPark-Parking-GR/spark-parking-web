@@ -86,6 +86,8 @@
     "forgot": "Forgot password?",
     "resetSuccess": "Password updated. Sign in with your new password.",
     "accountLinked": "Invite accepted. Sign in with your existing password to continue.",
+    "newOperator": "New operator?",
+    "registerLink": "Register your business",
     "invalidCredentials": "Invalid email or password.",
     "signInFailed": "Unable to sign in right now. Please try again.",
     "notAuthorized": "This account is not authorized to access the dashboard."
@@ -152,6 +154,34 @@
     "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
     "existingPasswordLabel": "Existing password",
     "passwordRequired": "Enter your password."
+  },
+  "registerOperator": {
+    "tagline": "Make Parking Smart",
+    "title": "Register your business",
+    "subtitle": "Set up your operator account and start publishing facilities on sPark.",
+    "emailLabel": "Email",
+    "businessNameLabel": "Business name",
+    "yourNameLabel": "Your name",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm password",
+    "submit": "Register",
+    "submitting": "Registering…",
+    "goToLogin": "Go to sign in",
+    "disabledTitle": "Registration is by invitation only",
+    "disabledMessage": "sPark is not open for public operator registration yet. Ask an existing administrator for an invitation.",
+    "emailInvalid": "Enter a valid email address.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooLong": "Password must be at most 128 characters.",
+    "passwordsMismatch": "Passwords do not match.",
+    "businessNameRequired": "Business name is required.",
+    "businessNameTooLong": "Business name must be at most 200 characters.",
+    "yourNameRequired": "Enter your name.",
+    "yourNameTooLong": "Name must be at most 120 characters.",
+    "genericError": "Enter valid details.",
+    "emailTaken": "This email address already has a sPark account. Sign in instead.",
+    "disabled": "sPark is not open for public operator registration right now.",
+    "unreachable": "Unable to reach the server right now. Please try again.",
+    "somethingWentWrong": "Something went wrong. Please try again."
   },
   "onboarding": {
     "title": "Onboard Operators",
@@ -402,7 +432,10 @@
       "expired": "This invite has expired. Ask a platform administrator to send a new one.",
       "invalidLink": "This invite link is invalid.",
       "unreachable": "Unable to reach the server right now. Please try again.",
-      "somethingWentWrong": "Something went wrong. Please try again."
+      "somethingWentWrong": "Something went wrong. Please try again.",
+      "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
+      "existingPasswordLabel": "Existing password",
+      "passwordRequired": "Enter your password."
     }
   },
   "overview": {

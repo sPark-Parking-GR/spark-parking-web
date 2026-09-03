@@ -233,7 +233,17 @@ export async function acceptAdminInviteAction(
     return { ok: false, errorKey: 'somethingWentWrong' }
   }
 
-  const result = (await response.json()) as AuthResult
+  const result = (await response.json()) as AuthResult | { linked: true }
+
+  if ('linked' in result) {
+    // The account existed before this request (a mobile-only sign-up) and was attached to
+    // the platform_admin role, not created — no session is minted for it here (see
+    // admin-invite.service.ts#accept): a token issued in the same instant as the role's
+    // revocation-watermark bump risks landing in the same whole second and being dead on
+    // arrival. The person just proved they know this password; they sign in with it.
+    redirect('/login?linked=success')
+  }
+
   await establishSessions({
     accessToken: result.session.accessToken,
     refreshToken: result.session.refreshToken,

@@ -95,6 +95,9 @@ export function LoginForm({ from }: { from?: string }) {
       <p className="auth-card__forgot">
         <Link href="/forgot-password">{t('forgot')}</Link>
       </p>
+      <p className="auth-card__forgot">
+        {t('newOperator')} <Link href="/register">{t('registerLink')}</Link>
+      </p>
     </form>
   )
 }
