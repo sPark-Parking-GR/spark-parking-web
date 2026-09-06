@@ -387,7 +387,7 @@ option {
     box-shadow var(--dur) var(--ease);
 }
 
-.input:hover:not(:disabled):not(:focus) {
+.input:hover:not(:disabled):not([readonly]):not(:focus) {
   border-color: var(--muted);
 }
 
@@ -397,10 +397,11 @@ option {
   box-shadow: 0 0 0 3px var(--priSoft);
 }
 
-.input:disabled {
-  opacity: 0.55;
+.input:disabled,
+.input[readonly] {
+  background: var(--card2);
+  color: var(--muted);
   cursor: not-allowed;
-  background: var(--bg);
 }
 
 .input--error {
@@ -3687,7 +3688,7 @@ td.table-amount {
 
 .table-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--space-xs);
 }

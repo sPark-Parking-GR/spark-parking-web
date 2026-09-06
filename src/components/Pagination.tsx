@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { getFormatter } from 'next-intl/server'
 
 interface Props {
   skip: number
@@ -9,9 +10,10 @@ interface Props {
   sticky?: boolean
 }
 
-export function Pagination({ skip, take, total, buildHref, sticky = false }: Props) {
+export async function Pagination({ skip, take, total, buildHref, sticky = false }: Props) {
   if (total <= take) return null
 
+  const format = await getFormatter()
   const hasPrev = skip > 0
   const hasNext = skip + take < total
   const from = total === 0 ? 0 : skip + 1
@@ -52,7 +54,7 @@ export function Pagination({ skip, take, total, buildHref, sticky = false }: Pro
           </span>
         )}
         <span className="pagination__info text-secondary">
-          {from}–{to} of {total}
+          {format.number(from)}–{format.number(to)} of {format.number(total)}
         </span>
         {hasNext ? (
           <Link href={buildHref(skip + take)} className="btn btn--secondary pagination__btn">

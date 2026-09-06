@@ -23,6 +23,6 @@ export function formatBucketLabel(iso: string, bucket: RevenueBucket): string {
   return bucket === 'month' ? monthLabelFmt.format(date) : dayLabelFmt.format(date)
 }
 
-export function formatHours(minutes: number): string {
-  return `${Math.round(minutes / 60)}h`
+export function formatHours(minutes: number, formatNumber: (value: number) => string): string {
+  return `${formatNumber(Math.round(minutes / 60))}h`
 }

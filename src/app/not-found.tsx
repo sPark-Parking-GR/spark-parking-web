@@ -13,19 +13,21 @@ export default async function NotFound() {
   const t = await getTranslations('notFound')
 
   return (
-    <div className="auth-stack">
-      <section className="auth-card" aria-labelledby="not-found-title">
-        <span className="not-found__mark">
-          <SparkMark size={40} gradientId="spark-not-found-grad" />
-        </span>
-        <h1 id="not-found-title" className="h-heading auth-card__title">
-          {t('title')}
-        </h1>
-        <p className="auth-card__context">{t('message')}</p>
-        <p className="auth-card__forgot">
-          <Link href="/dashboard">{t('backToDashboard')}</Link>
-        </p>
-      </section>
-    </div>
+    <main className="auth-shell">
+      <div className="auth-stack">
+        <section className="auth-card" aria-labelledby="not-found-title">
+          <span className="not-found__mark">
+            <SparkMark size={40} gradientId="spark-not-found-grad" />
+          </span>
+          <h1 id="not-found-title" className="h-heading auth-card__title">
+            {t('title')}
+          </h1>
+          <p className="auth-card__context">{t('message')}</p>
+          <p className="auth-card__forgot">
+            <Link href="/dashboard">{t('backToDashboard')}</Link>
+          </p>
+        </section>
+      </div>
+    </main>
   )
 }

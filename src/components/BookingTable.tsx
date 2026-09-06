@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { BookingActionButton } from './BookingActionButton'
 import { BookingStatusBadge } from './BookingStatusBadge'
 import { STATUS_BADGE, formatBookingDate, formatMoney, titleCase } from '@/lib/booking-format'
+import { maskAccessCode } from '@/lib/access-code'
 import type { BookingListItem } from '@/lib/booking-api'
 
 interface Props {
@@ -35,7 +36,7 @@ export async function BookingTable({ items, basePath = '/dashboard/bookings' }: 
               <tr key={item.id}>
                 <td>
                   <Link href={`${basePath}/${item.id}`} className="table-link mono table-code">
-                    {item.accessCode}
+                    {maskAccessCode(item.accessCode)}
                   </Link>
                 </td>
                 <td className="table-facility">{item.facility.name}</td>

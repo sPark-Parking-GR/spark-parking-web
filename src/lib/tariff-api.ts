@@ -1,6 +1,9 @@
 import { apiFetch } from './api'
 import type { ManagersResponse } from './api'
 import type { VehicleType } from '@spark/types'
+import type { LifecycleItemStatus } from './lifecycle-constants'
+
+export type TariffPlanLifecycleStatus = 'ACTIVE' | LifecycleItemStatus
 
 export type TariffUnit = 'per_minute' | 'per_block' | 'flat'
 export type CapScope = 'stay' | 'rolling'
@@ -58,6 +61,7 @@ export interface TariffPlanListItem {
   name: string
   isActive: boolean
   isDefault: boolean
+  lifecycleStatus: TariffPlanLifecycleStatus
   validFrom: string | null
   validTo: string | null
   vehicleTypes: VehicleType[]

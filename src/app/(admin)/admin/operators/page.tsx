@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
+import { getFormatter, getTranslations } from 'next-intl/server'
 import { AlertCircle, Ban, Building2, CheckCircle2, Clock } from 'lucide-react'
 import { hasPlatformPermission } from '@spark/types'
 import { PageHeader } from '@/components/PageHeader'
@@ -19,6 +19,7 @@ export default async function AdminOperatorsPage() {
   const canWrite = hasPlatformPermission(session.user.role, 'platform:tenant.write')
 
   const t = await getTranslations('onboarding')
+  const format = await getFormatter()
 
   let operators: OperatorSummary[] | null = null
   let loadFailed = false
@@ -50,28 +51,28 @@ export default async function AdminOperatorsPage() {
           <div className="stat-grid">
             <StatCard
               label={t('operators.stats.total')}
-              value={String(operators.length)}
+              value={format.number(operators.length)}
               icon={Building2}
               tone="primary"
               index={0}
             />
             <StatCard
               label={t('operators.stats.verified')}
-              value={String(counts.verified)}
+              value={format.number(counts.verified)}
               icon={CheckCircle2}
               tone="success"
               index={1}
             />
             <StatCard
               label={t('operators.stats.pending')}
-              value={String(counts.pending)}
+              value={format.number(counts.pending)}
               icon={Clock}
               tone="warning"
               index={2}
             />
             <StatCard
               label={t('operators.stats.suspended')}
-              value={String(counts.suspended)}
+              value={format.number(counts.suspended)}
               icon={Ban}
               tone="error"
               index={3}

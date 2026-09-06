@@ -18,6 +18,10 @@ function initials(name: string): string {
 export async function TopBar({ user }: { user: AuthUser }) {
   const t = await getTranslations('shell')
   const name = user.displayName ?? user.email
+  const subtitle =
+    user.role === 'platform_admin' || user.role === 'super_admin'
+      ? t('subtitlePlatform')
+      : t('subtitleOperator')
 
   const ROLE_LABELS: Record<AuthUser['role'], string> = {
     guest: t('roleGuest'),
@@ -32,7 +36,7 @@ export async function TopBar({ user }: { user: AuthUser }) {
     <header className="topbar">
       <span className="topbar__titles">
         <span className="topbar__title h-heading">{t('title')}</span>
-        <span className="topbar__subtitle">{t('subtitle')}</span>
+        <span className="topbar__subtitle">{subtitle}</span>
       </span>
       <div className="topbar__user">
         <div className="topbar__controls">

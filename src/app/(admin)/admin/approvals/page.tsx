@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, ShieldCheck } from 'lucide-react'
 import { hasPlatformPermission } from '@spark/types'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
@@ -40,7 +40,7 @@ export default async function ApprovalsPage() {
       ) : approvals && approvals.items.length > 0 ? (
         <ApprovalsTable items={approvals.items} currentUserId={session.user.id} />
       ) : (
-        <EmptyState title={t('empty.title')} message={t('empty.message')} />
+        <EmptyState title={t('empty.title')} message={t('empty.message')} icon={ShieldCheck} />
       )}
     </>
   )

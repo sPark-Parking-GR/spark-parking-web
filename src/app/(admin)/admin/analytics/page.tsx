@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
-import { CalendarCheck, Gauge, Wallet, AlertCircle } from 'lucide-react'
+import { getFormatter, getTranslations } from 'next-intl/server'
+import { Building2, CalendarCheck, Gauge, Wallet, AlertCircle } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
 import { EmptyState } from '@/components/EmptyState'
@@ -31,6 +31,7 @@ interface PageProps {
 export default async function AnalyticsPage({ searchParams }: PageProps) {
   await requireSession()
   const t = await getTranslations('insights.analytics')
+  const format = await getFormatter()
 
   const params = await searchParams
   const preset = parseRangePreset(params.range)
@@ -86,7 +87,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
         />
         <StatCard
           label={t('stats.bookings.label')}
-          value={summary ? String(summary.bookingCount) : '—'}
+          value={summary ? format.number(summary.bookingCount) : '—'}
           hint={t('stats.bookings.hint')}
           icon={CalendarCheck}
           tone="primary"
@@ -145,6 +146,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                 <EmptyState
                   title={t('topFacilitiesPanel.emptyTitle')}
                   message={t('topFacilitiesPanel.emptyMessage')}
+                  icon={Building2}
                 />
               ))}
           </div>

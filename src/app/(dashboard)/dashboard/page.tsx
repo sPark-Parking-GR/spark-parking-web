@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
-import { Building2, CalendarCheck, Gauge, Gem, Wallet, AlertCircle } from 'lucide-react'
+import { getFormatter, getTranslations } from 'next-intl/server'
+import { Building2, CalendarCheck, CalendarClock, Gauge, Gem, Wallet, AlertCircle } from 'lucide-react'
 import { ProgressBar } from '@spark/ui'
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
@@ -34,6 +34,7 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
   const session = await requireSession()
   const t = await getTranslations('overview')
   const tBilling = await getTranslations('billing')
+  const format = await getFormatter()
   const bookingsHref = isPlatformRole(session.user.role) ? '/admin/bookings' : '/dashboard/bookings'
 
   // Owner-only: /operator-subscriptions/me refuses a STAFF caller, and staff have no
@@ -85,7 +86,7 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
       <div className="stat-grid">
         <StatCard
           label={t('stats.facilities.label')}
-          value={String(facilities.total)}
+          value={format.number(facilities.total)}
           hint={t('stats.facilities.hint')}
           icon={Building2}
           tone="primary"
@@ -93,7 +94,7 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
         />
         <StatCard
           label={t('stats.activeBookings.label')}
-          value={String(activeBookings.total)}
+          value={format.number(activeBookings.total)}
           hint={t('stats.activeBookings.hint')}
           icon={CalendarCheck}
           tone="success"
@@ -187,8 +188,8 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
                 <ProgressBar pct={Math.round(summary.occupancy.ratio * 100)} />
                 <p className="text-secondary occupancy-summary__detail">
                   {t('occupancyPanel.detail', {
-                    booked: formatHours(summary.occupancy.bookedSlotMinutes),
-                    capacity: formatHours(summary.occupancy.capacitySlotMinutes),
+                    booked: formatHours(summary.occupancy.bookedSlotMinutes, format.number),
+                    capacity: formatHours(summary.occupancy.capacitySlotMinutes, format.number),
                   })}
                 </p>
               </div>
@@ -217,6 +218,7 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
             <EmptyState
               title={t('recentBookings.emptyTitle')}
               message={t('recentBookings.emptyMessage')}
+              icon={CalendarClock}
             />
           ) : (
             <BookingTable items={recentBookings.items} basePath={bookingsHref} />

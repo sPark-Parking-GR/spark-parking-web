@@ -156,6 +156,9 @@ function humanize(action: string): string {
   return action.replace(/[._]/g, ' ')
 }
 
+/** Every action the filter dropdown can offer, in the same order as ACTION_META above. */
+export const AUDIT_ACTIONS: string[] = Object.keys(ACTION_META)
+
 export function actionLabel(t: Translator, action: string): string {
   const meta = ACTION_META[action]
   return meta ? t(`actions.${meta.key}`) : humanize(action)

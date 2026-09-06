@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { Archive, ArchiveRestore, Trash2 } from 'lucide-react'
+import { Archive, Trash2 } from 'lucide-react'
 import { Badge } from '@spark/ui'
 import { LifecycleActionButton } from './LifecycleActionButton'
 import type { TariffPlanListItem } from '@/lib/tariff-api'
@@ -80,30 +80,18 @@ export async function TariffPlanTable({
               <td className="text-secondary">{dateFmt.format(new Date(item.updatedAt))}</td>
               {showActions ? (
                 <td>
-                  {/* The list payload carries no lifecycle status, so all three transitions
-                      are offered and the impact preview reports the ones that do not apply. */}
                   <div className="table-actions">
-                    {canWrite ? (
-                      <>
-                        <LifecycleActionButton
-                          resourceType="tariff-plan"
-                          resourceId={item.id}
-                          resourceLabel={item.name}
-                          action="archive"
-                          icon={<Archive size={18} strokeWidth={2} aria-hidden="true" />}
-                          iconOnly
-                        />
-                        <LifecycleActionButton
-                          resourceType="tariff-plan"
-                          resourceId={item.id}
-                          resourceLabel={item.name}
-                          action="restore"
-                          icon={<ArchiveRestore size={18} strokeWidth={2} aria-hidden="true" />}
-                          iconOnly
-                        />
-                      </>
+                    {canWrite && item.lifecycleStatus === 'ACTIVE' ? (
+                      <LifecycleActionButton
+                        resourceType="tariff-plan"
+                        resourceId={item.id}
+                        resourceLabel={item.name}
+                        action="archive"
+                        icon={<Archive size={18} strokeWidth={2} aria-hidden="true" />}
+                        iconOnly
+                      />
                     ) : null}
-                    {canPurge ? (
+                    {canPurge && item.lifecycleStatus === 'ACTIVE' ? (
                       <LifecycleActionButton
                         resourceType="tariff-plan"
                         resourceId={item.id}
