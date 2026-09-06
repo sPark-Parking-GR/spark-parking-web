@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
@@ -40,6 +40,27 @@ interface Props {
 }
 
 const INITIAL_STATE: FacilityActionResult = { ok: true }
+
+function readFacilityFormRaw(form: HTMLFormElement) {
+  const fd = new FormData(form)
+  return {
+    name: fd.get('name'),
+    address: fd.get('address'),
+    lat: fd.get('lat'),
+    lng: fd.get('lng'),
+    totalCapacity: fd.get('totalCapacity'),
+    onlineQuota: fd.get('onlineQuota'),
+    vehicleTypes: fd.getAll('vehicleTypes'),
+    heightRestrictionCm: fd.get('heightRestrictionCm') || null,
+    amenities: fd.get('amenities'),
+    cancellationPolicy: fd.get('cancellationPolicy'),
+    is24h: fd.get('is24h') === 'true',
+    openTime: fd.get('openTime'),
+    closeTime: fd.get('closeTime'),
+    isActive: fd.get('isActive'),
+    operatorId: fd.get('operatorId'),
+  }
+}
 
 function SubmitButton({ mode }: { mode: 'create' | 'edit' }) {
   const t = useTranslations('facilities')
@@ -101,7 +122,9 @@ export function FacilityForm({
   const [state, formAction, isPending] = useActionState(boundAction, INITIAL_STATE)
 
   const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<string, string>>>({})
+  const formRef = useRef<HTMLFormElement>(null)
   const [name, setName] = useState(() => facility?.name ?? '')
   const [address, setAddress] = useState(() => facility?.address ?? '')
   const [totalCapacity, setTotalCapacity] = useState(() =>
@@ -138,37 +161,54 @@ export function FacilityForm({
     return Number.isFinite(n) ? n : null
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    const fd = new FormData(e.currentTarget)
-    const raw = {
-      name: fd.get('name'),
-      address: fd.get('address'),
-      lat: fd.get('lat'),
-      lng: fd.get('lng'),
-      totalCapacity: fd.get('totalCapacity'),
-      onlineQuota: fd.get('onlineQuota'),
-      vehicleTypes: fd.getAll('vehicleTypes'),
-      heightRestrictionCm: fd.get('heightRestrictionCm') || null,
-      amenities: fd.get('amenities'),
-      cancellationPolicy: fd.get('cancellationPolicy'),
-      is24h: fd.get('is24h') === 'true',
-      openTime: fd.get('openTime'),
-      closeTime: fd.get('closeTime'),
-      isActive: fd.get('isActive'),
-      operatorId: fd.get('operatorId'),
-    }
-    const result = buildFacilityFormSchema(isBusiness).safeParse(raw)
-    if (!result.success) {
-      e.preventDefault()
-      const errors: Partial<Record<string, string>> = {}
-      for (const issue of result.error.issues) {
-        const key = String(issue.path[0] ?? '')
-        if (key && !errors[key]) errors[key] = issue.message
+  const validate = useCallback(
+    (form: HTMLFormElement) => {
+      const raw = readFacilityFormRaw(form)
+      const result = buildFacilityFormSchema(isBusiness).safeParse(raw)
+      if (!result.success) {
+        const errors: Partial<Record<string, string>> = {}
+        for (const issue of result.error.issues) {
+          const key = String(issue.path[0] ?? '')
+          if (key && !errors[key]) errors[key] = issue.message
+        }
+        setFieldErrors(errors)
+        return false
       }
-      setFieldErrors(errors)
+      setFieldErrors({})
+      return true
+    },
+    [isBusiness],
+  )
+
+  useEffect(() => {
+    if (!attemptedSubmit || !formRef.current) return
+    validate(formRef.current)
+  }, [
+    attemptedSubmit,
+    validate,
+    name,
+    address,
+    lat,
+    lng,
+    totalCapacity,
+    onlineQuota,
+    heightRestrictionCm,
+    amenities,
+    cancellationPolicy,
+    operatorId,
+    vehicleTypes,
+    is24h,
+    openTime,
+    closeTime,
+    kind,
+  ])
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setAttemptedSubmit(true)
+    if (!validate(e.currentTarget)) {
+      e.preventDefault()
       return
     }
-    setFieldErrors({})
     setHasSubmitted(true)
   }
 
@@ -184,7 +224,13 @@ export function FacilityForm({
 
   return (
     <div className="facility-form-layout">
-      <form action={formAction} onSubmit={handleSubmit} noValidate className="facility-form-card">
+      <form
+        ref={formRef}
+        action={formAction}
+        onSubmit={handleSubmit}
+        noValidate
+        className="facility-form-card"
+      >
         {state && !state.ok ? (
           <p className="form-banner form-banner--error" role="alert">
             <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
