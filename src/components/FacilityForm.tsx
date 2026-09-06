@@ -345,18 +345,24 @@ export function FacilityForm({
             </div>
 
             <div className="field">
-              <span className="field__label">{t('form.vehicleTypesLabel')}</span>
+              <span className="field__label" id="vehicleTypes-label">
+                {t('form.vehicleTypesLabel')}
+              </span>
               <MultiSelectControl
                 options={vehicleOptions}
                 value={vehicleTypes}
                 onChange={setVehicleTypes}
                 disabled={isPending}
+                labelledBy="vehicleTypes-label"
+                describedBy={fieldError('vehicleTypes') ? 'vehicleTypes-error' : undefined}
               />
               {vehicleTypes.map((value) => (
                 <input key={value} type="hidden" name="vehicleTypes" value={value} />
               ))}
               {fieldError('vehicleTypes') ? (
-                <span className="field__error">{fieldError('vehicleTypes')}</span>
+                <span className="field__error" id="vehicleTypes-error">
+                  {fieldError('vehicleTypes')}
+                </span>
               ) : null}
             </div>
 

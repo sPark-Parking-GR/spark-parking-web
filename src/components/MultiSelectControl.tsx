@@ -13,16 +13,30 @@ interface Props {
   value: string[]
   onChange: (value: string[]) => void
   disabled?: boolean
+  labelledBy?: string
+  describedBy?: string
 }
 
-export function MultiSelectControl({ options, value, onChange, disabled }: Props) {
+export function MultiSelectControl({
+  options,
+  value,
+  onChange,
+  disabled,
+  labelledBy,
+  describedBy,
+}: Props) {
   function toggle(v: string) {
     if (disabled) return
     onChange(value.includes(v) ? value.filter((x) => x !== v) : [...value, v])
   }
 
   return (
-    <div className="segmented" role="group">
+    <div
+      className="segmented"
+      role="group"
+      aria-labelledby={labelledBy}
+      aria-describedby={describedBy}
+    >
       {options.map((option) => {
         const active = value.includes(option.value)
         const Icon = option.icon
