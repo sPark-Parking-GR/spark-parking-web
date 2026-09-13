@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { isPlatformRole } from '@spark/types'
-import { getSessionFromRequest, isDashboardRole } from './lib/session'
+import { clearLegacySessionFromRequest, getSessionFromRequest, isDashboardRole } from './lib/session'
 
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const res = NextResponse.next()
+  await clearLegacySessionFromRequest(req, res)
   const requiresPlatformAdmin = req.nextUrl.pathname.startsWith('/admin')
   const session = await getSessionFromRequest(
     req,

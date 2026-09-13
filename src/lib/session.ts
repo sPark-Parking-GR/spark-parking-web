@@ -77,7 +77,7 @@ export const adminSessionOptions: SessionOptions = {
 // The pre-split cookie every dashboard role used to share, at path `/`. Nothing issues
 // it anymore, but nothing ever cleared it from existing browsers either — clear it
 // opportunistically on every login so it stops shadowing the new admin cookie above.
-const legacySessionOptions: SessionOptions = {
+export const legacySessionOptions: SessionOptions = {
   cookieName: 'spark_admin_session',
   password: sessionPassword,
   cookieOptions: {
@@ -106,6 +106,18 @@ export function getSessionFromRequest(
   scope: SessionScope,
 ): Promise<IronSession<SessionData>> {
   return getIronSession<SessionData>(req, res, optionsByScope[scope])
+}
+
+// WHY: middleware runs on every /dashboard and /admin request, so the legacy cookie is
+// checked for presence before iron-session is even constructed — the common case (no
+// legacy cookie) stays a single cheap lookup instead of paying for a seal/unseal.
+export async function clearLegacySessionFromRequest(
+  req: NextRequest,
+  res: NextResponse,
+): Promise<void> {
+  if (!req.cookies.get(legacySessionOptions.cookieName)) return
+  const legacySession = await getIronSession<SessionData>(req, res, legacySessionOptions)
+  legacySession.destroy()
 }
 
 // WHY: the two cookies are path-scoped, so a request carries at most one of them —
@@ -169,6 +181,9 @@ export async function refreshSessionUser(
 export async function clearAllSessions(): Promise<void> {
   await clearSession('dashboard')
   await clearSession('admin')
+  const cookieStore = await cookies()
+  const legacySession = await getIronSession<SessionData>(cookieStore, legacySessionOptions)
+  legacySession.destroy()
 }
 
 export function isAuthenticated(session: IronSession<SessionData>): boolean {
