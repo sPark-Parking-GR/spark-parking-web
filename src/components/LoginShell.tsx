@@ -1,15 +1,11 @@
 'use client'
 
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
 import { useTranslations } from 'next-intl'
 
 import { LoginForm } from './LoginForm'
 import { SparkMark } from './SparkMark'
-
-// Must match the exit animation durations in globals.css (slideUpOut + fadeOutScale = 380ms).
-const EXIT_ANIMATION_DURATION_MS = 380
+import { useAuthPageExit } from '@/lib/useAuthPageExit'
 
 interface LoginShellProps {
   from?: string
@@ -22,28 +18,18 @@ interface LoginShellProps {
  * Full login-page shell as a client component so that both the auth-brand and
  * the auth-card can respond to the same `isExiting` state.
  *
- * Entrance  – brand slides down from above while card scales up (simultaneous).
- * Exit      – brand slides back up while card scales down (simultaneous), then
- *             the router navigates to the dashboard once both finish.
+ * Entrance – brand slides down from above, card fades/scales in 120ms behind it.
+ * Exit     – both push forward (zoom + blur) together, since this only fires on a
+ *            successful sign-in — not a reverse of the entrance, which would read
+ *            as retreating instead of moving through to the dashboard.
  */
 export function LoginShell({ from, error, reset, linked }: LoginShellProps) {
   const t = useTranslations('login')
-  const router = useRouter()
-  const [isExiting, setIsExiting] = useState(false)
-
-  const handleLoginSuccess = useCallback(
-    (redirectTo: string) => {
-      setIsExiting(true)
-      setTimeout(() => {
-        router.push(redirectTo)
-      }, EXIT_ANIMATION_DURATION_MS)
-    },
-    [router],
-  )
+  const { isExiting, triggerExit } = useAuthPageExit()
 
   return (
     <div className="auth-stack">
-      {/* Brand – entrance: slideDown, exit: slideUpOut */}
+      {/* Brand – entrance: slideDown, exit: fadeOutForward */}
       <div className={isExiting ? 'auth-brand auth-brand--exiting' : 'auth-brand'}>
         <span className="auth-brand__lockup">
           <SparkMark size={34} className="brand-lockup__mark" gradientId="spark-login-grad" />
@@ -59,7 +45,7 @@ export function LoginShell({ from, error, reset, linked }: LoginShellProps) {
         <p className="auth-brand__tagline">{t('tagline')}</p>
       </div>
 
-      {/* Card – entrance: fadeInScale, exit: fadeOutScale */}
+      {/* Card – entrance: fadeInScale, exit: fadeOutForward */}
       <section
         className={isExiting ? 'auth-card auth-card--exiting' : 'auth-card'}
         aria-labelledby="login-title"
@@ -89,9 +75,8 @@ export function LoginShell({ from, error, reset, linked }: LoginShellProps) {
           </p>
         ) : null}
 
-        <LoginForm from={from} onLoginSuccess={handleLoginSuccess} />
+        <LoginForm from={from} onLoginSuccess={triggerExit} />
       </section>
     </div>
   )
 }
-

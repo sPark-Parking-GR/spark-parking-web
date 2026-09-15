@@ -1,6 +1,5 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
@@ -10,12 +9,14 @@ const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/ap
 
 export type RegisterAvailabilityResult = { enabled: boolean }
 
-export type RegisterOperatorResult = {
-  ok: false
-  errorKey: string
-  detail?: string
-  loginHint?: boolean
-}
+export type RegisterOperatorResult =
+  | { ok: true; redirectTo: string }
+  | {
+      ok: false
+      errorKey: string
+      detail?: string
+      loginHint?: boolean
+    }
 
 const registerOperatorSchema = z
   .object({
@@ -98,7 +99,7 @@ export async function registerOperatorAction(input: {
     // the role's revocation-watermark bump risks landing in the same whole second and
     // being dead on arrival. The person just proved they know this password by typing it
     // correctly; they sign in with it.
-    redirect('/login?linked=success')
+    return { ok: true, redirectTo: '/login?linked=success' }
   }
 
   await establishSessions({
@@ -108,5 +109,5 @@ export async function registerOperatorAction(input: {
     user: result.session.user,
   })
 
-  redirect('/dashboard')
+  return { ok: true, redirectTo: '/dashboard' }
 }

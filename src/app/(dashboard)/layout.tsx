@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/Sidebar'
 import { TopBar } from '@/components/TopBar'
 import { TooltipLayer } from '@/components/TooltipLayer'
 import { NumberWheelGuard } from '@/components/NumberWheelGuard'
+import { PageTransitionReveal } from '@/components/PageTransitionReveal'
 import { isPlatformRole } from '@spark/types'
 import { getSession, isAuthenticated, isDashboardRole } from '@/lib/session'
 import { navForOperator, navForPlatformAdmin } from '@/lib/nav'
@@ -29,6 +30,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       </div>
       <TooltipLayer />
       <NumberWheelGuard />
+      <PageTransitionReveal />
     </div>
   )
 }

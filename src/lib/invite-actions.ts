@@ -86,12 +86,14 @@ export type ResendInviteResult =
       detail?: string
     }
 
-export type AcceptInviteResult = {
-  ok: false
-  errorKey: string
-  detail?: string
-  loginHint?: boolean
-}
+export type AcceptInviteResult =
+  | { ok: true; redirectTo: string }
+  | {
+      ok: false
+      errorKey: string
+      detail?: string
+      loginHint?: boolean
+    }
 
 const sendInviteSchema = z.object({
   email: z.string().trim().email('validation.emailInvalid'),
@@ -289,7 +291,7 @@ export async function acceptInviteAction(
     // invite.service.ts#accept): a token issued in the same instant as the role's
     // revocation-watermark bump risks landing in the same whole second and being dead on
     // arrival. The person just proved they know this password; they sign in with it.
-    redirect('/login?linked=success')
+    return { ok: true, redirectTo: '/login?linked=success' }
   }
 
   await establishSessions({
@@ -299,5 +301,5 @@ export async function acceptInviteAction(
     user: result.session.user,
   })
 
-  redirect('/dashboard')
+  return { ok: true, redirectTo: '/dashboard' }
 }

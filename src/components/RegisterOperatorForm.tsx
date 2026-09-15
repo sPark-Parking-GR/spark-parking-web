@@ -11,7 +11,11 @@ type RegisterState = { error: string | null; loginHint?: boolean }
 
 const INITIAL_STATE: RegisterState = { error: null }
 
-export function RegisterOperatorForm() {
+export function RegisterOperatorForm({
+  onRegisterSuccess,
+}: {
+  onRegisterSuccess: (redirectTo: string) => void
+}) {
   const t = useTranslations('registerOperator')
   const tPassword = useTranslations('password')
   // Same reasoning as LoginForm/SetPasswordForm: React 19 clears an uncontrolled form once
@@ -30,7 +34,11 @@ export function RegisterOperatorForm() {
         businessName: String(formData.get('businessName') ?? ''),
         displayName: String(formData.get('displayName') ?? ''),
       })
-      return { error: t(result.errorKey), loginHint: result.loginHint }
+      if (!result.ok) {
+        return { error: t(result.errorKey), loginHint: result.loginHint }
+      }
+      onRegisterSuccess(result.redirectTo)
+      return { error: null }
     },
     INITIAL_STATE,
   )

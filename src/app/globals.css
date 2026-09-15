@@ -531,15 +531,63 @@ select.input {
   vertical-align: -1px;
 }
 
+/* ─── Page transition cover ──────────────────────────────────────────────────
+   Bridges the hard cut between a route's exit animation and the next route's
+   own entrance (e.g. login's fadeOutForward vs. the dashboard's fadeInUp cards),
+   which otherwise land as two unrelated animations back to back. Fades to this
+   flat colour while the DOM swaps, then fades away once the new route mounts. */
+.page-transition-cover {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #03080e;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-cover--covered {
+  opacity: 1;
+}
+
 /* ─── Auth (login) ────────────────────────────────────────────────────────── */
 
 .auth-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-lg);
-  background: radial-gradient(90% 70% at 50% 0%, #0b2233 0%, #03080e 65%);
+  background: #03080e;
+}
+
+/* Ambient light overlay: a fixed-size blurred blob (not a percentage-sized gradient)
+   so it never has a hard edge to clip against, regardless of viewport shape. Screen
+   blend lets it genuinely "light up" the brand/card sitting on top of it. */
+.auth-shell::before {
+  content: '';
+  position: absolute;
+  top: -220px;
+  left: 50%;
+  z-index: -1;
+  width: 1200px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(50, 165, 220, 0.55) 0%,
+    rgba(50, 165, 220, 0.22) 35%,
+    transparent 70%
+  );
+  filter: blur(60px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) scale(0.85);
+  animation: shellGlowIn 1200ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .auth-card__head {
@@ -557,12 +605,14 @@ select.input {
   color: #edf2f7;
   padding: 28px;
   /* Entrance: spring curve, 120 ms after the brand so the two elements stagger */
-  animation: fadeInScale 700ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+  animation: fadeInScale 650ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
 }
 
 .auth-card--exiting {
-  /* Exit: ease-in so the card accelerates away cleanly */
-  animation: fadeOutScale 380ms cubic-bezier(0.4, 0, 1, 1) both;
+  /* Exit: forward push (zoom + blur), not a reverse of the entrance — this fires on
+     success, so it should read as moving through to the dashboard, not retreating.
+     Ease-in-out (not a hard ease-in) so the finish doesn't feel abrupt. */
+  animation: fadeOutForward 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
   pointer-events: none;
 }
 
@@ -596,12 +646,12 @@ select.input {
   align-items: center;
   gap: var(--space-xs);
   /* Entrance: leads the stagger — no delay, spring curve */
-  animation: slideDown 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: slideDown 550ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .auth-brand--exiting {
-  /* Exit: same curve and duration as the card so both finish together */
-  animation: slideUpOut 380ms cubic-bezier(0.4, 0, 1, 1) both;
+  /* Exit: same forward push as the card so both finish together */
+  animation: fadeOutForward 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
   pointer-events: none;
 }
 
@@ -637,12 +687,29 @@ select.input {
 }
 
 .auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   background: #fdecec;
   color: var(--color-error);
   border-radius: var(--radius-sm);
   padding: var(--space-sm) var(--space-md);
   font-size: 14px;
   margin-bottom: var(--space-md);
+  animation: alertShake 480ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.auth-alert::before {
+  content: '';
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16.01' x2='12.01' y2='16.01'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16.01' x2='12.01' y2='16.01'/%3E%3C/svg%3E")
+    center / contain no-repeat;
 }
 
 .auth-card .field {
@@ -715,6 +782,7 @@ select.input {
   background: rgba(239, 68, 68, 0.14);
   border: 1px solid rgba(239, 68, 68, 0.32);
   color: #fecaca;
+  animation: alertShake 480ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 .auth-card .auth-alert a {
@@ -3424,29 +3492,31 @@ select.input {
 @keyframes fadeInScale {
   from {
     opacity: 0;
-    transform: scale(0.75);
+    transform: translateY(6px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes fadeOutScale {
+@keyframes fadeOutForward {
   from {
     opacity: 1;
+    filter: blur(0);
     transform: scale(1);
   }
   to {
     opacity: 0;
-    transform: scale(0.75);
+    filter: blur(2px);
+    transform: scale(1.04);
   }
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-12px);
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;
@@ -3454,14 +3524,37 @@ select.input {
   }
 }
 
-@keyframes slideUpOut {
+@keyframes shellGlowIn {
   from {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 0;
+    transform: translateX(-50%) scale(0.85);
   }
   to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes alertShake {
+  0% {
     opacity: 0;
-    transform: translateY(-12px);
+    transform: translateY(-6px);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+  55% {
+    transform: translateX(-4px);
+  }
+  70% {
+    transform: translateX(3px);
+  }
+  85% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(0);
   }
 }
 

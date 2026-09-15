@@ -16,6 +16,7 @@ export function SetPasswordForm({
   token,
   requiresBusinessName = false,
   requiresExistingPassword = false,
+  onAcceptSuccess,
 }: {
   token: string
   requiresBusinessName?: boolean
@@ -23,6 +24,7 @@ export function SetPasswordForm({
   // this invite to it instead of creating a new one, so the form collects the EXISTING
   // password (verified by sign-in) rather than letting the person choose a new one.
   requiresExistingPassword?: boolean
+  onAcceptSuccess: (redirectTo: string) => void
 }) {
   const t = useTranslations('acceptInvite')
   // React 19 resets an uncontrolled form once its action resolves, which meant a mistyped
@@ -76,7 +78,11 @@ export function SetPasswordForm({
       }
 
       const result = await acceptInviteAction(token, parsed.data)
-      return { error: result.detail ?? t(result.errorKey), loginHint: result.loginHint }
+      if (!result.ok) {
+        return { error: result.detail ?? t(result.errorKey), loginHint: result.loginHint }
+      }
+      onAcceptSuccess(result.redirectTo)
+      return { error: null }
     },
     INITIAL_STATE,
   )

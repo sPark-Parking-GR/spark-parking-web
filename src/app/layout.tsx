@@ -4,6 +4,7 @@ import { cookies, headers } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { colors, cssVarsFor, radii, shadows } from '@spark/ui'
 import { AppThemeProvider } from '../components/AppThemeProvider'
+import { PageTransitionOverlayProvider } from '../components/PageTransitionOverlay'
 import { resolveLocale } from '../i18n/locales'
 import './globals.css'
 
@@ -54,7 +55,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AppThemeProvider>{children}</AppThemeProvider>
+          <AppThemeProvider>
+            <PageTransitionOverlayProvider>{children}</PageTransitionOverlayProvider>
+          </AppThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>
