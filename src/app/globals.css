@@ -556,7 +556,14 @@ select.input {
   -webkit-backdrop-filter: blur(10px);
   color: #edf2f7;
   padding: 28px;
-  animation: fadeInUp var(--dur) var(--ease) both;
+  /* Entrance: spring curve, 120 ms after the brand so the two elements stagger */
+  animation: fadeInScale 700ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+}
+
+.auth-card--exiting {
+  /* Exit: ease-in so the card accelerates away cleanly */
+  animation: fadeOutScale 380ms cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
 }
 
 .auth-card .btn--primary {
@@ -588,6 +595,14 @@ select.input {
   flex-direction: column;
   align-items: center;
   gap: var(--space-xs);
+  /* Entrance: leads the stagger — no delay, spring curve */
+  animation: slideDown 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.auth-brand--exiting {
+  /* Exit: same curve and duration as the card so both finish together */
+  animation: slideUpOut 380ms cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
 }
 
 .auth-brand__lockup {
@@ -3406,6 +3421,28 @@ select.input {
   }
 }
 
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOutScale {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -3414,6 +3451,17 @@ select.input {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideUpOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
   }
 }
 

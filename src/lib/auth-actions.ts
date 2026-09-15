@@ -23,7 +23,7 @@ export type SignInErrorKey =
   | 'signInFailed'
   | 'notAuthorized'
 
-export type SignInResult = { ok: true } | { ok: false; errorKey: SignInErrorKey }
+export type SignInResult = { ok: true; redirectTo: string } | { ok: false; errorKey: SignInErrorKey }
 
 // Only same-origin absolute paths are honored. Protocol-relative (`//host`),
 // backslash-smuggled (`/\host`) and non-rooted values fall back to the home page,
@@ -62,6 +62,7 @@ export async function signInAction(input: SignInInput, from?: string): Promise<S
     return { ok: false, errorKey: 'notAuthorized' }
   }
 
+
   await establishSessions({
     accessToken: result.session.accessToken,
     refreshToken: result.session.refreshToken,
@@ -69,7 +70,7 @@ export async function signInAction(input: SignInInput, from?: string): Promise<S
     user: result.session.user,
   })
 
-  redirect(safeReturnPath(from))
+  return { ok: true, redirectTo: safeReturnPath(from) }
 }
 
 export async function signOutAction(): Promise<void> {

@@ -10,7 +10,13 @@ type LoginState = { error: string | null }
 
 const INITIAL_STATE: LoginState = { error: null }
 
-export function LoginForm({ from }: { from?: string }) {
+export function LoginForm({
+  from,
+  onLoginSuccess,
+}: {
+  from?: string
+  onLoginSuccess: (redirectTo: string) => void
+}) {
   const t = useTranslations('login')
   // React 19 resets an uncontrolled form once its action resolves, so a wrong password
   // used to wipe the address too and make the retry a full re-type. Controlling the email
@@ -43,6 +49,7 @@ export function LoginForm({ from }: { from?: string }) {
         return { error: t(result.errorKey) }
       }
 
+      onLoginSuccess(result.redirectTo)
       return { error: null }
     },
     INITIAL_STATE,
