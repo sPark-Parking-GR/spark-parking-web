@@ -181,10 +181,14 @@ export function FacilityForm({
   )
 
   useEffect(() => {
-    if (!attemptedSubmit || !formRef.current) return
+    // Once submission starts, every input gets disabled and drops out of FormData
+    // entirely, so a re-run here would read back null for fields that are actually
+    // filled in and misreport them as failing Zod's type check.
+    if (!attemptedSubmit || !formRef.current || isPending) return
     validate(formRef.current)
   }, [
     attemptedSubmit,
+    isPending,
     validate,
     name,
     address,
