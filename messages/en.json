@@ -1595,6 +1595,10 @@
       },
       "actions": {
         "accountDeleted": "deleted their account",
+        "passwordResetRequested": "asked for a password reset link",
+        "passwordResetCompleted": "reset their password",
+        "passwordChangeRequested": "confirmed their current password to change it",
+        "passwordChanged": "changed their password",
         "bookingCreated": "created a booking",
         "bookingConfirmed": "confirmed a booking",
         "bookingCancelled": "cancelled a booking",
@@ -2221,6 +2225,28 @@
     "errors": {
       "nameTooLong": "Name must be at most 120 characters.",
       "genericError": "Something went wrong. Please try again."
+    },
+    "changePassword": {
+      "heading": "Change password",
+      "description": "Confirm the password you use now, and we'll email you a link to set the new one. Your password does not change until you open that link.",
+      "currentPasswordLabel": "Current password",
+      "submit": "Send confirmation email",
+      "submitting": "Checking…",
+      "confirmation": "Check your email — we've sent you a link to finish changing your password. It expires in an hour.",
+      "errors": {
+        "wrongPassword": "That is not your current password.",
+        "genericError": "Something went wrong. Please try again."
+      }
+    },
+    "forgotPassword": {
+      "heading": "Forgotten your password?",
+      "description": "If you cannot remember the password you use now, we can email you a reset link instead. It goes to the address on this account.",
+      "submit": "Email me a reset link",
+      "submitting": "Sending…",
+      "confirmation": "Check your email — we've sent you a link to reset your password. It expires in an hour.",
+      "errors": {
+        "genericError": "Something went wrong. Please try again."
+      }
     }
   }
 }

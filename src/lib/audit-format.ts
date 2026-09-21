@@ -40,6 +40,16 @@ export type AuditTone = 'primary' | 'success' | 'warning' | 'danger'
 const ACTION_META: Record<string, { key: string; tone: AuditTone }> = {
   'account.deleted': { key: 'accountDeleted', tone: 'danger' },
 
+  // Four rows, not two, because the request and the completion are separated by an email
+  // round-trip that may never come back — a request with no completion beside it is the
+  // shape an abandoned or intercepted attempt takes. `reset` and `change` stay distinct
+  // for the same reason: the change flow proved the current password first, and a log that
+  // folded them together would lose the only record that it did.
+  'password.reset_requested': { key: 'passwordResetRequested', tone: 'primary' },
+  'password.reset_completed': { key: 'passwordResetCompleted', tone: 'warning' },
+  'password.change_requested': { key: 'passwordChangeRequested', tone: 'primary' },
+  'password.changed': { key: 'passwordChanged', tone: 'warning' },
+
   'booking.created': { key: 'bookingCreated', tone: 'success' },
   'booking.confirmed': { key: 'bookingConfirmed', tone: 'success' },
   'booking.cancelled': { key: 'bookingCancelled', tone: 'danger' },
