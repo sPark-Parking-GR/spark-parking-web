@@ -2215,6 +2215,13 @@ select.input {
 .form-banner--warning {
   background: var(--warnBg);
   color: var(--warn);
+  width: fit-content;
+  margin-inline: auto;
+}
+
+.form-banner--warning a {
+  width: 50%;
+  margin-inline: auto;
 }
 
 .form-banner--info {
