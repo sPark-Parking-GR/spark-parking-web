@@ -1,0 +1,238 @@
+import { z } from 'zod'
+import type { VehicleType } from '@spark/types'
+import type { TariffDraft, TariffRate, TariffTier, TariffWindow } from './tariff-api'
+
+const VEHICLE_TYPES = ['car', 'motorcycle', 'van', 'truck'] as const
+const UNITS = ['per_minute', 'per_block', 'flat'] as const
+const CAP_SCOPES = ['stay', 'rolling'] as const
+
+const isoDateString = z
+  .string()
+  .trim()
+  .min(1)
+  .refine((v) => !Number.isNaN(Date.parse(v)), 'validation.dateInvalid')
+
+const tierSchema = z.object({
+  key: z.string().min(1),
+  fromMinute: z.number().int().min(0),
+  toMinute: z.number().int().positive().nullable(),
+  unit: z.enum(UNITS),
+  blockMinutes: z.number().int().positive().nullable(),
+})
+
+const windowSchema = z.object({
+  key: z.string().min(1),
+  label: z.string().trim().min(1, 'validation.windowLabelRequired'),
+  dayMask: z.number().int().min(0).max(127),
+  startMinute: z.number().int().min(0).max(1439),
+  endMinute: z.number().int().min(0).max(1440),
+})
+
+const rateSchema = z.object({
+  tierKey: z.string().min(1),
+  windowKey: z.string().min(1),
+  priceCents: z.number().int().min(0, 'validation.priceMin'),
+  currency: z.string().trim().min(1),
+})
+
+const capSchema = z.object({
+  windowMinutes: z.number().int().positive('validation.capWindowMin'),
+  capCents: z.number().int().min(0, 'validation.capAmountMin'),
+  scope: z.enum(CAP_SCOPES),
+})
+
+export const tariffDraftSchema = z
+  .object({
+    name: z.string().trim().min(1, 'validation.planNameRequired'),
+    // Only honored for platform-admin callers; operator callers infer it from scope.
+    operatorId: z.string().trim().min(1).optional(),
+    isActive: z.boolean(),
+    isDefault: z.boolean(),
+    validFrom: isoDateString.nullable(),
+    validTo: isoDateString.nullable(),
+    timezone: z.string().trim().min(1, 'validation.timezoneRequired'),
+    graceMinutes: z.number().int().min(0, 'validation.graceMinutesMin'),
+    incrementMinutes: z.number().int().positive('validation.incrementMinutesMin'),
+    // Empty means "prices every vehicle type" — required for a default-eligible plan.
+    vehicleTypes: z.array(z.enum(VEHICLE_TYPES)),
+    tiers: z.array(tierSchema).min(1, 'validation.tiersRequired'),
+    windows: z.array(windowSchema).min(1, 'validation.windowsRequired'),
+    rates: z.array(rateSchema),
+    caps: z.array(capSchema),
+  })
+  .superRefine((draft, ctx) => {
+    if (
+      draft.validFrom &&
+      draft.validTo &&
+      Date.parse(draft.validFrom) >= Date.parse(draft.validTo)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['validTo'],
+        message: 'validation.validToAfterValidFrom',
+      })
+    }
+
+    if (draft.isDefault && draft.vehicleTypes.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['isDefault'],
+        message: 'validation.defaultPlanNoVehicleRestriction',
+      })
+    }
+
+    const openEnded = draft.tiers.filter((t) => t.toMinute === null)
+    if (openEnded.length !== 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['tiers'],
+        message: 'validation.exactlyOneOpenEndedTier',
+      })
+    } else if (draft.tiers[draft.tiers.length - 1]?.toMinute !== null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['tiers'],
+        message: 'validation.openEndedTierMustBeLast',
+      })
+    }
+
+    let cursor = 0
+    draft.tiers.forEach((tier, i) => {
+      if (tier.fromMinute !== cursor) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['tiers', i, 'fromMinute'],
+          message: 'validation.tiersMustBeContiguous',
+        })
+      }
+      if (tier.toMinute !== null) {
+        if (tier.toMinute <= tier.fromMinute) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['tiers', i, 'toMinute'],
+            message: 'validation.tierEndAfterStart',
+          })
+        }
+        cursor = tier.toMinute
+      }
+      if (tier.unit === 'per_block' && (tier.blockMinutes === null || tier.blockMinutes <= 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['tiers', i, 'blockMinutes'],
+          message: 'validation.perBlockNeedsBlockSize',
+        })
+      }
+    })
+
+    const windowKeys = new Set<string>()
+    draft.windows.forEach((w, i) => {
+      if (windowKeys.has(w.key)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['windows', i, 'key'],
+          message: 'validation.windowKeysUnique',
+        })
+      }
+      windowKeys.add(w.key)
+    })
+
+    const expectedCells = draft.tiers.length * draft.windows.length
+    const cellSet = new Set(draft.rates.map((r) => `${r.tierKey}::${r.windowKey}`))
+    if (draft.rates.length !== expectedCells || cellSet.size !== expectedCells) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['rates'],
+        message: 'validation.rateGridIncomplete',
+      })
+    } else {
+      for (const tier of draft.tiers) {
+        for (const win of draft.windows) {
+          if (!cellSet.has(`${tier.key}::${win.key}`)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['rates'],
+              message: 'validation.rateGridIncomplete',
+            })
+          }
+        }
+      }
+    }
+  })
+
+export type TariffDraftValues = z.infer<typeof tariffDraftSchema>
+
+export const VEHICLE_TYPE_OPTIONS: { value: VehicleType; labelKey: string }[] = [
+  { value: 'car', labelKey: 'vehicleTypes.car' },
+  { value: 'motorcycle', labelKey: 'vehicleTypes.motorcycle' },
+  { value: 'van', labelKey: 'vehicleTypes.van' },
+  { value: 'truck', labelKey: 'vehicleTypes.truck' },
+]
+
+export const UNIT_OPTIONS: { value: TariffTier['unit']; labelKey: string }[] = [
+  { value: 'per_minute', labelKey: 'tiers.unitOptions.perMinute' },
+  { value: 'per_block', labelKey: 'tiers.unitOptions.perBlock' },
+  { value: 'flat', labelKey: 'tiers.unitOptions.flat' },
+]
+
+export const CAP_SCOPE_OPTIONS: { value: TariffCapScope; labelKey: string }[] = [
+  { value: 'stay', labelKey: 'caps.scopeOptions.stay' },
+  { value: 'rolling', labelKey: 'caps.scopeOptions.rolling' },
+]
+
+type TariffCapScope = (typeof CAP_SCOPES)[number]
+
+// WHY: bit0=Monday .. bit6=Sunday — order matches the API dayMask contract.
+export const WEEKDAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+export const DAY_BITS = WEEKDAY_KEYS.map((_, i) => 1 << i)
+export const ALL_DAYS_MASK = 127
+
+export function makeKey(): string {
+  return crypto.randomUUID()
+}
+
+export function minutesToHHMM(minutes: number): string {
+  const clamped = Math.max(0, Math.min(1440, minutes))
+  const h = Math.floor(clamped / 60)
+  const m = clamped % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+export function hhmmToMinutes(value: string): number {
+  const [h, m] = value.split(':')
+  const hours = Number(h)
+  const mins = Number(m)
+  if (Number.isNaN(hours) || Number.isNaN(mins)) return 0
+  return hours * 60 + mins
+}
+
+export function buildRateGrid(
+  tiers: TariffTier[],
+  windows: TariffWindow[],
+  existingRates: TariffRate[],
+  currency: string,
+): TariffRate[] {
+  const byCell = new Map(existingRates.map((r) => [`${r.tierKey}::${r.windowKey}`, r]))
+  const next: TariffRate[] = []
+  for (const tier of tiers) {
+    for (const win of windows) {
+      const existing = byCell.get(`${tier.key}::${win.key}`)
+      next.push({
+        tierKey: tier.key,
+        windowKey: win.key,
+        priceCents: existing?.priceCents ?? 0,
+        currency,
+      })
+    }
+  }
+  return next
+}
+
+export function formatCents(cents: number): string {
+  return (cents / 100).toFixed(2)
+}
+
+export function eurosToCents(value: string): number {
+  const parsed = Number(value)
+  if (Number.isNaN(parsed)) return 0
+  return Math.round(parsed * 100)
+}

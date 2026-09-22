@@ -1,0 +1,2252 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "facilities": "Facilities",
+    "tariffs": "Tariffs",
+    "operatorPlans": "Operator plans",
+    "driverPlans": "Driver plans",
+    "bookings": "Bookings",
+    "scan": "Scan",
+    "team": "Team",
+    "capacity": "Capacity",
+    "analytics": "Analytics",
+    "operatorDirectory": "Operator directory",
+    "onboarding": "Onboarding",
+    "audit": "Audit log",
+    "trash": "Trash",
+    "approvals": "Approvals",
+    "users": "Users",
+    "admins": "Admins",
+    "descriptions": {
+      "overview": "Snapshot of your parking operations",
+      "facilities": "Manage your parking facilities and locations",
+      "tariffs": "Pricing plans, rates and caps",
+      "operatorPlans": "Subscription plans, entitlements and operator assignments",
+      "driverPlans": "Rider subscription plans and the perks they grant",
+      "bookings": "Active and past customer bookings",
+      "scan": "Scan booking QR codes at the barrier",
+      "team": "Invite and manage your operator's team members",
+      "operatorDirectory": "Browse every operator with lifecycle and membership controls",
+      "onboarding": "Invite new operator businesses onto sPark",
+      "analytics": "Revenue and occupancy insights",
+      "audit": "Security and change history",
+      "trash": "Archived and tombstoned resources, with restore and purge",
+      "approvals": "Pending two-person purge approvals",
+      "users": "Browse every account with role and lifecycle controls",
+      "admins": "Invite new platform administrators",
+      "billing": "Your subscription plan, usage and upgrade requests"
+    },
+    "billing": "Plan & billing"
+  },
+  "dateRange": {
+    "ariaLabel": "Date range",
+    "presets": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "12m": "12 months"
+    }
+  },
+  "shell": {
+    "brandTag": "Admin",
+    "primaryNav": "Primary",
+    "title": "Dashboard",
+    "subtitlePlatform": "Operator and platform administration",
+    "subtitleOperator": "Manage your operator account",
+    "roleGuest": "Guest",
+    "roleUser": "User",
+    "roleOperatorStaff": "Operator staff",
+    "roleOperatorAdmin": "Operator admin",
+    "rolePlatformAdmin": "Platform admin",
+    "roleSuperAdmin": "Super admin",
+    "notifications": "Notifications",
+    "signedInAs": "Signed in as {name}",
+    "exit": "Exit",
+    "exiting": "Exiting…",
+    "signOutTooltip": "End your session",
+    "switchToLightMode": "Switch to light mode",
+    "switchToDarkMode": "Switch to dark mode",
+    "searchComingSoon": "Search — coming soon",
+    "upgradeTitle": "Growth plan",
+    "upgradeSub": "Unlock dynamic pricing and API sync.",
+    "upgradeCta": "Upgrade",
+    "brandTagOperator": "Operator"
+  },
+  "login": {
+    "tagline": "Make Parking Smart",
+    "title": "Sign in to your dashboard",
+    "forbiddenMessage": "This account does not have access to the admin dashboard. Sign in with an operator or platform administrator account.",
+    "restrictedMessage": "Your account no longer has access to the dashboard. Contact sPark support if you believe this is a mistake.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "emailInvalid": "Enter a valid email address.",
+    "passwordRequired": "Enter your password.",
+    "credentialsInvalid": "Enter a valid email and password.",
+    "forgot": "Forgot password?",
+    "resetSuccess": "Password updated. Sign in with your new password.",
+    "accountLinked": "Invite accepted. Sign in with your existing password to continue.",
+    "newOperator": "New operator?",
+    "registerLink": "Register your business",
+    "invalidCredentials": "Invalid email or password.",
+    "signInFailed": "Unable to sign in right now. Please try again.",
+    "notAuthorized": "This account is not authorized to access the dashboard."
+  },
+  "forgotPassword": {
+    "tagline": "Make Parking Smart",
+    "title": "Reset your password",
+    "subtitle": "Enter the email address on your account and we'll send you a link to reset your password.",
+    "emailLabel": "Email",
+    "emailInvalid": "Enter a valid email address.",
+    "submit": "Send reset link",
+    "submitting": "Sending…",
+    "genericError": "Something went wrong. Please try again.",
+    "confirmation": "If an account exists for that email, we've sent a link to reset your password.",
+    "backToLogin": "Back to sign in"
+  },
+  "resetPassword": {
+    "tagline": "Make Parking Smart",
+    "title": "Set a new password",
+    "passwordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooLong": "Password must be at most 128 characters.",
+    "passwordsMismatch": "Passwords do not match.",
+    "genericError": "Something went wrong. Please try again.",
+    "invalidToken": "This link is invalid or has expired.",
+    "submit": "Update password",
+    "submitting": "Updating…",
+    "requestNewLink": "Request a new link"
+  },
+  "acceptInvite": {
+    "tagline": "Make Parking Smart",
+    "title": "Set your password",
+    "context": "You're setting up <b>{businessName}</b>'s sPark account ({email}).",
+    "contextOnboarding": "You're setting up your sPark operator account ({email}).",
+    "businessNameLabel": "Business name",
+    "businessNameRequired": "Business name is required.",
+    "businessNameTooLong": "Business name must be at most 200 characters.",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm password",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooLong": "Password must be at most 128 characters.",
+    "passwordsMismatch": "Passwords do not match.",
+    "genericError": "Enter a valid password.",
+    "submit": "Set password",
+    "submitting": "Setting up…",
+    "goToLogin": "Go to sign in",
+    "invalidTitle": "Invalid invite link",
+    "invalidMessage": "This invite link doesn't exist. Ask the platform to send a new one.",
+    "invalidGenericMessage": "We couldn't load this invite. Please try again shortly.",
+    "expiredTitle": "Invite expired",
+    "expiredMessage": "This invite has expired or is no longer valid. Contact the platform for a new invite.",
+    "alreadyUsed": "This invite was already used.",
+    "emailTaken": "This email address already has a sPark account, so it can't be set up again from an invite. Sign in with it instead, or ask the platform to invite a different address.",
+    "expired": "This invite has expired. Ask the platform to send a new one.",
+    "invalidLink": "This invite link is invalid.",
+    "unreachable": "Unable to reach the server right now. Please try again.",
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "alreadyAcceptedTitle": "Invite already used",
+    "alreadyAcceptedMessage": "This invite has already been set up. Sign in with the email it was sent to.",
+    "yourNameLabel": "Your name",
+    "yourNameRequired": "Enter your name.",
+    "yourNameTooLong": "Name must be at most 120 characters.",
+    "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
+    "existingPasswordLabel": "Existing password",
+    "passwordRequired": "Enter your password."
+  },
+  "registerOperator": {
+    "tagline": "Make Parking Smart",
+    "title": "Register your business",
+    "subtitle": "Set up your operator account and start publishing facilities on sPark.",
+    "emailLabel": "Email",
+    "businessNameLabel": "Business name",
+    "yourNameLabel": "Your name",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm password",
+    "submit": "Register",
+    "submitting": "Registering…",
+    "goToLogin": "Go to sign in",
+    "disabledTitle": "Registration is by invitation only",
+    "disabledMessage": "sPark is not open for public operator registration yet. Ask an existing administrator for an invitation.",
+    "emailInvalid": "Enter a valid email address.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooLong": "Password must be at most 128 characters.",
+    "passwordsMismatch": "Passwords do not match.",
+    "businessNameRequired": "Business name is required.",
+    "businessNameTooLong": "Business name must be at most 200 characters.",
+    "yourNameRequired": "Enter your name.",
+    "yourNameTooLong": "Name must be at most 120 characters.",
+    "genericError": "Enter valid details.",
+    "emailTaken": "This email address already has a sPark account. Sign in instead.",
+    "disabled": "sPark is not open for public operator registration right now.",
+    "unreachable": "Unable to reach the server right now. Please try again.",
+    "somethingWentWrong": "Something went wrong. Please try again."
+  },
+  "onboarding": {
+    "title": "Onboard Operators",
+    "description": "Invite new parking-facility businesses onto sPark.",
+    "form": {
+      "heading": "Send an invite",
+      "emailLabel": "Email",
+      "sendInvite": "Send invite",
+      "sending": "Sending…",
+      "sent": "Invite sent.",
+      "notDelivered": "The invite was created but the email could not be sent. The recipient has no link yet — check the email provider, then use Resend."
+    },
+    "table": {
+      "businessName": "Business",
+      "email": "Email",
+      "status": "Status",
+      "expiresAt": "Expires",
+      "createdAt": "Sent",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "empty": {
+      "title": "No invites yet",
+      "message": "Send your first operator invite to get started."
+    },
+    "actions": {
+      "cancel": "Cancel"
+    },
+    "revoke": {
+      "trigger": "Revoke",
+      "confirm": "Revoke invite",
+      "revoking": "Revoking…",
+      "modalTitle": "Revoke invite",
+      "modalText": "This withdraws the invite before it's accepted. The recipient's link will stop working immediately."
+    },
+    "operators": {
+      "title": "Operators",
+      "description": "Manage access for onboarded parking-facility businesses.",
+      "empty": {
+        "title": "No operators yet",
+        "message": "Operators appear here once an invite is sent."
+      },
+      "emptyFiltered": "No operators match your search or filters.",
+      "loadError": "Could not load operators. The platform API request failed — try reloading the page.",
+      "searchPlaceholder": "Search operators…",
+      "count": "{count, plural, one {# operator} other {# operators}}",
+      "filters": {
+        "statusAria": "Filter by status",
+        "anyStatus": "All statuses"
+      },
+      "stats": {
+        "total": "Total operators",
+        "verified": "Verified",
+        "pending": "Pending",
+        "suspended": "Suspended"
+      }
+    },
+    "operatorTable": {
+      "name": "Business",
+      "status": "Status",
+      "facilities": "Facilities",
+      "members": "Members",
+      "createdAt": "Created",
+      "actions": "Actions"
+    },
+    "operatorStatus": {
+      "pending": "Pending",
+      "verified": "Verified",
+      "suspended": "Suspended"
+    },
+    "suspend": {
+      "trigger": "Suspend",
+      "confirm": "Suspend operator",
+      "suspending": "Suspending…",
+      "modalTitle": "Suspend operator",
+      "modalText": "This immediately blocks every admin and staff account under this business, including active sessions. They can be reactivated at any time."
+    },
+    "reactivate": {
+      "trigger": "Reactivate",
+      "confirm": "Reactivate operator",
+      "reactivating": "Reactivating…",
+      "modalTitle": "Reactivate operator",
+      "modalText": "This restores access for every admin and staff account under this business."
+    },
+    "detail": {
+      "back": "Back to operators",
+      "loadError": "Could not load this operator. The platform API request failed — try reloading the page.",
+      "status": {
+        "business": "Business status",
+        "lifecycle": "Lifecycle status",
+        "active": "Active"
+      },
+      "identity": {
+        "title": "Overview",
+        "fields": {
+          "id": "Operator ID",
+          "created": "Created",
+          "facilities": "Facilities",
+          "members": "Members"
+        }
+      },
+      "facilities": {
+        "title": "Facilities",
+        "empty": "No facilities yet."
+      },
+      "plans": {
+        "title": "Tariff plans",
+        "empty": "No tariff plans yet."
+      },
+      "members": {
+        "title": "Members",
+        "empty": "No members yet.",
+        "email": "Email",
+        "role": "Role",
+        "joined": "Joined",
+        "actions": "Actions",
+        "roleOptions": {
+          "STAFF": "Staff",
+          "ADMIN": "Admin"
+        },
+        "selfNote": "This is you",
+        "soleAdminNote": "Sole admin — promote another member first",
+        "changeRole": {
+          "trigger": "Change role",
+          "modalTitle": "Change role for {email}",
+          "roleLabel": "Role",
+          "confirm": "Save",
+          "confirming": "Saving…"
+        },
+        "remove": {
+          "trigger": "Remove",
+          "modalTitle": "Remove member",
+          "body": "This removes {email} from the operator. They lose all access immediately.",
+          "confirm": "Remove member",
+          "confirming": "Removing…"
+        }
+      }
+    },
+    "errors": {
+      "sendInviteForbidden": "You are not allowed to send invites.",
+      "invalidData": "Invalid data. Check all fields.",
+      "genericError": "Something went wrong. Please try again.",
+      "invalidInvite": "Invalid invite.",
+      "revokeForbidden": "You are not allowed to revoke invites.",
+      "inviteNotFound": "Invite not found.",
+      "invalidOperator": "Invalid operator.",
+      "suspendForbidden": "You are not allowed to suspend operators.",
+      "reactivateForbidden": "You are not allowed to reactivate operators.",
+      "operatorNotFound": "Operator not found.",
+      "invalidInput": "Invalid input."
+    },
+    "validation": {
+      "emailInvalid": "Enter a valid email address."
+    },
+    "resend": {
+      "trigger": "Resend",
+      "sending": "Sending…",
+      "notDelivered": "Still could not send. The previous link no longer works."
+    }
+  },
+  "adminInvites": {
+    "title": "Admins",
+    "description": "Invite new platform administrators to sPark.",
+    "explainer": "Inviting someone here grants them full platform administration — every tenant capability, including facilities, tariffs and billing across every operator. It does not let you view, search or manage existing accounts; only a super admin can do that.",
+    "form": {
+      "heading": "Invite a platform admin",
+      "emailLabel": "Email",
+      "displayNameLabel": "Display name (optional)",
+      "sendInvite": "Send invite",
+      "sending": "Sending…",
+      "sent": "Invite sent.",
+      "sentNotDelivered": "The invite was created, but the email failed to send. The recipient cannot use this invite until you resend it — use Resend below once it appears in the table."
+    },
+    "table": {
+      "email": "Email",
+      "displayName": "Name",
+      "noDisplayName": "—",
+      "status": "Status",
+      "expiresAt": "Expires",
+      "createdAt": "Sent",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "empty": {
+      "title": "No admin invites yet",
+      "message": "Invite a platform administrator to get started."
+    },
+    "actions": {
+      "cancel": "Cancel"
+    },
+    "resend": {
+      "trigger": "Resend",
+      "confirm": "Resend invite",
+      "resending": "Resending…",
+      "modalTitle": "Resend invite",
+      "modalText": "This sends a new invite email with the same invite, extending its expiry.",
+      "notDelivered": "The invite was resent, but the email still failed to send. Try again shortly."
+    },
+    "revoke": {
+      "trigger": "Revoke",
+      "confirm": "Revoke invite",
+      "revoking": "Revoking…",
+      "modalTitle": "Revoke invite",
+      "modalText": "This withdraws the invite before it's accepted. The recipient's link will stop working immediately."
+    },
+    "errors": {
+      "forbidden": "You do not have permission to do this.",
+      "invalidInvite": "This invite is invalid.",
+      "inviteNotFound": "This invite no longer exists.",
+      "emailTaken": "This email already has an sPark account.",
+      "invalidData": "Enter a valid email address.",
+      "genericError": "Something went wrong. Try again."
+    },
+    "validation": {
+      "emailInvalid": "Enter a valid email address.",
+      "displayNameTooLong": "Name must be at most 120 characters."
+    },
+    "accept": {
+      "tagline": "Make Parking Smart",
+      "title": "Set your password",
+      "context": "You're setting up your sPark platform administrator account (<b>{email}</b>).",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "passwordTooLong": "Password must be at most 200 characters.",
+      "passwordsMismatch": "Passwords do not match.",
+      "genericError": "Enter a valid password.",
+      "submit": "Set password",
+      "submitting": "Setting up…",
+      "goToLogin": "Go to sign in",
+      "invalidTitle": "Invalid invite link",
+      "invalidMessage": "This invite link doesn't exist. Ask a platform administrator to send a new one.",
+      "invalidGenericMessage": "We couldn't load this invite. Please try again shortly.",
+      "expiredTitle": "Invite expired",
+      "expiredMessage": "This invite has expired or is no longer valid. Contact a platform administrator for a new invite.",
+      "alreadyUsed": "This invite was already used.",
+      "emailTaken": "This email address already has a sPark account, so it can't be set up again from an invite. Sign in with it instead, or ask a platform administrator to invite a different address.",
+      "expired": "This invite has expired. Ask a platform administrator to send a new one.",
+      "invalidLink": "This invite link is invalid.",
+      "unreachable": "Unable to reach the server right now. Please try again.",
+      "somethingWentWrong": "Something went wrong. Please try again.",
+      "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
+      "existingPasswordLabel": "Existing password",
+      "passwordRequired": "Enter your password."
+    }
+  },
+  "overview": {
+    "title": "Overview",
+    "description": "A snapshot of your parking operations.",
+    "stats": {
+      "facilities": {
+        "label": "Facilities",
+        "hint": "Total parking facilities you currently manage."
+      },
+      "activeBookings": {
+        "label": "Active bookings",
+        "hint": "Bookings currently in progress across all facilities."
+      },
+      "revenue": {
+        "label": "Revenue",
+        "hint": "Net revenue collected in the selected period."
+      },
+      "avgOccupancy": {
+        "label": "Avg occupancy",
+        "hint": "Share of bookable capacity used across the selected period."
+      }
+    },
+    "revenuePanel": {
+      "title": "Revenue",
+      "subtitle": "Confirmed revenue trend for the selected period",
+      "chartLabel": "Revenue by period",
+      "emptyTitle": "No revenue data yet",
+      "emptyMessage": "Revenue charts arrive once booking data is available."
+    },
+    "occupancyPanel": {
+      "title": "Occupancy",
+      "subtitle": "How much of your bookable capacity was used",
+      "emptyTitle": "No occupancy data yet",
+      "emptyMessage": "Occupancy appears once facilities have online capacity and bookings.",
+      "detail": "{booked} of {capacity} booked"
+    },
+    "recentBookings": {
+      "title": "Recent bookings",
+      "subtitle": "Latest reservations across all facilities",
+      "viewAll": "View all →",
+      "emptyTitle": "No recent bookings",
+      "emptyMessage": "Recent activity will appear here once bookings start coming in."
+    },
+    "errors": {
+      "mixedCurrency": "This period mixes multiple currencies and can't be combined. Narrow the date range.",
+      "unknown": "Couldn't load analytics right now. Try again shortly."
+    }
+  },
+  "facilities": {
+    "upgradeCta": "Upgrade your plan",
+    "list": {
+      "title": "Facilities",
+      "searchPlaceholder": "Search facilities…",
+      "count": "{count, plural, one {# facility} other {# facilities}}",
+      "emptyTitle": "No facilities found",
+      "emptyFiltered": "No facilities match your search or filters.",
+      "emptyDefault": "Create your first facility to get started.",
+      "facilityLimitReached": "You have used every facility your plan includes. Upgrade your plan to add another."
+    },
+    "actions": {
+      "newFacility": "New facility",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deploy": "Deploy",
+      "enable": "Enable",
+      "disable": "Disable",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "assignTariff": "Assign tariff",
+      "clear": "Clear",
+      "upgradePlan": "Upgrade plan"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "published": "Published",
+      "unpublished": "Unpublished",
+      "live": "Live"
+    },
+    "kind": {
+      "business": "Business",
+      "freePublic": "Free public",
+      "restricted": "Restricted",
+      "unknown": "Unknown"
+    },
+    "source": {
+      "osm": "OpenStreetMap",
+      "google": "Google",
+      "manual": "Manual"
+    },
+    "stats": {
+      "totalSpots": "Total spots",
+      "onlineQuota": "Online quota",
+      "vehicleTypes": "Vehicle types"
+    },
+    "table": {
+      "name": "Name",
+      "operator": "Operator",
+      "noOperator": "No operator",
+      "kind": "Kind",
+      "capacity": "Capacity",
+      "status": "Status",
+      "published": "Published",
+      "selectAll": "Select all on this page",
+      "selectOne": "Select {name}",
+      "actionsCol": "Actions",
+      "bulkActionsLabel": "Bulk actions",
+      "selectedCount": "{count, plural, one {# selected} other {# selected}}",
+      "tooltipDeploy": "Deploy (activate + publish)",
+      "tooltipDisable": "Disable",
+      "tooltipEnable": "Enable",
+      "tooltipPublish": "Publish",
+      "tooltipUnpublish": "Unpublish",
+      "tooltipAssignTariff": "Assign tariff",
+      "tooltipEdit": "Edit",
+      "tooltipDelete": "Delete"
+    },
+    "confirm": {
+      "deployTitle": "Deploy facilities",
+      "deployBody": "{count, plural, one {Activate and verify # facility. It becomes visible in the mobile app immediately.} other {Activate and verify # facilities. They become visible in the mobile app immediately.}}",
+      "deleteTitle": "Delete facilities",
+      "deleteBody": "{count, plural, one {Permanently remove # facility from the mobile app. This action cannot be undone. The record is retained and can only be restored by a platform administrator.} other {Permanently remove # facilities from the mobile app. This action cannot be undone. The records are retained and can only be restored by a platform administrator.}}",
+      "working": "Working…"
+    },
+    "errors": {
+      "tooManySelected": "You can act on at most 500 facilities at once. Narrow your selection.",
+      "loadAssignmentsFailed": "Could not load current tariff assignments.",
+      "forbidden": "You are not allowed to set those fields.",
+      "notFound": "Facility not found.",
+      "invalidData": "Invalid data. Check all fields and try again.",
+      "genericError": "Something went wrong. Please try again.",
+      "invalidInput": "Invalid input.",
+      "selectAtLeastOne": "Select at least one facility.",
+      "tariffPlanNotFound": "Tariff plan not found.",
+      "facilityOrTariffNotFound": "Facility or tariff plan not found.",
+      "mapLoadFailed": "Could not load map data.",
+      "limitExceeded": "Your plan does not allow any more facilities."
+    },
+    "filters": {
+      "statusAria": "Filter by status",
+      "publishedAria": "Filter by publication",
+      "kindAria": "Filter by kind",
+      "anyStatus": "Any status",
+      "anyPublished": "Any publication",
+      "anyKind": "Any kind"
+    },
+    "form": {
+      "saving": "Saving…",
+      "createFacility": "Create facility",
+      "saveChanges": "Save changes",
+      "changesSaved": "Changes saved.",
+      "basics": "Basics",
+      "location": "Location",
+      "locationHint": "Set the pin on the map — coordinates update automatically, or type them directly.",
+      "capacityVehicles": "Capacity & vehicles",
+      "policyAmenities": "Policy & amenities",
+      "openingHours": "Opening hours",
+      "visibility": "Visibility",
+      "nameLabel": "Name",
+      "addressLabel": "Address",
+      "latitudeLabel": "Latitude",
+      "longitudeLabel": "Longitude",
+      "totalCapacityLabel": "Total capacity",
+      "onlineQuotaLabel": "Online quota",
+      "vehicleTypesLabel": "Vehicle types",
+      "heightRestrictionLabel": "Height restriction (cm, optional)",
+      "amenitiesLabel": "Amenities (comma-separated, optional)",
+      "cancellationPolicyLabel": "Cancellation policy (optional)",
+      "opens": "Opens",
+      "closes": "Closes",
+      "openingTimeAria": "Opening time",
+      "closingTimeAria": "Closing time",
+      "open24h": "Open 24 hours",
+      "activeVisible": "Active (visible to customers)",
+      "kindLabel": "Facility kind",
+      "kindLeavingBusinessWarning": "Moving this facility out of Business clears its tariff assignments.",
+      "operatorIdLabel": "Operator (optional)",
+      "operatorIdPlaceholder": "Search operators by name…",
+      "operatorIdHint": "The operator this facility belongs to. Leave blank to create it with no operator assigned.",
+      "operatorFacilityCount": "{count, plural, one {# facility} other {# facilities}}",
+      "operatorNoMatches": "No operators match.",
+      "mapHint": "Click the map or drag the pin to set the location. The coordinates update automatically.",
+      "loadingAria": "Loading facility"
+    },
+    "map": {
+      "unsupportedProvider": "Unsupported map provider:",
+      "unavailable": "Map unavailable — set <code>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code>.",
+      "loading": "Loading…",
+      "zoomToAct": "{count, plural, one {# facility — zoom in to act} other {# facilities — zoom in to act}}",
+      "shown": "{count} shown",
+      "panOrZoom": "Pan or zoom the map to load facilities",
+      "close": "Close"
+    },
+    "detail": {
+      "overviewTab": "Overview",
+      "manageTab": "Details",
+      "managersTab": "Managers"
+    },
+    "overview": {
+      "backToFacilities": "Facilities",
+      "open24h": "Open 24 hours",
+      "hoursNotSet": "Hours not set",
+      "closed": "Closed",
+      "onlineAvailability": "Online occupancy",
+      "activeHours": "Active hours",
+      "activeHoursSub": "Configured opening hours per day",
+      "ringHint": "{booked} of {onlineQuota} online spots booked right now.",
+      "amenities": "Amenities",
+      "noAmenities": "No amenities listed.",
+      "days": {
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun"
+      }
+    },
+    "delete": {
+      "ariaLabel": "Delete facility",
+      "modalTitle": "Delete facility",
+      "modalText": "This permanently removes the facility and its configuration. This action cannot be undone. The record is retained and can only be restored by a platform administrator.",
+      "deleting": "Deleting…",
+      "confirm": "Delete facility"
+    },
+    "publishToggle": {
+      "live": "Live — bookable in the mobile app",
+      "notLive": "Not live — hidden from the mobile app"
+    },
+    "tariff": {
+      "heading": "Tariff plans",
+      "default": "Default",
+      "noPlan": "No tariff plan",
+      "changePlans": "Change tariff plans",
+      "assignPlansTitle": "Assign tariff plans",
+      "assignPlansDescription": "Choose the tariff plan customers are billed under, per vehicle type, at this facility."
+    },
+    "managers": {
+      "heading": "Managers",
+      "description": "Only the operator members listed here can see and edit this facility from their dashboard. This is layered on top of their operator role, not a replacement for it.",
+      "emptyState": "No one is assigned to manage this facility yet. That's normal for facilities added automatically or created before the operator had any members.",
+      "columnMember": "Member",
+      "columnRole": "Role",
+      "columnAssigned": "Assigned",
+      "notAMember": "No longer an operator member",
+      "assignedBySystem": "Assigned {date} · automatically during rollout",
+      "assignedByYou": "Assigned {date} · by you",
+      "assignedByName": "Assigned {date} · by {name}",
+      "assignedByUnknown": "Assigned {date} · by another administrator",
+      "manageButton": "Manage access",
+      "modalTitle": "Manage access",
+      "modalDescription": "Choose who can see and edit this facility. Operator members left unchecked keep their role but lose access to this facility.",
+      "noCandidates": "No eligible operator members to assign yet. Invite teammates to the operator first.",
+      "saveButton": "Save access",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "selfRemoveTitle": "Remove your own access?",
+      "selfRemoveBody": "You are about to unassign yourself from this facility. You will lose access to it immediately, and this page will no longer open for you. You can re-grant your own access afterwards.",
+      "selfRemoveConfirm": "Remove my access",
+      "selfRemoveBack": "Go back",
+      "errors": {
+        "forbidden": "You don't have permission to manage this facility's access.",
+        "notFound": "Facility not found.",
+        "invalidUsers": "Could not save. Check the selected users and try again."
+      }
+    },
+    "vehicleTypes": {
+      "car": "Car",
+      "motorcycle": "Motorcycle",
+      "van": "Van",
+      "truck": "Truck"
+    },
+    "assignModal": {
+      "assignPlanTitle": "Assign tariff plan",
+      "assignPlanDescription": "{count, plural, one {Assign a tariff plan to # facility.} other {Assign a tariff plan to # facilities.}}",
+      "helpTextBulk": "Each dropdown only lists tariffs that can legally price that vehicle type. When exactly one qualifying tariff exists, it is pre-selected automatically, but it still needs an explicit Assign click to take effect. Any vehicle type left unset falls back to the operator's default plan.",
+      "helpTextSingle": "Each dropdown only lists tariffs that can legally price that vehicle type. When exactly one qualifying tariff exists, it is pre-selected automatically, but it still needs an explicit Assign click to take effect. Any vehicle type left unset falls back to the operator's default plan (shown in the row below).",
+      "noChange": "No change",
+      "allOtherVehicleTypes": "All other vehicle types",
+      "noDefaultSet": "No default set",
+      "bulkFallbackHint": "Vehicle types left unassigned will fall back to each facility's own operator default plan.",
+      "assign": "Assign"
+    },
+    "validation": {
+      "nameRequired": "Name is required.",
+      "addressRequired": "Address is required.",
+      "locationRequired": "Set a location on the map.",
+      "totalCapacityInvalidType": "Total capacity must be a number.",
+      "totalCapacityMin": "Total capacity must be at least 1.",
+      "onlineQuotaInvalidType": "Online quota must be a number.",
+      "onlineQuotaMin": "Online quota must be 0 or greater.",
+      "onlineQuotaExceedsCapacity": "Online quota cannot exceed total capacity.",
+      "vehicleTypesRequired": "Select at least one vehicle type.",
+      "heightRestrictionInvalidType": "Height restriction must be a number.",
+      "openTimeInvalid": "Enter a valid open time (HH:MM).",
+      "closeTimeInvalid": "Enter a valid close time (HH:MM)."
+    }
+  },
+  "tariffs": {
+    "upgradeCta": "Upgrade your plan",
+    "list": {
+      "title": "Tariffs",
+      "description": "Manage pricing plans and assign them to facilities.",
+      "newPlan": "New plan",
+      "searchPlaceholder": "Search tariff plans…",
+      "count": "{count, plural, one {# plan} other {# plans}}",
+      "empty": {
+        "title": "No tariff plans found",
+        "default": "Create your first pricing plan to get started.",
+        "filtered": "No plans match your search."
+      }
+    },
+    "table": {
+      "name": "Name",
+      "operator": "Operator",
+      "status": "Status",
+      "vehicles": "Vehicles",
+      "validity": "Validity",
+      "version": "Version",
+      "updated": "Updated",
+      "actions": "Actions",
+      "default": "Default",
+      "active": "Active",
+      "inactive": "Inactive",
+      "validityAlways": "Always",
+      "validityFrom": "From {date}",
+      "validityUntil": "Until {date}",
+      "validityRange": "{from} – {to}"
+    },
+    "filters": {
+      "operatorAria": "Filter by operator",
+      "allOperators": "All operators"
+    },
+    "new": {
+      "pageTitle": "New tariff plan",
+      "defaultName": "New tariff plan",
+      "defaultWindowLabel": "All day"
+    },
+    "detail": {
+      "description": "{count, plural, one {Used by # facility.} other {Used by # facilities.}}",
+      "descriptionDefault": "{count, plural, one {Used by # facility} other {Used by # facilities}} directly, plus {implicitCount} more as the operator default."
+    },
+    "editor": {
+      "saving": "Saving…",
+      "createPlan": "Create plan",
+      "saveChanges": "Save changes",
+      "fixBeforeSaving": "Fix before saving",
+      "simulationError": "Could not compute a quote."
+    },
+    "meta": {
+      "heading": "Plan details",
+      "planName": "Plan name",
+      "timezone": "Timezone (IANA)",
+      "graceMinutes": "Grace minutes",
+      "incrementMinutes": "Increment minutes",
+      "validFrom": "Valid from",
+      "validTo": "Valid to",
+      "anyTime": "Any time",
+      "vehicleTypesLabel": "Vehicle types",
+      "active": "Active",
+      "defaultPlan": "Default plan for this operator",
+      "defaultHint": "Leave vehicle types empty to make this plan eligible to be the default.",
+      "info": {
+        "planName": "Internal name shown in plan lists and to staff — not shown to end customers.",
+        "timezone": "IANA zone (e.g. Europe/Athens) used to convert window times and weekdays to local wall-clock time.",
+        "graceMinutes": "Subtracted from the stay's duration before billing. Stays shorter than this are free; longer stays are billed for duration minus grace.",
+        "incrementMinutes": "After grace is subtracted, billable duration rounds up to the next multiple of this value — e.g. a 61-minute stay with a 15-minute increment bills as 75 minutes.",
+        "validFrom": "Plan becomes eligible for quoting and booking from this date onward. Leave empty for no start limit.",
+        "validTo": "Plan stops being eligible for quoting and booking after this date. Leave empty for no end limit.",
+        "vehicleTypesLabel": "Limits this plan to the selected vehicle types. Leave empty to price every vehicle type — required for the plan to be eligible as default.",
+        "active": "Inactive plans stay saved but can't be assigned to facilities or used for quotes.",
+        "defaultPlan": "Applied automatically to any facility with no plan explicitly assigned. Only available when vehicle types is empty."
+      }
+    },
+    "visibility": {
+      "heading": "Visibility",
+      "operatorIdLabel": "Operator ID"
+    },
+    "vehicleTypes": {
+      "car": "Car",
+      "motorcycle": "Motorcycle",
+      "van": "Van",
+      "truck": "Truck"
+    },
+    "rateGrid": {
+      "heading": "Rate grid",
+      "hint": "Every tier × window needs a price. Empty cells are flagged and rejected on save.",
+      "currency": "Currency",
+      "tierWindowHeader": "Tier \\ Window",
+      "tierLabel": "T{index} · {from}–{to}m",
+      "info": {
+        "currency": "Currency used for every price in this grid and in quotes for this plan.",
+        "tierWindowHeader": "Each cell prices one tier during one window. A stay is billed at the tier covering its cumulative duration, using the window active when that charge starts."
+      }
+    },
+    "caps": {
+      "heading": "Caps (optional)",
+      "hint": "Clamp totals. Stay = whole stay; rolling = per window bucket (1440 = daily).",
+      "windowMinutes": "Window (min)",
+      "cap": "Cap (€)",
+      "scope": "Scope",
+      "removeCap": "Remove cap",
+      "addCap": "+ Add cap",
+      "scopeOptions": {
+        "stay": "Whole stay",
+        "rolling": "Rolling window"
+      },
+      "info": {
+        "windowMinutes": "Size of the repeating bucket the cap resets on (1440 = once per calendar day). Only used when scope is Rolling window.",
+        "cap": "Maximum amount charged within the cap's scope — once per stay, or once per rolling window bucket.",
+        "scope": "Whole stay caps the total once across the entire booking. Rolling window re-applies the cap on each repeating bucket above, so long stays get capped multiple times."
+      }
+    },
+    "tiers": {
+      "heading": "Tiers",
+      "hint": "Cumulative-duration bands. Each tier starts where the previous ends; the last tier is open-ended.",
+      "fromMinutes": "From (min)",
+      "toMinutes": "To (min)",
+      "openEnded": "∞ (open)",
+      "unit": "Unit",
+      "blockMinutes": "Block (min)",
+      "removeTier": "Remove tier",
+      "addTier": "+ Add tier",
+      "unitOptions": {
+        "perMinute": "Per minute",
+        "perBlock": "Per block",
+        "flat": "Flat"
+      },
+      "info": {
+        "fromMinutes": "Set automatically to the previous tier's end — tiers chain contiguously with no gap or overlap.",
+        "toMinutes": "Minute where this tier ends and the next one begins. The last tier is always open-ended.",
+        "unit": "Per minute charges rate × minutes spent in this tier. Per block charges the block rate once per full or partial block. Flat charges the tier's rate once, however long the tier lasts.",
+        "blockMinutes": "Length of one billing block for a per-block tier. Any partial block still costs a full block's rate."
+      }
+    },
+    "windows": {
+      "heading": "Windows",
+      "hint": "Time-of-day slots per weekday. Start is inclusive, end exclusive; end ≤ start wraps past midnight.",
+      "label": "Label",
+      "days": "Days",
+      "start": "Start",
+      "end": "End",
+      "startAria": "Window start",
+      "endAria": "Window end",
+      "removeWindow": "Remove window",
+      "addWindow": "+ Add window",
+      "uncoveredWarning": "These days are not cleanly tiled across 24h (gap or overlap): {days}. Windows must run end-to-end from 00:00 to 24:00 with no gap or overlap. Pricing will be rejected until fixed.",
+      "weekday": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      },
+      "info": {
+        "label": "Name shown as this window's column header in the rate grid below.",
+        "days": "Weekdays this window applies to. Selected days must be fully covered by windows with no gap or overlap across 24 hours.",
+        "start": "Local time this window begins (inclusive).",
+        "end": "Local time this window ends (exclusive). Set it earlier than start to wrap past midnight."
+      }
+    },
+    "simulator": {
+      "heading": "Live quote",
+      "updating": "Updating…",
+      "startsAt": "Starts at",
+      "endsAt": "Ends at",
+      "startAria": "Quote start",
+      "endAria": "Quote end",
+      "vehicleType": "Vehicle type",
+      "emptyHint": "Adjust the plan to preview a quote.",
+      "itemHeader": "Item",
+      "durHeader": "Dur",
+      "unitHeader": "Unit",
+      "qtyHeader": "Qty",
+      "subtotalHeader": "Subtotal",
+      "duration": "Duration",
+      "billable": "Billable",
+      "total": "Total",
+      "info": {
+        "startsAt": "Test check-in time for this preview only — does not affect the saved plan.",
+        "endsAt": "Test check-out time for this preview only — does not affect the saved plan.",
+        "vehicleType": "Vehicle type used for this preview quote, limited to the types this plan accepts."
+      }
+    },
+    "delete": {
+      "buttonLabel": "Delete tariff plan",
+      "tooltip": "Delete plan",
+      "title": "Delete tariff plan",
+      "body": "This permanently removes the tariff plan and its pricing. This action cannot be undone. The record is retained and can only be restored by a platform administrator.",
+      "affectedFacilities": "{count, plural, one {This will unassign the plan from # facility.} other {This will unassign the plan from # facilities.}}",
+      "cancel": "Cancel",
+      "confirm": "Delete plan",
+      "deleting": "Deleting…"
+    },
+    "defaultReplacement": {
+      "title": "Choose a new default plan",
+      "body": "This is currently the operator's default tariff. Choose a replacement before continuing, or cancel — nothing changes until you pick one.",
+      "noCandidates": "No other active plan without vehicle-type restrictions is available. Create one first.",
+      "label": "New default plan",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "saving": "Saving…"
+    },
+    "managers": {
+      "heading": "Managers",
+      "description": "Only the operator members listed here can see and edit this tariff plan from their dashboard. This is layered on top of their operator role, not a replacement for it.",
+      "emptyState": "No one is assigned to manage this tariff plan yet. That's normal for plans created before the operator had any members.",
+      "columnMember": "Member",
+      "columnRole": "Role",
+      "columnAssigned": "Assigned",
+      "notAMember": "No longer an operator member",
+      "assignedBySystem": "Assigned {date} · automatically during rollout",
+      "assignedByYou": "Assigned {date} · by you",
+      "assignedByName": "Assigned {date} · by {name}",
+      "assignedByUnknown": "Assigned {date} · by another administrator",
+      "manageButton": "Manage access",
+      "modalTitle": "Manage access",
+      "modalDescription": "Choose who can see and edit this tariff plan. Operator members left unchecked keep their role but lose access to this plan.",
+      "noCandidates": "No eligible operator members to assign yet. Invite teammates to the operator first.",
+      "saveButton": "Save access",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "selfRemoveTitle": "Remove your own access?",
+      "selfRemoveBody": "You are about to unassign yourself from this tariff plan. You will lose access to it immediately, and this page will no longer open for you. You can re-grant your own access afterwards.",
+      "selfRemoveConfirm": "Remove my access",
+      "selfRemoveBack": "Go back",
+      "errors": {
+        "forbidden": "You don't have permission to manage this tariff plan's access.",
+        "notFound": "Tariff plan not found.",
+        "invalidUsers": "Could not save. Check the selected users and try again."
+      }
+    },
+    "errors": {
+      "forbidden": "You are not allowed to manage this plan.",
+      "notFound": "Tariff plan not found.",
+      "genericError": "Something went wrong. Please try again.",
+      "scheduleInvalid": "Invalid tariff configuration. Check the schedule and rate grid.",
+      "missingDraft": "Missing draft payload.",
+      "invalidJson": "Draft payload is not valid JSON.",
+      "invalidConfig": "Invalid tariff configuration.",
+      "fixConfigToPreview": "Fix the tariff configuration to preview a quote.",
+      "invalidWindow": "Enter a valid start and end time.",
+      "endBeforeStart": "End time must be after start time.",
+      "quoteFailed": "Could not compute a quote.",
+      "limitExceeded": "Your plan does not allow any more tariff plans."
+    },
+    "validation": {
+      "dateInvalid": "Enter a valid date.",
+      "windowLabelRequired": "Window label is required.",
+      "priceMin": "Price must be 0 or greater.",
+      "capWindowMin": "Cap window must be greater than 0.",
+      "capAmountMin": "Cap amount must be 0 or greater.",
+      "planNameRequired": "Plan name is required.",
+      "timezoneRequired": "Timezone is required.",
+      "graceMinutesMin": "Grace minutes must be 0 or greater.",
+      "incrementMinutesMin": "Increment minutes must be at least 1.",
+      "tiersRequired": "Add at least one tier.",
+      "windowsRequired": "Add at least one window.",
+      "validToAfterValidFrom": "Valid-to must be after valid-from.",
+      "defaultPlanNoVehicleRestriction": "A default plan cannot restrict vehicle types.",
+      "exactlyOneOpenEndedTier": "There must be exactly one open-ended tier (no upper bound).",
+      "openEndedTierMustBeLast": "The open-ended tier must be the last tier.",
+      "tiersMustBeContiguous": "Tiers must tile the duration axis contiguously with no gaps or overlaps.",
+      "tierEndAfterStart": "Tier end must be after its start.",
+      "perBlockNeedsBlockSize": "Per-block tiers need a positive block size.",
+      "windowKeysUnique": "Window keys must be unique.",
+      "rateGridIncomplete": "Every tier × window cell needs a price. The rate grid is incomplete."
+    }
+  },
+  "operatorPlans": {
+    "list": {
+      "title": "Operator plans",
+      "description": "Subscription plans operators can be placed on, with the capacity and features each one grants.",
+      "newPlan": "New plan",
+      "count": "{count, plural, one {# plan} other {# plans}}",
+      "empty": {
+        "title": "No operator plans yet",
+        "default": "Create the first subscription plan to start placing operators on it."
+      }
+    },
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "price": "Price",
+      "interval": "Billing",
+      "subscribers": "Subscribers",
+      "visibility": "Visibility",
+      "status": "Status",
+      "actions": "Actions",
+      "public": "Public",
+      "private": "Private",
+      "intervalValue": {
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      },
+      "lifecycle": {
+        "ACTIVE": "Active",
+        "ARCHIVED": "Archived",
+        "TOMBSTONED": "Deleted",
+        "PURGED": "Purged"
+      }
+    },
+    "new": {
+      "pageTitle": "New operator plan",
+      "description": "The plan code is permanent once saved — everything else can be changed later."
+    },
+    "detail": {
+      "description": "{count, plural, =0 {No operator is on this plan.} one {# operator is on this plan.} other {# operators are on this plan.}}"
+    },
+    "editor": {
+      "saving": "Saving…",
+      "createPlan": "Create plan",
+      "saveChanges": "Save changes",
+      "fixBeforeSaving": "Fix before saving"
+    },
+    "meta": {
+      "heading": "Plan details",
+      "code": "Plan code",
+      "name": "Plan name",
+      "description": "Description",
+      "price": "Price",
+      "currency": "Currency",
+      "interval": "Billing interval",
+      "codeImmutable": "The code is permanent and cannot be changed after the plan is created.",
+      "intervalOptions": {
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      },
+      "info": {
+        "code": "Stable, machine-readable identifier used by billing and by the platform's own default-plan lookup. Lowercase letters, digits, dashes and underscores only. It cannot be changed after creation.",
+        "name": "Name shown to administrators and, for public plans, to operators choosing a plan.",
+        "description": "Short summary of what the plan includes. Optional — leave empty to show nothing.",
+        "price": "Recurring amount charged per billing interval, entered in whole currency units (e.g. 49.90).",
+        "currency": "ISO 4217 code the price is charged in, e.g. EUR. Three uppercase letters.",
+        "interval": "How often the price recurs. Changing it does not re-price existing subscribers on its own."
+      }
+    },
+    "entitlements": {
+      "heading": "Entitlements",
+      "hint": "What the plan grants. Leave a limit at a number to cap it, or tick Unlimited to remove the cap entirely — 0 is a real limit that permits nothing.",
+      "maxFacilities": "Facilities",
+      "maxTariffPlans": "Tariff plans",
+      "maxStaffSeats": "Staff seats",
+      "unlimited": "Unlimited",
+      "unlimitedShort": "∞",
+      "commission": "Commission (%)",
+      "featuresLabel": "Features",
+      "features": {
+        "analyticsAdvanced": "Advanced analytics",
+        "supportPriority": "Priority support",
+        "teamManagement": "Team management"
+      },
+      "info": {
+        "maxFacilities": "How many facilities the operator may have at once. Creating one past the limit is refused until they upgrade or remove one.",
+        "maxTariffPlans": "How many tariff plans the operator may keep at once, counted across all their facilities.",
+        "maxStaffSeats": "How many team members the operator may have, counting pending invites.",
+        "commissionBps": "The platform's take on each booking, as a percentage of the stay total. Stored as basis points; enter it as a percentage, e.g. 2.50.",
+        "features": "Capabilities the plan unlocks. Each one gates a real surface — an unticked feature is refused, not merely hidden."
+      }
+    },
+    "visibility": {
+      "heading": "Visibility",
+      "isPublic": "Public plan",
+      "sortOrder": "Sort order",
+      "info": {
+        "isPublic": "Public plans are offered to operators. A private plan still works exactly the same once assigned by an administrator — it is simply not advertised.",
+        "sortOrder": "Position in the catalog, lowest first. Plans with the same sort order fall back to their code."
+      }
+    },
+    "archive": {
+      "buttonLabel": "Archive plan",
+      "tooltip": "Archive plan",
+      "title": "Archive {name}",
+      "body": "An archived plan disappears from the catalog and can no longer be assigned. Operators already on it are unaffected.",
+      "subscribers": "{count, plural, one {# operator is currently on this plan and archiving will be refused.} other {# operators are currently on this plan and archiving will be refused.}}",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Why is this plan being retired?",
+      "reasonTooShort": "Give at least 3 characters, or leave the reason empty.",
+      "cancel": "Cancel",
+      "confirm": "Archive plan",
+      "archiving": "Archiving…"
+    },
+    "subscription": {
+      "heading": "Subscription",
+      "currentPlan": "Current plan",
+      "noPlan": "No subscription",
+      "status": "Status",
+      "noStatus": "None",
+      "source": "Entitlements from",
+      "commission": "Commission",
+      "commissionValue": "{percent}%",
+      "usageHeading": "Resource",
+      "usageColumn": "Used / limit",
+      "usageValue": "{current} / {limit}",
+      "statusOptions": {
+        "trialing": "Trialing",
+        "active": "Active",
+        "pastDue": "Past due",
+        "cancelled": "Cancelled"
+      },
+      "sources": {
+        "exempt": "Exempt — no limits apply",
+        "subscription": "The assigned plan",
+        "subscriptionOverride": "The assigned plan, with a negotiated override",
+        "default": "The platform default plan"
+      },
+      "info": {
+        "source": "Where the limits in force come from: an exemption, the assigned plan, that plan adjusted by a negotiated override, or the platform's default plan when there is no subscription."
+      },
+      "assign": {
+        "heading": "Assign a plan",
+        "description": "Moving an operator to a smaller plan is refused if they already hold more than it allows — the refusal names exactly what is over the limit.",
+        "planLabel": "Plan",
+        "choosePlan": "Choose a plan…",
+        "statusLabel": "Status",
+        "submit": "Save subscription",
+        "saving": "Saving…",
+        "saved": "Subscription saved."
+      },
+      "override": {
+        "heading": "Negotiated override",
+        "description": "Tick only the terms that deviate from the plan; everything left unticked keeps following the catalog. Unticking all of them removes the override entirely.",
+        "submit": "Save override",
+        "saving": "Saving…",
+        "saved": "Override saved."
+      }
+    },
+    "errors": {
+      "forbidden": "You are not allowed to manage subscription plans.",
+      "notFound": "Plan not found.",
+      "conflict": "This change conflicts with the current state.",
+      "invalidData": "Some values were rejected. Check the form and try again.",
+      "genericError": "Something went wrong. Please try again.",
+      "missingDraft": "Missing draft payload.",
+      "invalidJson": "Draft payload is not valid JSON.",
+      "invalidConfig": "Invalid plan configuration."
+    },
+    "validation": {
+      "codeRequired": "Plan code must be at least 2 characters.",
+      "codeTooLong": "Plan code must be 50 characters or fewer.",
+      "codeFormat": "Plan code must be lowercase letters or digits, optionally with - or _.",
+      "nameRequired": "Plan name must be at least 2 characters.",
+      "nameTooLong": "Plan name must be 100 characters or fewer.",
+      "descriptionTooLong": "Description must be 500 characters or fewer.",
+      "priceInvalid": "Enter a price as a number, e.g. 49.90.",
+      "priceMin": "Price must be 0 or greater.",
+      "priceMax": "Price is too large.",
+      "currencyFormat": "Currency must be a 3-letter ISO code, e.g. EUR.",
+      "intervalInvalid": "Choose a billing interval.",
+      "limitInvalid": "Enter a whole number, or tick Unlimited.",
+      "limitMin": "A limit must be 0 or greater.",
+      "limitMax": "That limit is too large.",
+      "commissionInvalid": "Enter a commission as a percentage, e.g. 2.50.",
+      "commissionMin": "Commission must be 0% or greater.",
+      "commissionMax": "Commission cannot exceed 100%.",
+      "featuresInvalid": "Unrecognised feature selection.",
+      "isPublicInvalid": "Visibility must be on or off.",
+      "sortOrderInvalid": "Sort order must be a whole number.",
+      "sortOrderMin": "Sort order must be 0 or greater.",
+      "sortOrderMax": "Sort order is too large.",
+      "planRequired": "Choose a plan.",
+      "statusInvalid": "Choose a subscription status."
+    }
+  },
+  "driverPlans": {
+    "list": {
+      "title": "Driver plans",
+      "description": "Manage rider subscription plans, pricing and the perks each one grants.",
+      "newPlan": "New plan",
+      "count": "{count, plural, one {# plan} other {# plans}}",
+      "empty": {
+        "title": "No driver plans yet",
+        "default": "Create your first rider plan to start selling perks."
+      }
+    },
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "price": "Price",
+      "interval": "Billing",
+      "visibility": "Visibility",
+      "subscribers": "Subscribers",
+      "status": "Status",
+      "actions": "Actions",
+      "public": "Public",
+      "private": "Hidden"
+    },
+    "interval": {
+      "MONTHLY": "Monthly",
+      "YEARLY": "Yearly"
+    },
+    "status": {
+      "TRIALING": "Trialing",
+      "ACTIVE": "Active",
+      "PAST_DUE": "Past due",
+      "CANCELLED": "Cancelled"
+    },
+    "lifecycle": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archived",
+      "TOMBSTONED": "Tombstoned",
+      "PURGED": "Purged"
+    },
+    "new": {
+      "pageTitle": "New driver plan",
+      "description": "The plan code is permanent once saved — everything else can be changed later.",
+      "defaultName": "New driver plan"
+    },
+    "detail": {
+      "description": "{count, plural, one {# live subscriber.} other {# live subscribers.}}",
+      "archivedNotice": "This plan is archived. It stays readable for history, but no new rider can be assigned to it."
+    },
+    "editor": {
+      "saving": "Saving…",
+      "createPlan": "Create plan",
+      "saveChanges": "Save changes",
+      "fixBeforeSaving": "Fix before saving"
+    },
+    "meta": {
+      "heading": "Plan details",
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "price": "Price (€)",
+      "currency": "Currency",
+      "interval": "Billing interval",
+      "sortOrder": "Sort order",
+      "isPublic": "Publicly listed",
+      "info": {
+        "code": "Permanent machine identifier for this plan, used in audit entries and payment-provider metadata. Lowercase letters, digits, - and _ only. It cannot be changed after the plan is created.",
+        "codeImmutable": "Set when the plan was created and permanent — audit entries and payment-provider records already reference it.",
+        "name": "Name riders see when they compare plans.",
+        "description": "Short summary of what the plan gives a rider. Shown alongside the name wherever plans are listed.",
+        "price": "Amount charged each billing interval, entered in euros. Stored as integer cents, so 9.90 is billed as €9.90 exactly.",
+        "currency": "ISO 4217 code, three uppercase letters (e.g. EUR). Applies to this plan's price.",
+        "interval": "How often the rider is charged. Changing it does not re-price anyone already subscribed.",
+        "sortOrder": "Lower numbers appear first wherever plans are listed. Ties fall back to the plan code.",
+        "isPublic": "Hidden plans stay fully usable and can still be assigned by an administrator — they just never appear in the rider-facing catalog."
+      }
+    },
+    "entitlements": {
+      "heading": "Perks",
+      "hint": "What a rider on this plan gets. Every field here is what the booking flow reads at price time.",
+      "bookingDiscount": "Booking discount (%)",
+      "noDiscount": "No discount",
+      "bookingFeeWaived": "Booking fee waived",
+      "freeCancellations": "Free cancellations",
+      "unlimited": "Unlimited",
+      "features": "Features",
+      "featureLabels": {
+        "support": {
+          "priority": "Priority support"
+        }
+      },
+      "info": {
+        "bookingDiscount": "Percentage taken off the booking price for this rider. Tick “No discount” for a plan that sells other perks but not a price cut.",
+        "bookingFeeWaived": "Drops the platform booking fee entirely for riders on this plan.",
+        "freeCancellations": "How many cancellations a rider may make without a fee per billing period. Tick “Unlimited” for no cap at all — zero and unlimited are opposite answers, so pick deliberately.",
+        "features": "Non-numeric perks this plan unlocks. Each one is checked by name in the code that grants it."
+      }
+    },
+    "archive": {
+      "trigger": "Archive",
+      "buttonLabel": "Archive driver plan",
+      "tooltip": "Archive plan",
+      "title": "Archive driver plan",
+      "body": "Archiving “{name}” removes it from the catalog. Existing history is kept and nothing is deleted, but no rider can be assigned to it afterwards.",
+      "subscribers": "{count, plural, one {# rider is subscribed and archiving will be refused until they are moved.} other {# riders are subscribed and archiving will be refused until they are moved.}}",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Why is this plan being retired?",
+      "reasonTooShort": "Give at least 3 characters, or leave the reason empty.",
+      "cancel": "Cancel",
+      "confirm": "Archive plan",
+      "archiving": "Archiving…"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "freeTier": "This rider is on the free tier — the normal state for an account that has never bought a plan. They book at standard prices with no plan perks.",
+      "openEnded": "Open-ended",
+      "none": "None",
+      "yes": "Yes",
+      "no": "No",
+      "source": {
+        "free": "Free tier",
+        "subscription": "Plan",
+        "subscription+override": "Plan with negotiated override"
+      },
+      "fields": {
+        "plan": "Plan",
+        "status": "Status",
+        "period": "Current period",
+        "trialEndsAt": "Trial ends",
+        "cancelAtPeriodEnd": "Cancels at period end",
+        "provider": "Provider subscription",
+        "source": "Entitlement source"
+      },
+      "assign": {
+        "heading": "Assign a plan",
+        "hint": "Sets the rider's plan and subscription status directly, without going through checkout.",
+        "planLabel": "Plan",
+        "statusLabel": "Status",
+        "noPlans": "No active driver plan exists yet. Create one before assigning.",
+        "submit": "Save subscription",
+        "saving": "Saving…"
+      },
+      "override": {
+        "heading": "Negotiated override",
+        "hint": "Only the perks you tick are overridden — everything left unticked keeps following the plan, including later catalog changes.",
+        "needsPlan": "An override amends a plan. Assign this rider a plan first.",
+        "clear": "Clear override",
+        "submit": "Save override",
+        "saving": "Saving…"
+      }
+    },
+    "errors": {
+      "forbidden": "You are not allowed to manage driver plans.",
+      "notFound": "Driver plan not found.",
+      "conflict": "That change conflicts with the current state of the catalog.",
+      "invalidData": "The server rejected this data.",
+      "genericError": "Something went wrong. Please try again.",
+      "missingDraft": "Missing draft payload.",
+      "invalidJson": "Draft payload is not valid JSON.",
+      "invalidConfig": "Invalid plan configuration."
+    },
+    "validation": {
+      "codeFormat": "Code must be 2–50 characters: lowercase letters, digits, - or _, starting with a letter or digit.",
+      "nameRequired": "Name must be at least 2 characters.",
+      "nameTooLong": "Name must be 100 characters or fewer.",
+      "descriptionTooLong": "Description must be 500 characters or fewer.",
+      "priceRange": "Price must be between €0.00 and €1,000,000.00.",
+      "currencyFormat": "Currency must be a three-letter ISO 4217 code, e.g. EUR.",
+      "discountRange": "Discount must be between 0% and 100%.",
+      "freeCancellationsRange": "Free cancellations must be a whole number between 0 and 1,000,000.",
+      "sortOrderRange": "Sort order must be a whole number between 0 and 10,000.",
+      "reasonTooShort": "Give at least 3 characters, or leave the reason empty.",
+      "planRequired": "Choose a plan first.",
+      "statusInvalid": "Choose a valid subscription status."
+    }
+  },
+  "bookings": {
+    "title": "Bookings",
+    "description": "Track reservations and run check-in / check-out.",
+    "filters": {
+      "all": "All",
+      "pendingPayment": "Pending payment",
+      "confirmed": "Confirmed",
+      "checkedIn": "Checked in",
+      "checkedOut": "Checked out",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "refundPending": "Refund pending",
+      "refunded": "Refunded"
+    },
+    "searchPlaceholder": "Search access code or plate…",
+    "count": "{count, plural, one {# booking} other {# bookings}}",
+    "empty": {
+      "title": "No bookings",
+      "filtered": "No bookings match these filters.",
+      "default": "Bookings will appear here as they come in."
+    },
+    "table": {
+      "accessCode": "Access code",
+      "facility": "Facility",
+      "vehicle": "Vehicle",
+      "window": "Window",
+      "price": "Price",
+      "status": "Status",
+      "action": "Action"
+    },
+    "status": {
+      "pendingPayment": "Pending payment",
+      "confirmed": "Confirmed",
+      "checkedIn": "Checked in",
+      "checkedOut": "Checked out",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "refundPending": "Refund pending",
+      "refunded": "Refunded"
+    },
+    "actions": {
+      "checkIn": "Check in",
+      "checkOut": "Check out",
+      "working": "Working…",
+      "cancel": "Cancel"
+    },
+    "detail": {
+      "back": "Back to bookings",
+      "sections": {
+        "overview": "Overview",
+        "payment": "Payment & refund",
+        "timeline": "Status history"
+      },
+      "fields": {
+        "facility": "Facility",
+        "customer": "Customer",
+        "vehicle": "Vehicle",
+        "window": "Window",
+        "accessCode": "Access code",
+        "quotedPrice": "Quoted price",
+        "finalPrice": "Final price",
+        "adjustment": "Price adjustment"
+      },
+      "noAdjustment": "No adjustment",
+      "payment": {
+        "PENDING_PAYMENT": "Awaiting payment capture.",
+        "CONFIRMED": "Paid in full.",
+        "CHECKED_IN": "Paid in full.",
+        "CHECKED_OUT": "Paid in full — final price settled at check-out.",
+        "CANCELLED": "Cancelled before payment was captured.",
+        "EXPIRED": "Quote expired before payment was captured.",
+        "REFUND_PENDING": "Refund in progress — the provider call is still outstanding.",
+        "REFUNDED": "Refunded in full."
+      },
+      "timeline": {
+        "empty": "No status changes recorded yet.",
+        "automatic": "Automatic",
+        "changedBy": "Changed by staff · {id}"
+      },
+      "cancel": {
+        "button": "Cancel booking",
+        "modalTitle": "Cancel this booking?",
+        "modalText": "This cancels the booking immediately. If it was paid, a refund is requested from the payment provider. This cannot be undone.",
+        "confirm": "Cancel booking",
+        "cancelling": "Cancelling…"
+      }
+    },
+    "errors": {
+      "forbidden": "You are not allowed to manage this booking.",
+      "notFound": "Booking not found.",
+      "invalidState": "Booking is no longer in a state that allows this action.",
+      "refundFailed": "The refund could not be completed right now. The booking is marked refund-pending — try cancelling again to retry.",
+      "genericError": "Something went wrong. Please try again.",
+      "missingId": "Missing booking id."
+    }
+  },
+  "scan": {
+    "title": "Scan",
+    "description": "Scan a booking QR code or enter an access code to check a vehicle in.",
+    "camera": {
+      "heading": "Camera",
+      "starting": "Starting camera…",
+      "hint": "Point the camera at the booking QR code",
+      "error": {
+        "insecureContext": "Camera requires a secure (HTTPS) connection. Use the manual code entry below instead.",
+        "unsupported": "This device or browser doesn't support camera scanning. Use the manual code entry below.",
+        "permissionDenied": "Camera access was denied. Allow camera access, or use the manual code entry below.",
+        "notFound": "No camera was found on this device. Use the manual code entry below.",
+        "unknown": "The camera couldn't be started. Use the manual code entry below."
+      }
+    },
+    "manual": {
+      "heading": "Enter code manually",
+      "label": "Access code",
+      "placeholder": "e.g. 7ZK4QAND3H8QX5RT2VBWY9",
+      "submit": "Check",
+      "submitting": "Checking…",
+      "invalidFormat": "Enter a valid access code."
+    },
+    "mute": {
+      "on": "Turn sound on",
+      "off": "Turn sound off"
+    },
+    "result": {
+      "idle": "Ready to scan",
+      "pending": "Checking…",
+      "verdict": {
+        "valid": "Valid ticket",
+        "checkedIn": "Checked in",
+        "alreadyCheckedIn": "Already checked in",
+        "validNotApplied": "Verified, but the booking status changed — check manually",
+        "invalidSignature": "Invalid code — not a genuine sPark ticket",
+        "outsideTimeWindow": "Code expired — ask the driver to refresh the QR",
+        "alreadyUsed": "Code already used",
+        "notHonourable": "Booking is not valid for entry"
+      },
+      "errors": {
+        "invalidFormat": "Enter a valid access code.",
+        "malformed": "This code is not a valid sPark ticket",
+        "notFound": "No booking matches this code",
+        "redisUnavailable": "QR verification is temporarily unavailable — use manual code entry below",
+        "rateLimited": "Scanning too fast — pause a moment before the next attempt",
+        "genericError": "Couldn't verify — try again."
+      },
+      "fields": {
+        "facility": "Facility",
+        "vehicle": "Vehicle",
+        "window": "Window",
+        "accessCode": "Access code"
+      }
+    }
+  },
+  "insights": {
+    "analytics": {
+      "title": "Analytics",
+      "description": "Platform-wide performance insights.",
+      "stats": {
+        "totalRevenue": {
+          "label": "Total revenue",
+          "hint": "Net revenue collected across all facilities in the selected period."
+        },
+        "bookings": {
+          "label": "Bookings",
+          "hint": "Total bookings completed across all facilities in the selected period."
+        },
+        "avgTicket": {
+          "label": "Avg. ticket",
+          "hint": "Average revenue per booking in the selected period."
+        }
+      },
+      "revenuePanel": {
+        "title": "Revenue",
+        "subtitle": "Revenue trend for the selected period",
+        "chartLabel": "Revenue by period",
+        "emptyTitle": "No revenue data yet",
+        "emptyMessage": "The revenue chart will populate once analytics reporting is available."
+      },
+      "topFacilitiesPanel": {
+        "title": "Top facilities",
+        "subtitle": "Ranked by revenue",
+        "emptyTitle": "No facility data yet",
+        "emptyMessage": "Facility rankings will appear once revenue data is available.",
+        "table": {
+          "facility": "Facility",
+          "bookings": "Bookings",
+          "revenue": "Revenue"
+        }
+      },
+      "errors": {
+        "mixedCurrency": "This period mixes multiple currencies and can't be combined. Narrow the date range.",
+        "unknown": "Couldn't load analytics right now. Try again shortly."
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "description": "Every change made across the platform.",
+      "system": "System",
+      "emptyTitle": "No activity recorded yet",
+      "emptyMessage": "A history of account and facility changes will appear here once audit logging is available.",
+      "emptyFiltered": "No activity matches these filters.",
+      "filters": {
+        "actionAria": "Filter by action",
+        "anyAction": "Any action",
+        "actorPlaceholder": "Search by actor email or name…"
+      },
+      "time": {
+        "justNow": "Just now",
+        "minutesAgo": "{count}m ago",
+        "hoursAgo": "{count}h ago",
+        "yesterday": "Yesterday",
+        "daysAgo": "{count}d ago"
+      },
+      "actions": {
+        "accountDeleted": "deleted their account",
+        "passwordResetRequested": "asked for a password reset link",
+        "passwordResetCompleted": "reset their password",
+        "passwordChangeRequested": "confirmed their current password to change it",
+        "passwordChanged": "changed their password",
+        "bookingCreated": "created a booking",
+        "bookingConfirmed": "confirmed a booking",
+        "bookingCancelled": "cancelled a booking",
+        "bookingRefunded": "processed a refund",
+        "bookingRefundRequested": "requested a refund",
+        "bookingRefundFailed": "could not process a refund",
+        "bookingCheckedIn": "checked a vehicle in",
+        "bookingCheckedOut": "checked a vehicle out",
+        "facilityCreated": "created a facility",
+        "facilityUpdated": "updated a facility",
+        "facilityArchived": "archived a facility",
+        "facilityRestored": "restored a facility",
+        "facilityTombstoned": "marked a facility for deletion",
+        "facilityPurged": "permanently deleted a facility",
+        "facilityManagersChanged": "changed who manages a facility",
+        "facilityTariffAssigned": "assigned a tariff plan",
+        "facilityTariffUnassigned": "unassigned a tariff plan",
+        "facilityDeactivated": "deactivated a facility",
+        "facilityBulkEnable": "enabled facilities in bulk",
+        "facilityBulkDisable": "disabled facilities in bulk",
+        "facilityBulkDeploy": "deployed facilities in bulk",
+        "facilityBulkDelete": "deleted facilities in bulk",
+        "facilityBulkPublish": "published facilities in bulk",
+        "facilityBulkUnpublish": "unpublished facilities in bulk",
+        "facilityBulkAssignTariff": "assigned tariffs in bulk",
+        "tariffPlanCreated": "created a tariff plan",
+        "tariffPlanUpdated": "updated a tariff plan",
+        "tariffPlanArchived": "archived a tariff plan",
+        "tariffPlanRestored": "restored a tariff plan",
+        "tariffPlanTombstoned": "marked a tariff plan for deletion",
+        "tariffPlanPurged": "permanently deleted a tariff plan",
+        "tariffPlanManagersChanged": "changed who manages a tariff plan",
+        "tariffPlanDeleted": "deleted a tariff plan",
+        "tariffPlanDeactivated": "deactivated a tariff plan",
+        "operatorArchived": "archived an operator",
+        "operatorRestored": "restored an operator",
+        "operatorTombstoned": "marked an operator for deletion",
+        "operatorPurged": "permanently deleted an operator",
+        "operatorSuspended": "suspended an operator",
+        "operatorReactivated": "reactivated an operator",
+        "operatorMemberRemoved": "removed a team member",
+        "operatorMemberRoleChanged": "changed a team member's role",
+        "operatorMemberScopesChanged": "changed a team member's access",
+        "operatorSubscriptionAssigned": "assigned a subscription plan",
+        "operatorSubscriptionOverrideSet": "overrode subscription entitlements",
+        "operatorSubscriptionUpgradeRequested": "requested a subscription upgrade",
+        "operatorSubscriptionQuotaThresholdWarned": "was warned about a plan limit",
+        "subscriptionPlanCreated": "created a subscription plan",
+        "subscriptionPlanUpdated": "updated a subscription plan",
+        "subscriptionPlanArchived": "archived a subscription plan",
+        "driverSubscriptionAssigned": "assigned a driver plan",
+        "driverSubscriptionOverrideSet": "overrode driver plan entitlements",
+        "driverSubscriptionPlanCreated": "created a driver plan",
+        "driverSubscriptionPlanUpdated": "updated a driver plan",
+        "driverSubscriptionPlanArchived": "archived a driver plan",
+        "driverSubscriptionBillingEventProcessed": "processed a driver billing event",
+        "driverSubscriptionSavingsSummarySent": "sent a driver savings summary",
+        "userArchived": "archived a user",
+        "userRestored": "restored a user",
+        "userTombstoned": "marked a user for deletion",
+        "userPurged": "permanently deleted a user",
+        "userPurgeAnonymised": "anonymised a user",
+        "userRoleChanged": "changed a user's platform role",
+        "userDemotionRequested": "requested a super admin demotion",
+        "userDemotionRejected": "rejected a super admin demotion request",
+        "userDemoted": "demoted a super admin",
+        "inviteCreated": "sent an invite",
+        "inviteAccepted": "accepted an invite",
+        "inviteResent": "resent an invite",
+        "inviteRevoked": "revoked an invite",
+        "adminInviteCreated": "invited a platform admin",
+        "adminInviteResent": "resent a platform admin invite",
+        "adminInviteRevoked": "revoked a platform admin invite",
+        "adminInviteAccepted": "accepted a platform admin invite",
+        "lifecyclePurgeRequested": "requested a permanent deletion",
+        "lifecyclePurgeApproved": "approved a permanent deletion",
+        "lifecyclePurgeRejected": "rejected a permanent deletion",
+        "lifecyclePurged": "completed a permanent deletion"
+      }
+    }
+  },
+  "adminLifecycle": {
+    "resourceType": {
+      "user": "User",
+      "operator": "Operator",
+      "facility": "Facility",
+      "tariff-plan": "Tariff plan"
+    },
+    "status": {
+      "ARCHIVED": "Archived",
+      "TOMBSTONED": "Tombstoned",
+      "PURGED": "Purged"
+    },
+    "cancel": "Cancel",
+    "close": "Close",
+    "reasonLabel": "Reason",
+    "reasonOptionalLabel": "Reason (optional)",
+    "reasonPlaceholder": "Why is this action necessary?",
+    "validation": {
+      "reasonRequired": "A reason is required."
+    },
+    "impact": {
+      "loading": "Checking impact…",
+      "loadError": "Could not load the impact preview. Try again.",
+      "blockersTitle": "This action is blocked",
+      "warningsTitle": "Warnings",
+      "effectsTitle": "This will also affect",
+      "acknowledge": "I understand the warnings above and want to continue.",
+      "noImpact": "No related records will be affected."
+    },
+    "action": {
+      "archive": {
+        "trigger": "Archive",
+        "modalTitle": "Archive {resource}",
+        "confirm": "Archive",
+        "confirming": "Archiving…"
+      },
+      "restore": {
+        "trigger": "Restore",
+        "modalTitle": "Restore {resource}",
+        "confirm": "Restore",
+        "confirming": "Restoring…"
+      },
+      "tombstone": {
+        "trigger": "Delete",
+        "modalTitle": "Delete {resource}",
+        "confirm": "Delete",
+        "confirming": "Deleting…"
+      },
+      "purge": {
+        "trigger": "Purge permanently",
+        "modalTitle": "Purge {resource} permanently",
+        "confirm": "Purge permanently",
+        "confirming": "Purging…",
+        "pendingApproval": "Submitted for review — a second platform admin must approve this purge before it happens."
+      }
+    },
+    "trash": {
+      "title": "Trash",
+      "description": "Archived and tombstoned resources across the platform.",
+      "filters": {
+        "resourceTypeAria": "Filter by resource type",
+        "anyResourceType": "All resource types",
+        "statusAria": "Filter by status",
+        "anyStatus": "Any status"
+      },
+      "table": {
+        "name": "Resource",
+        "type": "Type",
+        "status": "Status",
+        "reason": "Reason",
+        "changedAt": "Changed",
+        "retention": "Retention",
+        "actions": "Actions"
+      },
+      "noReason": "—",
+      "retention": {
+        "overdue": "Purge overdue",
+        "today": "Purges today",
+        "tomorrow": "Purges tomorrow",
+        "inDays": "{count, plural, one {Purges in # day} other {Purges in # days}}"
+      },
+      "empty": {
+        "title": "Nothing in the trash",
+        "message": "Archived and tombstoned resources will show up here."
+      },
+      "emptyFiltered": "No resources match these filters.",
+      "loadError": "Could not load the trash. The platform API request failed — try reloading the page."
+    },
+    "approvals": {
+      "title": "Purge approvals",
+      "description": "Pending two-person purge requests awaiting a second approver.",
+      "table": {
+        "resource": "Resource",
+        "reason": "Reason",
+        "requestedBy": "Requested by",
+        "requestedAt": "Requested at",
+        "expiresAt": "Expires",
+        "actions": "Actions"
+      },
+      "selfRequestNote": "You requested this purge — another platform admin must approve it.",
+      "empty": {
+        "title": "No pending approvals",
+        "message": "Purge requests awaiting a second approver will show up here."
+      },
+      "loadError": "Could not load approvals. The platform API request failed — try reloading the page.",
+      "approve": {
+        "trigger": "Approve",
+        "modalTitle": "Approve purge",
+        "body": "This permanently destroys {resource}. This cannot be undone.",
+        "confirm": "Approve purge",
+        "confirming": "Approving…"
+      },
+      "reject": {
+        "trigger": "Reject",
+        "modalTitle": "Reject purge request",
+        "body": "This cancels the purge request for {resource}.",
+        "reasonLabel": "Reason for rejection",
+        "confirm": "Reject request",
+        "confirming": "Rejecting…"
+      }
+    },
+    "errors": {
+      "forbidden": "You do not have permission to do this.",
+      "notFound": "This resource no longer exists.",
+      "conflict": "This action can no longer be applied — the resource state changed.",
+      "expired": "This approval request has expired.",
+      "invalidReason": "Enter a reason before continuing.",
+      "genericError": "Something went wrong. Try again."
+    }
+  },
+  "adminUsers": {
+    "title": "Users",
+    "description": "Every account on the platform, with role and lifecycle controls.",
+    "loadError": "Could not load users. The platform API request failed — try reloading the page.",
+    "searchPlaceholder": "Search by email or name…",
+    "filters": {
+      "roleAria": "Filter by role",
+      "anyRole": "Any role",
+      "statusAria": "Filter by status",
+      "anyStatus": "Any status"
+    },
+    "role": {
+      "USER": "User",
+      "OPERATOR_STAFF": "Operator staff",
+      "OPERATOR_ADMIN": "Operator admin",
+      "PLATFORM_ADMIN": "Platform admin",
+      "SUPER_ADMIN": "Super admin"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Suspended",
+      "TOMBSTONED": "Marked for deletion",
+      "PURGED": "Purged"
+    },
+    "anonymised": "Anonymised",
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "operators": "Operators",
+      "created": "Created",
+      "noOperators": "—"
+    },
+    "empty": {
+      "title": "No users yet",
+      "message": "Accounts will show up here once people sign up."
+    },
+    "emptyFiltered": "No users match these filters.",
+    "errors": {
+      "forbidden": "You do not have permission to do this.",
+      "notFound": "This account no longer exists.",
+      "conflict": "This action can no longer be applied — the account state changed.",
+      "expired": "This approval request has expired.",
+      "invalidReason": "Enter a reason before continuing (at least 3 characters).",
+      "genericError": "Something went wrong. Try again."
+    },
+    "detail": {
+      "back": "Back to users",
+      "loadError": "Could not load this user. The platform API request failed — try reloading the page.",
+      "notFound": "This user account no longer exists.",
+      "identity": {
+        "title": "Identity",
+        "fields": {
+          "id": "Account ID",
+          "email": "Email",
+          "displayName": "Display name",
+          "emailVerified": "Email verified",
+          "created": "Created",
+          "updated": "Last updated",
+          "sessionsValidFrom": "Sessions valid from"
+        },
+        "verified": "Verified",
+        "unverified": "Not verified",
+        "noDisplayName": "—"
+      },
+      "lifecycle": {
+        "title": "Lifecycle",
+        "status": "Status",
+        "anonymisedBadge": "Anonymised",
+        "anonymisedNote": "This account was deleted by its owner and anonymised in place. This is permanent — there is no identity left to restore, and role or lifecycle actions are unavailable.",
+        "changedAt": "Changed",
+        "changedBy": "Changed by",
+        "reason": "Reason",
+        "purgeAfter": "Scheduled purge",
+        "none": "—"
+      },
+      "memberships": {
+        "title": "Operator memberships",
+        "empty": "This account is not a member of any operator.",
+        "table": {
+          "operator": "Operator",
+          "role": "Role"
+        }
+      },
+      "role": {
+        "title": "Platform role",
+        "current": "Role",
+        "superAdminNote": "Super admins cannot be re-roled directly. Use Demote below, which requires a second super admin to approve.",
+        "selfNote": "You cannot change your own platform role.",
+        "trigger": "Change role",
+        "modalTitle": "Change platform role",
+        "modalText": "Change the platform role for {email}.",
+        "roleLabel": "New role",
+        "reasonLabel": "Reason",
+        "confirm": "Save role",
+        "confirming": "Saving…"
+      },
+      "suspend": {
+        "trigger": "Suspend",
+        "modalTitle": "Suspend account",
+        "modalText": "This suspends the account. It can be restored at any time.",
+        "reasonLabel": "Reason",
+        "confirm": "Suspend",
+        "confirming": "Suspending…"
+      },
+      "restore": {
+        "trigger": "Restore",
+        "modalTitle": "Restore account",
+        "modalText": "This restores the account to active.",
+        "reasonLabel": "Reason (optional)",
+        "confirm": "Restore",
+        "confirming": "Restoring…"
+      },
+      "demote": {
+        "title": "Demote super admin",
+        "explain": "Super admins can only be demoted, never re-roled directly. This files a request that a different super admin must approve within 24 hours before the account loses its tier.",
+        "selfNote": "You cannot demote your own account.",
+        "trigger": "Demote",
+        "modalTitle": "Request demotion",
+        "modalText": "This files a demotion request for {email}. It takes effect only once a different super admin approves it.",
+        "reasonLabel": "Reason",
+        "confirm": "Request demotion",
+        "confirming": "Requesting…"
+      },
+      "approval": {
+        "title": "Pending demotion request",
+        "body": "{requestedByRole} requested this demotion: \"{reason}\"",
+        "expiresAt": "Expires",
+        "selfRequestNote": "You requested this demotion — another super admin must approve it.",
+        "approve": {
+          "trigger": "Approve demotion",
+          "modalTitle": "Approve demotion",
+          "body": "This demotes {email} from super admin. This cannot be undone by rejecting afterwards.",
+          "confirm": "Approve demotion",
+          "confirming": "Approving…"
+        },
+        "reject": {
+          "trigger": "Reject",
+          "modalTitle": "Reject demotion request",
+          "body": "This cancels the demotion request for {email}.",
+          "reasonLabel": "Reason for rejection",
+          "confirm": "Reject request",
+          "confirming": "Rejecting…"
+        }
+      },
+      "activity": {
+        "title": "Recent activity",
+        "empty": "No recorded activity for this account yet."
+      }
+    }
+  },
+  "team": {
+    "title": "Team",
+    "description": "Manage who has access to your operator account and what they can do.",
+    "explainer": "Invite people to help run your business on sPark. Staff members start with day-to-day access — bookings, the scanner and reporting — and you can fine-tune exactly what each one can do. Admins have full access to everything, including the team itself.",
+    "cancel": "Cancel",
+    "upgradeCta": "Upgrade your plan",
+    "form": {
+      "heading": "Invite a team member",
+      "emailLabel": "Email",
+      "roleLabel": "Role",
+      "sendInvite": "Send invite",
+      "sending": "Sending…",
+      "sent": "Invite sent.",
+      "sentNotDelivered": "The invite was created, but the email failed to send. The recipient cannot use this invite until you send a new one.",
+      "seatLimitMessage": "You've used all the staff seats on your plan. Upgrade your plan to invite more team members, or remove someone first."
+    },
+    "roleOptions": {
+      "ADMIN": "Admin",
+      "STAFF": "Staff"
+    },
+    "table": {
+      "email": "Email",
+      "role": "Role",
+      "scopes": "Access",
+      "joined": "Joined",
+      "actions": "Actions"
+    },
+    "scopesSummary": {
+      "fullAccess": "Full access",
+      "adminHint": "Admins hold every permission by definition",
+      "count": "{count, plural, =0 {No permissions granted} other {# of {total} permissions}}"
+    },
+    "selfNote": "This is you",
+    "soleAdminNote": "Sole admin — promote another member first",
+    "changeRole": {
+      "trigger": "Change role",
+      "modalTitle": "Change role for {email}",
+      "roleLabel": "Role",
+      "confirm": "Save",
+      "confirming": "Saving…"
+    },
+    "remove": {
+      "trigger": "Remove",
+      "modalTitle": "Remove member",
+      "body": "This removes {email} from your team. They lose all access immediately.",
+      "confirm": "Remove member",
+      "confirming": "Removing…"
+    },
+    "scopesEditor": {
+      "trigger": "Manage access",
+      "modalTitle": "Manage access for {email}",
+      "signOutWarning": "Saving this signs {email} out immediately — they'll need to sign in again before the new access applies.",
+      "cancel": "Cancel",
+      "confirm": "Save changes",
+      "confirming": "Saving…",
+      "scopes": {
+        "facilityRead": {
+          "label": "View facilities",
+          "description": "See this operator's parking facilities."
+        },
+        "facilityWrite": {
+          "label": "Manage facilities",
+          "description": "Create, edit and publish this operator's facilities."
+        },
+        "tariffRead": {
+          "label": "View tariffs",
+          "description": "See this operator's tariff plans."
+        },
+        "tariffWrite": {
+          "label": "Manage tariffs",
+          "description": "Create and edit tariff plans and their rates."
+        },
+        "bookingRead": {
+          "label": "View bookings",
+          "description": "See bookings made at this operator's facilities."
+        },
+        "bookingWrite": {
+          "label": "Manage bookings",
+          "description": "Cancel, refund or otherwise act on those bookings."
+        },
+        "scanExecute": {
+          "label": "Scan tickets",
+          "description": "Scan and verify tickets at the barrier."
+        },
+        "statsRead": {
+          "label": "View reporting",
+          "description": "See occupancy, revenue and other reporting."
+        },
+        "memberManage": {
+          "label": "Manage team",
+          "description": "Invite, re-scope and remove this operator's members."
+        },
+        "billingView": {
+          "label": "View billing",
+          "description": "See the plan, seat usage and invoices."
+        }
+      }
+    },
+    "invites": {
+      "title": "Invites",
+      "empty": "No invites sent yet.",
+      "table": {
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "expiresAt": "Expires",
+        "createdAt": "Sent"
+      },
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      }
+    },
+    "empty": {
+      "title": "No team members yet",
+      "message": "Invite someone to help run your business."
+    },
+    "operatorMissing": {
+      "title": "Could not load your team",
+      "message": "We could not determine your operator account. Try again shortly, or contact support if the problem continues."
+    },
+    "errors": {
+      "forbidden": "You do not have permission to do this.",
+      "notFound": "This member no longer exists.",
+      "conflict": "This action can no longer be applied — try refreshing the page.",
+      "seatLimitReached": "You've used all the staff seats on your plan.",
+      "featureRequired": "Your plan does not include custom access for staff members.",
+      "invalidData": "Enter a valid email address.",
+      "genericError": "Something went wrong. Try again."
+    },
+    "validation": {
+      "emailInvalid": "Enter a valid email address."
+    }
+  },
+  "billing": {
+    "title": "Plan & billing",
+    "description": "The plan your business is on, what it includes, and how much of it you are using.",
+    "current": {
+      "heading": "Your plan",
+      "subtitle": "What your subscription covers right now.",
+      "plan": "Plan",
+      "noPlan": "No plan",
+      "status": "Status",
+      "noStatus": "Free plan",
+      "period": "Billing period",
+      "periodValue": "{start} — {end}",
+      "noPeriod": "No billing — the free plan",
+      "commission": "Commission",
+      "commissionValue": "{percent}%",
+      "trialEnds": "Your trial ends on {date}.",
+      "cancelling": "Your plan ends on {date} and will not renew.",
+      "exempt": "Your account is exempt from plan limits — nothing below is capped.",
+      "statusOptions": {
+        "trialing": "Trialing",
+        "active": "Active",
+        "pastDue": "Past due",
+        "cancelled": "Cancelled"
+      }
+    },
+    "usage": {
+      "resource": "Resource",
+      "column": "Used / limit",
+      "value": "{current} / {limit}",
+      "maxFacilities": "Facilities",
+      "maxTariffPlans": "Tariff plans",
+      "maxStaffSeats": "Staff seats",
+      "unlimitedShort": "∞",
+      "nearLimit": "You are close to your plan limit for: {resources}. Nothing is blocked yet.",
+      "atLimit": "You have reached your plan limit for: {resources}. Further additions will be refused.",
+      "nearLimitBadge": "Near limit",
+      "atLimitBadge": "At limit"
+    },
+    "features": {
+      "heading": "Included features",
+      "none": "Your plan includes no extra features.",
+      "names": {
+        "analyticsAdvanced": "Advanced analytics",
+        "supportPriority": "Priority support",
+        "teamManagement": "Team management"
+      }
+    },
+    "plans": {
+      "heading": "Available plans",
+      "subtitle": "Move onto another plan yourself at checkout, or message a platform admin first if you would rather talk it through.",
+      "currentBadge": "Your current plan",
+      "quota": "{resource}: {limit}",
+      "commission": "Commission: {percent}%",
+      "upgradeNow": "Upgrade now",
+      "startingCheckout": "Opening checkout…",
+      "messageInstead": "Have questions? Message us instead",
+      "alreadySubscribed": "You are already on this plan.",
+      "interval": {
+        "monthly": "per month",
+        "yearly": "per year"
+      },
+      "empty": {
+        "title": "No plans to show",
+        "message": "The plan catalog could not be loaded. Try again in a moment."
+      }
+    },
+    "checkoutReturn": {
+      "success": "Your plan has been updated.",
+      "cancelled": "Checkout was cancelled — nothing changed and you stay on your current plan."
+    },
+    "upgrade": {
+      "title": "Request {plan}",
+      "body": "We pass this to a platform admin, who confirms the price and moves your account over. Nothing is charged now and your current plan keeps working.",
+      "messageLabel": "Message (optional)",
+      "messagePlaceholder": "Anything we should know — timing, how many seats, questions.",
+      "cancel": "Cancel",
+      "submit": "Send request",
+      "sending": "Sending…",
+      "sent": "Request sent — a platform admin will follow up.",
+      "sentDetail": "Nothing has changed yet. You stay on your current plan until the switch is confirmed with you.",
+      "done": "Close"
+    },
+    "teaser": {
+      "label": "Plan",
+      "hint": "Your subscription plan and how much of its facility allowance you are using.",
+      "usage": "{current} / {limit} facilities used"
+    },
+    "errors": {
+      "forbidden": "Only the operator's owner can manage the plan.",
+      "notFound": "That plan is no longer available.",
+      "conflict": "This request conflicts with your current plan.",
+      "invalidData": "Some values were rejected. Check the form and try again.",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "validation": {
+      "planRequired": "Choose a plan to request.",
+      "messageTooLong": "Message must be 1000 characters or fewer."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "This page does not exist, or it belongs to an account you do not have access to.",
+    "backToDashboard": "Back to your dashboard"
+  },
+  "password": {
+    "hint": "At least {min} characters. Longer is stronger than complicated.",
+    "meterLabel": "Password strength",
+    "strength": {
+      "veryWeak": "Very weak — easy to guess",
+      "weak": "Weak — still easy to guess",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    }
+  },
+  "profile": {
+    "title": "Your profile",
+    "description": "How you appear to the rest of your team.",
+    "heading": "Your details",
+    "nameLabel": "Your name",
+    "nameHint": "Shown wherever you are listed — your team, facility managers and the audit log. Leave empty to be shown as {email}.",
+    "emailLabel": "Email",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Profile updated.",
+    "errors": {
+      "nameTooLong": "Name must be at most 120 characters.",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "changePassword": {
+      "heading": "Change password",
+      "description": "Confirm the password you use now, and we'll email you a link to set the new one. Your password does not change until you open that link.",
+      "currentPasswordLabel": "Current password",
+      "submit": "Send confirmation email",
+      "submitting": "Checking…",
+      "confirmation": "Check your email — we've sent you a link to finish changing your password. It expires in an hour.",
+      "errors": {
+        "wrongPassword": "That is not your current password.",
+        "genericError": "Something went wrong. Please try again."
+      }
+    },
+    "forgotPassword": {
+      "heading": "Forgotten your password?",
+      "description": "If you cannot remember the password you use now, we can email you a reset link instead. It goes to the address on this account.",
+      "submit": "Email me a reset link",
+      "submitting": "Sending…",
+      "confirmation": "Check your email — we've sent you a link to reset your password. It expires in an hour.",
+      "errors": {
+        "genericError": "Something went wrong. Please try again."
+      }
+    }
+  }
+}

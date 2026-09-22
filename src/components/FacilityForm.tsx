@@ -1,0 +1,615 @@
+'use client'
+
+import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
+import { useFormStatus } from 'react-dom'
+import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { buildFacilityFormSchema, VEHICLE_TYPE_OPTIONS } from '@/lib/facility-schema'
+import { KIND_OPTIONS } from '@/lib/facility-display'
+import { createFacilityAction, updateFacilityAction } from '@/lib/facility-actions'
+import type { FacilityActionResult } from '@/lib/facility-actions'
+import type {
+  AdminFacility,
+  FacilityKind,
+  FacilityTariffAssignment,
+  FacilityTariffPlan,
+} from '@/lib/api'
+import { FacilityLocationPicker } from '@/components/FacilityLocationPicker'
+import { FacilityAddressInput } from '@/components/FacilityAddressInput'
+import { MultiSelectControl } from '@/components/MultiSelectControl'
+import { VEHICLE_ICON } from '@/components/vehicle-icons'
+import { DateTimePicker } from '@/components/pickers/DateTimePicker'
+import { FacilityTariffPanel } from '@/components/FacilityTariffPanel'
+import { OperatorPicker } from '@/components/OperatorPicker'
+import type { OperatorSummary } from '@/lib/operator-actions'
+
+interface TariffProps {
+  facilityId: string
+  assignments: FacilityTariffAssignment[]
+  defaultPlan: { id: string; name: string } | null
+  tariffPlans: FacilityTariffPlan[]
+}
+
+interface Props {
+  mode: 'create' | 'edit'
+  facility?: AdminFacility
+  isPlatformAdmin?: boolean
+  tariff?: TariffProps
+  operators?: OperatorSummary[]
+}
+
+const INITIAL_STATE: FacilityActionResult = { ok: true }
+
+function readFacilityFormRaw(form: HTMLFormElement) {
+  const fd = new FormData(form)
+  return {
+    name: fd.get('name'),
+    address: fd.get('address'),
+    lat: fd.get('lat'),
+    lng: fd.get('lng'),
+    totalCapacity: fd.get('totalCapacity'),
+    onlineQuota: fd.get('onlineQuota'),
+    vehicleTypes: fd.getAll('vehicleTypes'),
+    heightRestrictionCm: fd.get('heightRestrictionCm') || null,
+    amenities: fd.get('amenities'),
+    cancellationPolicy: fd.get('cancellationPolicy'),
+    is24h: fd.get('is24h') === 'true',
+    openTime: fd.get('openTime'),
+    closeTime: fd.get('closeTime'),
+    isActive: fd.get('isActive'),
+    operatorId: fd.get('operatorId'),
+  }
+}
+
+function SubmitButton({ mode }: { mode: 'create' | 'edit' }) {
+  const t = useTranslations('facilities')
+  const { pending } = useFormStatus()
+  return (
+    <button type="submit" className="btn btn--primary" disabled={pending}>
+      {pending
+        ? t('form.saving')
+        : mode === 'create'
+          ? t('form.createFacility')
+          : t('form.saveChanges')}
+    </button>
+  )
+}
+
+function prefillOpenTime(facility?: AdminFacility): string {
+  if (!facility) return '08:00'
+  if (facility.openingHours.is24h) return '00:00'
+  const schedule = facility.openingHours.schedule
+  if (!schedule) return '08:00'
+  const first = Object.values(schedule).find(Boolean)
+  return first ? first.open : '08:00'
+}
+
+function prefillCloseTime(facility?: AdminFacility): string {
+  if (!facility) return '20:00'
+  if (facility.openingHours.is24h) return '00:00'
+  const schedule = facility.openingHours.schedule
+  if (!schedule) return '20:00'
+  const first = Object.values(schedule).find(Boolean)
+  return first ? first.close : '20:00'
+}
+
+export function FacilityForm({
+  mode,
+  facility,
+  isPlatformAdmin = false,
+  tariff,
+  operators,
+}: Props) {
+  const t = useTranslations('facilities')
+  const tOperatorStatus = useTranslations('onboarding')
+  const vehicleOptions = VEHICLE_TYPE_OPTIONS.map((o) => ({
+    value: o.value,
+    label: t(o.labelKey),
+    icon: VEHICLE_ICON[o.value],
+  }))
+  const [kind, setKind] = useState<FacilityKind>(() => facility?.kind ?? 'BUSINESS')
+  // Tracks the pending selection, not the saved facility: a platform admin picking a
+  // non-Business kind must see the capacity/vehicle/hours sections disappear before
+  // submitting, since a catalog-only facility never uses them and the API will default
+  // them (uncapped, every vehicle, 24h) rather than require them.
+  const isBusiness = kind === 'BUSINESS'
+  const boundAction =
+    mode === 'edit' && facility
+      ? updateFacilityAction.bind(null, facility.id, facility.kind)
+      : createFacilityAction
+
+  const [state, formAction, isPending] = useActionState(boundAction, INITIAL_STATE)
+
+  const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<string, string>>>({})
+  const formRef = useRef<HTMLFormElement>(null)
+  const [name, setName] = useState(() => facility?.name ?? '')
+  const [address, setAddress] = useState(() => facility?.address ?? '')
+  const [totalCapacity, setTotalCapacity] = useState(() =>
+    facility?.totalCapacity != null ? String(facility.totalCapacity) : '',
+  )
+  const [onlineQuota, setOnlineQuota] = useState(() =>
+    facility?.onlineQuota != null ? String(facility.onlineQuota) : '',
+  )
+  const [heightRestrictionCm, setHeightRestrictionCm] = useState(() =>
+    facility?.heightRestrictionCm != null ? String(facility.heightRestrictionCm) : '',
+  )
+  const [amenities, setAmenities] = useState(() => facility?.amenities.join(', ') ?? '')
+  const [cancellationPolicy, setCancellationPolicy] = useState(
+    () => facility?.cancellationPolicy ?? '',
+  )
+  const [operatorId, setOperatorId] = useState('')
+  const operatorOptions = (operators ?? []).map((o) => ({
+    id: o.id,
+    name: o.name,
+    subtitle: `${t('form.operatorFacilityCount', { count: o.facilityCount })} · ${tOperatorStatus(`operatorStatus.${o.status.toLowerCase()}`)}`,
+  }))
+  const [lat, setLat] = useState<number | null>(facility?.lat ?? null)
+  const [lng, setLng] = useState<number | null>(facility?.lng ?? null)
+  const [vehicleTypes, setVehicleTypes] = useState<string[]>(
+    () => facility?.vehicleTypes ?? ['car'],
+  )
+  const [is24h, setIs24h] = useState(() => facility?.openingHours.is24h ?? false)
+  const [openTime, setOpenTime] = useState(() => prefillOpenTime(facility))
+  const [closeTime, setCloseTime] = useState(() => prefillCloseTime(facility))
+
+  const parseCoord = (value: string): number | null => {
+    if (value.trim() === '') return null
+    const n = Number(value)
+    return Number.isFinite(n) ? n : null
+  }
+
+  const validate = useCallback(
+    (form: HTMLFormElement) => {
+      const raw = readFacilityFormRaw(form)
+      const result = buildFacilityFormSchema(isBusiness).safeParse(raw)
+      if (!result.success) {
+        const errors: Partial<Record<string, string>> = {}
+        for (const issue of result.error.issues) {
+          const key = String(issue.path[0] ?? '')
+          if (key && !errors[key]) errors[key] = issue.message
+        }
+        setFieldErrors(errors)
+        return false
+      }
+      setFieldErrors({})
+      return true
+    },
+    [isBusiness],
+  )
+
+  useEffect(() => {
+    // Once submission starts, every input gets disabled and drops out of FormData
+    // entirely, so a re-run here would read back null for fields that are actually
+    // filled in and misreport them as failing Zod's type check.
+    if (!attemptedSubmit || !formRef.current || isPending) return
+    validate(formRef.current)
+  }, [
+    attemptedSubmit,
+    isPending,
+    validate,
+    name,
+    address,
+    lat,
+    lng,
+    totalCapacity,
+    onlineQuota,
+    heightRestrictionCm,
+    amenities,
+    cancellationPolicy,
+    operatorId,
+    vehicleTypes,
+    is24h,
+    openTime,
+    closeTime,
+    kind,
+  ])
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setAttemptedSubmit(true)
+    if (!validate(e.currentTarget)) {
+      e.preventDefault()
+      return
+    }
+    setHasSubmitted(true)
+  }
+
+  function fieldError(name: string): string | undefined {
+    const key = fieldErrors[name]
+    return key ? t(key) : undefined
+  }
+
+  // isActive is platform-admin-only (mirrors the kind selector's gating below), and the
+  // operator picker only ever renders for a platform admin creating a facility — so with
+  // no isPlatformAdmin, this section would render its heading over nothing.
+  const showVisibilitySection = isPlatformAdmin
+
+  return (
+    <div className="facility-form-layout">
+      <form
+        ref={formRef}
+        action={formAction}
+        onSubmit={handleSubmit}
+        noValidate
+        className="facility-form-card"
+      >
+        {state && !state.ok ? (
+          <p className="form-banner form-banner--error" role="alert">
+            <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
+            {state.errorKey === 'errors.limitExceeded' && !isPlatformAdmin ? (
+              <span className="form-banner__body">
+                <span>{state.detail ?? t(state.errorKey)}</span>
+                <Link href="/dashboard/billing" className="btn btn--sm btn--secondary">
+                  {t('upgradeCta')}
+                </Link>
+              </span>
+            ) : (
+              (state.detail ?? t(state.errorKey))
+            )}
+          </p>
+        ) : null}
+        {state && state.ok && mode === 'edit' && hasSubmitted && !isPending ? (
+          <p className="form-banner form-banner--success" role="status">
+            <CheckCircle2 size={18} strokeWidth={2} aria-hidden="true" />
+            {t('form.changesSaved')}
+          </p>
+        ) : null}
+
+        {mode === 'edit' && facility && !isPlatformAdmin ? (
+          <input type="hidden" name="kind" value={facility.kind} />
+        ) : null}
+
+        {isBusiness && tariff ? (
+          <FacilityTariffPanel
+            facilityId={tariff.facilityId}
+            assignments={tariff.assignments}
+            defaultPlan={tariff.defaultPlan}
+            tariffPlans={tariff.tariffPlans}
+            // Live form state, not the saved facility: a slot the operator is in the middle
+            // of removing should stop being offered a plan straight away.
+            acceptedVehicleTypes={vehicleTypes.map(
+              (value) => value.toUpperCase() as 'CAR' | 'MOTORCYCLE' | 'VAN' | 'TRUCK',
+            )}
+          />
+        ) : null}
+
+        <section className="editor-section card">
+          <div className="editor-section__head">
+            <h3 className="h-heading">{t('form.basics')}</h3>
+          </div>
+          <div className="field-grid">
+            <label className="field">
+              <span className="field__label">{t('form.nameLabel')}</span>
+              <input
+                className={`input${fieldError('name') ? ' input--error' : ''}`}
+                type="text"
+                name="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                disabled={isPending}
+              />
+              {fieldError('name') ? (
+                <span className="field__error">{fieldError('name')}</span>
+              ) : null}
+            </label>
+            <label className="field">
+              <span className="field__label">{t('form.addressLabel')}</span>
+              <FacilityAddressInput
+                name="address"
+                className={`input${fieldError('address') ? ' input--error' : ''}`}
+                value={address}
+                onChange={setAddress}
+                onPlaceSelected={(result) => {
+                  setAddress(result.address)
+                  setLat(result.lat)
+                  setLng(result.lng)
+                }}
+                required
+                disabled={isPending}
+              />
+              {fieldError('address') ? (
+                <span className="field__error">{fieldError('address')}</span>
+              ) : null}
+            </label>
+          </div>
+        </section>
+
+        <section className="editor-section card">
+          <div className="editor-section__head">
+            <h3 className="h-heading">{t('form.location')}</h3>
+            <p className="editor-section__hint">{t('form.locationHint')}</p>
+          </div>
+          <div className="field-grid">
+            <label className="field">
+              <span className="field__label">{t('form.latitudeLabel')}</span>
+              <input
+                className={`input${fieldError('lat') ? ' input--error' : ''}`}
+                type="number"
+                name="lat"
+                step="any"
+                value={lat ?? ''}
+                onChange={(e) => setLat(parseCoord(e.target.value))}
+                required
+                disabled={isPending}
+              />
+              {fieldError('lat') ? <span className="field__error">{fieldError('lat')}</span> : null}
+            </label>
+            <label className="field">
+              <span className="field__label">{t('form.longitudeLabel')}</span>
+              <input
+                className={`input${fieldError('lng') ? ' input--error' : ''}`}
+                type="number"
+                name="lng"
+                step="any"
+                value={lng ?? ''}
+                onChange={(e) => setLng(parseCoord(e.target.value))}
+                required
+                disabled={isPending}
+              />
+              {fieldError('lng') ? <span className="field__error">{fieldError('lng')}</span> : null}
+            </label>
+          </div>
+        </section>
+
+        {isBusiness ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">{t('form.capacityVehicles')}</h3>
+            </div>
+            <div className="field-grid">
+              <label className="field">
+                <span className="field__label">{t('form.totalCapacityLabel')}</span>
+                <input
+                  className={`input${fieldError('totalCapacity') ? ' input--error' : ''}`}
+                  type="number"
+                  name="totalCapacity"
+                  min="1"
+                  value={totalCapacity}
+                  onChange={(e) => setTotalCapacity(e.target.value)}
+                  required
+                  disabled={isPending}
+                />
+                {fieldError('totalCapacity') ? (
+                  <span className="field__error">{fieldError('totalCapacity')}</span>
+                ) : null}
+              </label>
+              <label className="field">
+                <span className="field__label">{t('form.onlineQuotaLabel')}</span>
+                <input
+                  className={`input${fieldError('onlineQuota') ? ' input--error' : ''}`}
+                  type="number"
+                  name="onlineQuota"
+                  min="0"
+                  value={onlineQuota}
+                  onChange={(e) => setOnlineQuota(e.target.value)}
+                  required
+                  disabled={isPending}
+                />
+                {fieldError('onlineQuota') ? (
+                  <span className="field__error">{fieldError('onlineQuota')}</span>
+                ) : null}
+              </label>
+            </div>
+
+            <div className="field">
+              <span className="field__label" id="vehicleTypes-label">
+                {t('form.vehicleTypesLabel')}
+              </span>
+              <MultiSelectControl
+                options={vehicleOptions}
+                value={vehicleTypes}
+                onChange={setVehicleTypes}
+                disabled={isPending}
+                labelledBy="vehicleTypes-label"
+                describedBy={fieldError('vehicleTypes') ? 'vehicleTypes-error' : undefined}
+              />
+              {vehicleTypes.map((value) => (
+                <input key={value} type="hidden" name="vehicleTypes" value={value} />
+              ))}
+              {fieldError('vehicleTypes') ? (
+                <span className="field__error" id="vehicleTypes-error">
+                  {fieldError('vehicleTypes')}
+                </span>
+              ) : null}
+            </div>
+
+            <label className="field">
+              <span className="field__label">{t('form.heightRestrictionLabel')}</span>
+              <input
+                className="input"
+                type="number"
+                name="heightRestrictionCm"
+                min="1"
+                value={heightRestrictionCm}
+                onChange={(e) => setHeightRestrictionCm(e.target.value)}
+                disabled={isPending}
+              />
+            </label>
+          </section>
+        ) : null}
+
+        {isBusiness ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">{t('form.policyAmenities')}</h3>
+            </div>
+            <label className="field">
+              <span className="field__label">{t('form.amenitiesLabel')}</span>
+              <input
+                className="input"
+                type="text"
+                name="amenities"
+                value={amenities}
+                onChange={(e) => setAmenities(e.target.value)}
+                disabled={isPending}
+              />
+            </label>
+            <label className="field">
+              <span className="field__label">{t('form.cancellationPolicyLabel')}</span>
+              <textarea
+                className="input input--textarea"
+                name="cancellationPolicy"
+                rows={3}
+                value={cancellationPolicy}
+                onChange={(e) => setCancellationPolicy(e.target.value)}
+                disabled={isPending}
+              />
+            </label>
+          </section>
+        ) : null}
+
+        {isBusiness ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">{t('form.openingHours')}</h3>
+            </div>
+            <input type="hidden" name="is24h" value={is24h ? 'true' : 'false'} />
+            <div className="opening-hours-row">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={is24h}
+                  onChange={(e) => setIs24h(e.target.checked)}
+                  disabled={isPending}
+                />
+                {t('form.open24h')}
+              </label>
+              <div className="opening-hours-times">
+                <div className="field opening-hours-time-field">
+                  <span className="field__label">{t('form.opens')}</span>
+                  <DateTimePicker
+                    mode="time"
+                    name="openTime"
+                    value={openTime}
+                    onChange={setOpenTime}
+                    disabled={isPending || is24h}
+                    ariaLabel={t('form.openingTimeAria')}
+                  />
+                </div>
+                <div className="field opening-hours-time-field">
+                  <span className="field__label">{t('form.closes')}</span>
+                  <DateTimePicker
+                    mode="time"
+                    name="closeTime"
+                    value={closeTime}
+                    onChange={setCloseTime}
+                    disabled={isPending || is24h}
+                    ariaLabel={t('form.closingTimeAria')}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {showVisibilitySection ? (
+          <section className="editor-section card">
+            <div className="editor-section__head">
+              <h3 className="h-heading">{t('form.visibility')}</h3>
+            </div>
+            {mode === 'edit' && isPlatformAdmin ? (
+              <div className="field">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    value="true"
+                    defaultChecked={facility?.isActive ?? false}
+                    disabled={isPending}
+                  />
+                  {t('form.activeVisible')}
+                </label>
+              </div>
+            ) : null}
+
+            {mode === 'edit' && isPlatformAdmin && facility ? (
+              <label className="field">
+                <span className="field__label">{t('form.kindLabel')}</span>
+                <select
+                  className="input"
+                  name="kind"
+                  value={kind}
+                  onChange={(e) => setKind(e.target.value as FacilityKind)}
+                  disabled={isPending}
+                >
+                  {KIND_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(option.labelKey)}
+                    </option>
+                  ))}
+                </select>
+                {facility.kind === 'BUSINESS' && kind !== 'BUSINESS' ? (
+                  <p className="form-banner form-banner--warning" role="alert">
+                    <AlertCircle size={16} strokeWidth={2} aria-hidden="true" />
+                    {t('form.kindLeavingBusinessWarning')}
+                  </p>
+                ) : null}
+              </label>
+            ) : null}
+
+            {mode === 'create' && isPlatformAdmin ? (
+              <label className="field">
+                <span className="field__label">{t('form.kindLabel')}</span>
+                <select
+                  className="input"
+                  name="kind"
+                  value={kind}
+                  onChange={(e) => setKind(e.target.value as FacilityKind)}
+                  disabled={isPending}
+                >
+                  {KIND_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(option.labelKey)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+
+            {mode === 'create' && isPlatformAdmin ? (
+              <label className="field">
+                <span className="field__label">{t('form.operatorIdLabel')}</span>
+                <OperatorPicker
+                  operators={operatorOptions}
+                  value={operatorId}
+                  onChange={setOperatorId}
+                  placeholder={t('form.operatorIdPlaceholder')}
+                  noResultsLabel={t('form.operatorNoMatches')}
+                  disabled={isPending}
+                  className={`input${fieldError('operatorId') ? ' input--error' : ''}`}
+                />
+                <input type="hidden" name="operatorId" value={operatorId} />
+                {fieldError('operatorId') ? (
+                  <span className="field__error">{fieldError('operatorId')}</span>
+                ) : (
+                  <span className="editor-section__hint">{t('form.operatorIdHint')}</span>
+                )}
+              </label>
+            ) : null}
+          </section>
+        ) : null}
+
+        <div className="form-actions">
+          <SubmitButton mode={mode} />
+        </div>
+      </form>
+
+      <aside className="facility-map-panel">
+        <FacilityLocationPicker
+          lat={lat}
+          lng={lng}
+          address={address}
+          onChange={(nextLat, nextLng) => {
+            setLat(nextLat)
+            setLng(nextLng)
+          }}
+          onAddressChange={setAddress}
+        />
+        <p className="facility-map__hint">{t('form.mapHint')}</p>
+      </aside>
+    </div>
+  )
+}

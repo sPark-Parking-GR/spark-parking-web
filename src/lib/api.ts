@@ -1,172 +1,451 @@
+import { getActiveSession } from './session'
+import type { SessionData } from './session'
+import type { IronSession } from 'iron-session'
+import type { AuthResult } from '@spark/types'
+import type { OpeningHours } from '@spark/types'
+
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
-export interface FacilitySearchResult {
+const EXPIRY_SKEW_MS = 30_000
+
+export interface ApiFieldError {
+  path: string
+  message: string
+}
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly errors?: ApiFieldError[],
+    /**
+     * Machine-readable discriminator the API attaches when one status covers several
+     * genuinely different refusals — a 409 that is a seat limit and a 409 that is a taken
+     * address need opposite remedies, and the number alone cannot tell them apart.
+     */
+    readonly code?: string,
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
+export class AuthRequiredError extends Error {
+  constructor(message = 'Authentication required') {
+    super(message)
+    this.name = 'AuthRequiredError'
+  }
+}
+
+export type FacilityKind = 'BUSINESS' | 'FREE_PUBLIC' | 'RESTRICTED' | 'UNKNOWN'
+export type FacilitySource = 'OSM' | 'GOOGLE' | 'MANUAL' | null
+export type BulkFacilityAction =
+  | 'enable'
+  | 'disable'
+  | 'deploy'
+  | 'publish'
+  | 'unpublish'
+  | 'delete'
+  | 'assignTariff'
+
+// Prisma VehicleType enum casing, used only by the facility tariff-assignment endpoints.
+// Distinct from the lowercase @spark/types VehicleType used elsewhere (tariff plans, quotes).
+export type FacilityVehicleType = 'CAR' | 'MOTORCYCLE' | 'VAN' | 'TRUCK'
+
+export type FacilityTariffSource = 'explicit' | 'default' | 'none'
+
+export interface FacilityTariffAssignment {
+  vehicleType: FacilityVehicleType
+  tariffPlanId: string | null
+  tariffPlanName: string | null
+  source: FacilityTariffSource
+}
+
+export interface FacilityTariffAssignmentsResponse {
+  assignments: FacilityTariffAssignment[]
+  defaultPlan: { id: string; name: string } | null
+}
+
+export interface AssignTariffInput {
+  vehicleType: FacilityVehicleType
+  tariffPlanId: string | null
+}
+
+export interface AdminFacilityListItem {
   id: string
   name: string
   address: string
+  totalCapacity: number
+  onlineQuota: number
+  isActive: boolean
+  isPublished: boolean
+  kind: FacilityKind
+  source: FacilitySource
+  operatorId: string | null
+  operatorName: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface FacilityTariffPlan {
+  id: string
+  name: string
+  vehicleTypes: string[]
+}
+
+export interface AdminMapPoint {
+  id: string
+  name: string
   lat: number
   lng: number
-  distanceMeters: number
-  available: boolean
-  remainingSlots: number
-  priceCents: number | null
-  currency: string
-  isPromoted: boolean
-  thumbnailUrl: string | null
+  kind: FacilityKind
+  isActive: boolean
+  isPublished: boolean
 }
 
-export interface QuoteLineItem {
-  label: string
-  durationMinutes: number
-  unitPriceCents: number
-  quantity: number
-  subtotalCents: number
-}
-
-export interface PriceQuote {
-  facilityId: string
-  startsAt: string
-  endsAt: string
-  durationMinutes: number
-  vehicleType: string
-  lineItems: QuoteLineItem[]
-  totalCents: number
-  currency: string
-  expiresAt: string
-}
-
-export interface FacilityDetail {
+export interface AdminMapCluster {
   id: string
+  lat: number
+  lng: number
+  count: number
+}
+
+export interface AdminMapResponse {
+  mode: 'points' | 'clusters'
+  points: AdminMapPoint[]
+  clusters: AdminMapCluster[]
+  total: number
+}
+
+export interface AdminFacility {
+  id: string
+  operatorId: string | null
+  kind: FacilityKind
   name: string
   address: string
   lat: number
   lng: number
   totalCapacity: number
   onlineQuota: number
+  bookedOnlineSpots: number
   vehicleTypes: string[]
   heightRestrictionCm: number | null
+  openingHours: OpeningHours
   amenities: string[]
   cancellationPolicy: string
-  images: Array<{ id: string; url: string; altText: string | null }>
-  tariffPlans: Array<{
-    id: string
-    name: string
-    rules: Array<{ id: string; type: string; priceCents: number; currency: string; vehicleTypes: string[] }>
-  }>
-  rating: { average: number | null; count: number }
+  isActive: boolean
+  isPublished: boolean
+  rank: number
+  createdAt: string
+  updatedAt: string
 }
 
-export interface CreateBookingResponse {
-  bookingId: string
-  accessCode: string
-  expiresAt: string
-  amountCents: number
-  currency: string
-  clientSecret?: string
-  alreadyExisted: boolean
+export interface FacilityListResponse {
+  items: AdminFacilityListItem[]
+  total: number
+  skip: number
+  take: number
 }
 
-export interface ConfirmedBooking {
-  bookingId: string
-  accessCode: string
-  status: string
-  startsAt: string
-  endsAt: string
-  finalPriceCents: number
-  currency: string
-}
-
-export interface BookingDetail {
-  id: string
-  accessCode: string
-  status: string
-  startsAt: string
-  endsAt: string
-  vehiclePlate: string
-  vehicleType: string
-  quotedPriceCents: number
-  finalPriceCents: number | null
-  currency: string
-  facility: { id: string; name: string; address: string }
-  statusHistory: Array<{ status: string; changedAt: string }>
-}
-
-export interface SearchParams {
+export interface CreateFacilityInput {
+  name: string
+  address: string
   lat: number
   lng: number
-  radiusMeters?: number
-  startsAt: string
-  endsAt: string
-  vehicleType?: string
+  // Required for a BUSINESS facility (the default kind); omitted entirely for a
+  // non-BUSINESS kind, which is catalog-only and never bookable — the API then
+  // defaults capacity to uncapped, vehicleTypes to every type, and hours to 24h.
+  totalCapacity?: number
+  onlineQuota?: number
+  vehicleTypes?: string[]
+  heightRestrictionCm?: number | null
+  openingHours?: OpeningHours
+  amenities?: string[]
+  cancellationPolicy?: string
+  operatorId?: string
+  kind?: FacilityKind
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const headers: Record<string, string> = { ...(init?.headers as Record<string, string>) }
-  if (init?.body) headers['Content-Type'] = 'application/json'
+export type OperatorMemberRole = 'ADMIN' | 'STAFF'
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...init,
-    headers,
+export interface ResourceManager {
+  userId: string
+  email: string
+  displayName: string | null
+  // Null only if the assignment outlived the membership (the person left the operator).
+  memberRole: OperatorMemberRole | null
+  assignedAt: string
+  // The acting user's id, or the sentinel `system:backfill` for rows the migration seeded.
+  assignedBy: string
+}
+
+export interface ResourceManagerCandidate {
+  userId: string
+  email: string
+  displayName: string | null
+  memberRole: OperatorMemberRole
+}
+
+export interface ManagersResponse {
+  resourceId: string
+  operatorId: string
+  managers: ResourceManager[]
+  candidates: ResourceManagerCandidate[]
+}
+
+export type ManagersActionResult =
+  | { ok: true; data: ManagersResponse }
+  | { ok: false; errorKey: string; detail?: string }
+
+export interface UpdateFacilityInput {
+  name?: string
+  address?: string
+  lat?: number
+  lng?: number
+  totalCapacity?: number
+  onlineQuota?: number
+  vehicleTypes?: string[]
+  heightRestrictionCm?: number | null
+  openingHours?: OpeningHours
+  amenities?: string[]
+  cancellationPolicy?: string
+  isActive?: boolean
+  isPublished?: boolean
+  kind?: FacilityKind
+}
+
+function toSessionData(result: AuthResult): SessionData {
+  return {
+    accessToken: result.session.accessToken,
+    refreshToken: result.session.refreshToken,
+    expiresAt: result.session.expiresAt,
+    user: result.session.user,
+  }
+}
+
+async function callRefresh(refreshToken: string): Promise<SessionData> {
+  const response = await fetch(`${BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
     cache: 'no-store',
   })
+  if (!response.ok) {
+    throw new AuthRequiredError('Session refresh failed')
+  }
+  const result = (await response.json()) as AuthResult
+  return toSessionData(result)
+}
+
+// WHY: iron-session can only persist a cookie when a writable cookie store is
+// available (Server Actions / Route Handlers). During plain Server Component
+// render the cookie is read-only and session.save() throws, so when persistence
+// fails we fall back to an in-memory refresh for the lifetime of the request.
+async function refreshSession(session: IronSession<SessionData>): Promise<SessionData> {
+  const refreshed = await callRefresh(session.refreshToken)
+  session.accessToken = refreshed.accessToken
+  session.refreshToken = refreshed.refreshToken
+  session.expiresAt = refreshed.expiresAt
+  session.user = refreshed.user
+  try {
+    await session.save()
+  } catch {
+    // read-only render context: keep refreshed token in memory for this request only
+  }
+  return refreshed
+}
+
+function isExpired(expiresAt: number): boolean {
+  return Date.now() >= expiresAt - EXPIRY_SKEW_MS
+}
+
+async function authFetch(path: string, init: RequestInit, accessToken: string): Promise<Response> {
+  const headers = new Headers(init.headers)
+  headers.set('Authorization', `Bearer ${accessToken}`)
+  if (init.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
+  return fetch(`${BASE_URL}${path}`, { ...init, headers, cache: 'no-store' })
+}
+
+export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const session = await getActiveSession()
+  if (!session.accessToken) {
+    throw new AuthRequiredError()
+  }
+
+  let accessToken = session.accessToken
+  if (isExpired(session.expiresAt)) {
+    try {
+      accessToken = (await refreshSession(session)).accessToken
+    } catch {
+      try {
+        session.destroy()
+      } catch {
+        // read-only context: cookie cannot be cleared here, middleware will catch it
+      }
+      throw new AuthRequiredError()
+    }
+  }
+
+  let response: Response
+  try {
+    response = await authFetch(path, init, accessToken)
+  } catch {
+    throw new ApiError('Network error', 0)
+  }
+
+  if (response.status === 401) {
+    try {
+      accessToken = (await refreshSession(session)).accessToken
+    } catch {
+      try {
+        session.destroy()
+      } catch {
+        // read-only context
+      }
+      throw new AuthRequiredError()
+    }
+    try {
+      response = await authFetch(path, init, accessToken)
+    } catch {
+      throw new ApiError('Network error', 0)
+    }
+  }
 
   if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as { message?: string }
-    throw new Error(body.message ?? `Request failed: ${response.status}`)
+    const body = (await response.json().catch(() => ({}))) as {
+      message?: string
+      errors?: ApiFieldError[]
+      code?: string
+    }
+    const errors = Array.isArray(body.errors) ? body.errors : undefined
+    throw new ApiError(
+      body.message ?? `Request failed: ${response.status}`,
+      response.status,
+      errors,
+      typeof body.code === 'string' ? body.code : undefined,
+    )
+  }
+
+  if (response.status === 204) {
+    return undefined as T
   }
 
   return response.json() as Promise<T>
 }
 
-export function searchFacilities(params: SearchParams): Promise<FacilitySearchResult[]> {
-  const query = new URLSearchParams({
-    lat: String(params.lat),
-    lng: String(params.lng),
-    radiusMeters: String(params.radiusMeters ?? 3000),
-    startsAt: params.startsAt,
-    endsAt: params.endsAt,
-    ...(params.vehicleType ? { vehicleType: params.vehicleType } : {}),
+export function listFacilities(params: {
+  skip?: number
+  take?: number
+  q?: string
+  isActive?: boolean
+  isPublished?: boolean
+  kind?: FacilityKind
+  operatorId?: string
+}): Promise<FacilityListResponse> {
+  const query = new URLSearchParams()
+  if (params.skip !== undefined) query.set('skip', String(params.skip))
+  if (params.take !== undefined) query.set('take', String(params.take))
+  if (params.q) query.set('q', params.q)
+  if (params.isActive !== undefined) query.set('isActive', String(params.isActive))
+  if (params.isPublished !== undefined) query.set('isPublished', String(params.isPublished))
+  if (params.kind) query.set('kind', params.kind)
+  if (params.operatorId) query.set('operatorId', params.operatorId)
+  const qs = query.toString()
+  return apiFetch<FacilityListResponse>(`/facilities${qs ? `?${qs}` : ''}`)
+}
+
+export function bulkFacilities(
+  ids: string[],
+  action: BulkFacilityAction,
+  assignments?: AssignTariffInput[],
+): Promise<{ affected: number }> {
+  return apiFetch<{ affected: number }>('/facilities/bulk', {
+    method: 'PATCH',
+    body: JSON.stringify(
+      action === 'assignTariff' ? { ids, action, assignments: assignments ?? [] } : { ids, action },
+    ),
   })
-  return request<FacilitySearchResult[]>(`/facilities/search?${query.toString()}`)
 }
 
-export function getFacility(id: string): Promise<FacilityDetail> {
-  return request<FacilityDetail>(`/facilities/${id}`)
+export function getFacilityTariffAssignments(
+  facilityId: string,
+): Promise<FacilityTariffAssignmentsResponse> {
+  return apiFetch<FacilityTariffAssignmentsResponse>(`/facilities/${facilityId}/tariff-assignments`)
 }
 
-export function getQuote(
-  id: string,
-  startsAt: string,
-  endsAt: string,
-  vehicleType: string,
-): Promise<PriceQuote> {
-  const query = new URLSearchParams({ startsAt, endsAt, vehicleType })
-  return request<PriceQuote>(`/facilities/${id}/quote?${query.toString()}`)
-}
-
-export function createBooking(
-  body: {
+export function assignFacilityTariff(
+  facilityId: string,
+  vehicleType: FacilityVehicleType,
+  tariffPlanId: string | null,
+): Promise<{ facilityId: string; vehicleType: FacilityVehicleType; tariffPlanId: string | null }> {
+  return apiFetch<{
     facilityId: string
-    startsAt: string
-    endsAt: string
-    vehicleType: string
-    vehiclePlate: string
-    guestEmail: string
-    guestPhone?: string
-  },
-  idempotencyKey: string,
-): Promise<CreateBookingResponse> {
-  return request<CreateBookingResponse>('/bookings', {
-    method: 'POST',
-    headers: { 'Idempotency-Key': idempotencyKey },
-    body: JSON.stringify({ ...body, sourceChannel: 'WEB' }),
+    vehicleType: FacilityVehicleType
+    tariffPlanId: string | null
+  }>(`/facilities/${facilityId}/tariff-plan`, {
+    method: 'PATCH',
+    body: JSON.stringify({ vehicleType, tariffPlanId }),
   })
 }
 
-export function confirmBooking(id: string): Promise<ConfirmedBooking> {
-  return request<ConfirmedBooking>(`/bookings/${id}/confirm`, { method: 'POST' })
+export function adminMapFacilities(params: {
+  north: number
+  south: number
+  east: number
+  west: number
+  q?: string
+  isActive?: boolean
+  isPublished?: boolean
+  kind?: FacilityKind
+  operatorId?: string
+}): Promise<AdminMapResponse> {
+  const query = new URLSearchParams()
+  query.set('north', String(params.north))
+  query.set('south', String(params.south))
+  query.set('east', String(params.east))
+  query.set('west', String(params.west))
+  if (params.q) query.set('q', params.q)
+  if (params.isActive !== undefined) query.set('isActive', String(params.isActive))
+  if (params.isPublished !== undefined) query.set('isPublished', String(params.isPublished))
+  if (params.kind) query.set('kind', params.kind)
+  if (params.operatorId) query.set('operatorId', params.operatorId)
+  return apiFetch<AdminMapResponse>(`/facilities/map?${query.toString()}`)
 }
 
-export function getBooking(id: string): Promise<BookingDetail> {
-  return request<BookingDetail>(`/bookings/${id}`)
+export function getFacilityForEdit(id: string): Promise<AdminFacility> {
+  return apiFetch<AdminFacility>(`/facilities/${id}/manage`)
+}
+
+export function createFacility(input: CreateFacilityInput): Promise<AdminFacility> {
+  return apiFetch<AdminFacility>('/facilities', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function updateFacility(id: string, input: UpdateFacilityInput): Promise<AdminFacility> {
+  return apiFetch<AdminFacility>(`/facilities/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  })
+}
+
+export function deleteFacility(id: string): Promise<void> {
+  return apiFetch<void>(`/facilities/${id}`, { method: 'DELETE' })
+}
+
+export function getFacilityManagers(facilityId: string): Promise<ManagersResponse> {
+  return apiFetch<ManagersResponse>(`/facilities/${facilityId}/managers`)
+}
+
+export function updateFacilityManagers(
+  facilityId: string,
+  userIds: string[],
+): Promise<ManagersResponse> {
+  return apiFetch<ManagersResponse>(`/facilities/${facilityId}/managers`, {
+    method: 'PUT',
+    body: JSON.stringify({ userIds }),
+  })
 }
