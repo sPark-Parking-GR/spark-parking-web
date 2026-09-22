@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { isPlatformRole } from '@spark/types'
-import { clearLegacySessionFromRequest, getSessionFromRequest, isDashboardRole } from './lib/session'
+import {
+  clearLegacySessionFromRequest,
+  getSessionFromRequest,
+  hasLapsedAdminWindow,
+  isDashboardRole,
+} from './lib/session'
 
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const res = NextResponse.next()
@@ -26,6 +31,16 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   if (!allowed) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('error', 'forbidden')
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Mirrors the check in (dashboard)/layout.tsx: for a platform-tier role, /dashboard must
+  // not pass once the separately-issued /admin cookie has hit its own, much shorter TTL —
+  // see hasLapsedAdminWindow for why this reads a shadow field on the dashboard session
+  // rather than the real /admin cookie (Path scoping means this request never carries it).
+  if (!requiresPlatformAdmin && isPlatformRole(session.user.role) && hasLapsedAdminWindow(session)) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('from', req.nextUrl.pathname + req.nextUrl.search)
     return NextResponse.redirect(loginUrl)
   }
 

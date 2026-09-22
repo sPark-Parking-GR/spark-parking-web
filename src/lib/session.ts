@@ -9,6 +9,21 @@ export interface SessionData {
   refreshToken: string
   expiresAt: number
   user: AuthUser
+  /**
+   * Only set on the dashboard-scoped cookie, and only for platform-tier roles: the wall-clock
+   * time the separately-issued /admin cookie will hit its ADMIN_TTL_SECONDS absolute expiry.
+   *
+   * navForPlatformAdmin merges /dashboard and /admin/* into one sidebar, but the two scopes
+   * are separate cookies with very different lifetimes (14 days vs. 30 minutes), and Path
+   * scoping means a /dashboard request never carries the /admin cookie — there is no way to
+   * read its real state from here. Without this shadow value, /dashboard keeps rendering as
+   * fully authenticated long after the admin cookie has lapsed, and the merged sidebar's
+   * /admin links only reveal that the moment they're clicked. Mirroring the same absolute
+   * deadline here (set once at login, alongside the real cookie, in establishSessions) lets
+   * the dashboard shell itself bounce to /login instead of presenting a half-authenticated
+   * surface.
+   */
+  adminSessionExpiresAt?: number
 }
 
 export type SessionScope = 'dashboard' | 'admin'
@@ -137,6 +152,8 @@ export async function setSession(scope: SessionScope, data: SessionData): Promis
   session.refreshToken = data.refreshToken
   session.expiresAt = data.expiresAt
   session.user = data.user
+  if (data.adminSessionExpiresAt === undefined) delete session.adminSessionExpiresAt
+  else session.adminSessionExpiresAt = data.adminSessionExpiresAt
   await session.save()
 }
 
@@ -146,8 +163,12 @@ export async function clearSession(scope: SessionScope): Promise<void> {
 }
 
 export async function establishSessions(data: SessionData): Promise<void> {
-  await setSession('dashboard', data)
-  if (isPlatformRole(data.user.role)) {
+  const isPlatformTier = isPlatformRole(data.user.role)
+  await setSession('dashboard', {
+    ...data,
+    adminSessionExpiresAt: isPlatformTier ? Date.now() + ADMIN_TTL_SECONDS * 1000 : undefined,
+  })
+  if (isPlatformTier) {
     await setSession('admin', data)
   }
   const cookieStore = await cookies()
@@ -188,4 +209,13 @@ export async function clearAllSessions(): Promise<void> {
 
 export function isAuthenticated(session: IronSession<SessionData>): boolean {
   return Boolean(session.accessToken) && session.user !== undefined
+}
+
+// For a platform-tier role reading its *dashboard* session: whether the /admin cookie set
+// alongside it at login has passed its own, separately-tracked expiry. See
+// `adminSessionExpiresAt` on SessionData for why this can't just re-check the real cookie.
+export function hasLapsedAdminWindow(session: IronSession<SessionData>): boolean {
+  return (
+    session.adminSessionExpiresAt === undefined || Date.now() >= session.adminSessionExpiresAt
+  )
 }
