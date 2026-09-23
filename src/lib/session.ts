@@ -39,6 +39,12 @@ export function isDashboardRole(role: UserRole | undefined): boolean {
   return role !== undefined && DASHBOARD_ROLES.has(role)
 }
 
+// WHY a getter, not a value computed once at module load: Next's build-time page-data
+// collection imports every route's module graph to inspect config/metadata, without ever
+// calling getSession(). CI deliberately never provides SESSION_SECRET at build time (only
+// NEXT_PUBLIC_* are needed then — see the CI workflow), so an eager module-level throw
+// here fails the build itself. Deferring to a getter means iron-session only reads
+// `.password` — and this only throws — when a request actually opens or seals a session.
 function getSessionPassword(): string {
   const password = process.env['SESSION_SECRET']
   if (!password || password.length < 32) {
@@ -47,14 +53,14 @@ function getSessionPassword(): string {
   return password
 }
 
-const sessionPassword = getSessionPassword()
-
 const DASHBOARD_TTL_SECONDS = 14 * 24 * 60 * 60
 const ADMIN_TTL_SECONDS = 30 * 60
 
 export const dashboardSessionOptions: SessionOptions = {
   cookieName: 'spark_dashboard_session',
-  password: sessionPassword,
+  get password() {
+    return getSessionPassword()
+  },
   ttl: DASHBOARD_TTL_SECONDS,
   cookieOptions: {
     httpOnly: true,
@@ -78,7 +84,9 @@ export const dashboardSessionOptions: SessionOptions = {
 // the collision impossible instead of relying on parser behavior.
 export const adminSessionOptions: SessionOptions = {
   cookieName: 'spark_platform_admin_session',
-  password: sessionPassword,
+  get password() {
+    return getSessionPassword()
+  },
   ttl: ADMIN_TTL_SECONDS,
   cookieOptions: {
     httpOnly: true,
@@ -94,7 +102,9 @@ export const adminSessionOptions: SessionOptions = {
 // opportunistically on every login so it stops shadowing the new admin cookie above.
 export const legacySessionOptions: SessionOptions = {
   cookieName: 'spark_admin_session',
-  password: sessionPassword,
+  get password() {
+    return getSessionPassword()
+  },
   cookieOptions: {
     httpOnly: true,
     secure: process.env['NODE_ENV'] === 'production',
