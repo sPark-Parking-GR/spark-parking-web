@@ -111,6 +111,14 @@ the Dockerfile, not just at runtime.
 `standalone` output. CI builds the image on every run so a broken Dockerfile fails the PR
 rather than the deploy.
 
+Deployed on Vercel. `scripts/vercel-ignore-build.sh` is set as the project's Ignored Build
+Step, and skips Vercel's own git-push-triggered build for `main` — every other ref (PRs,
+feature branches) still builds immediately, so preview deployments stay fast. The `deploy`
+job at the end of `ci.yml` is the only thing that reaches production: it runs after every
+step in the `ci` job has passed, and POSTs to a Vercel Deploy Hook (scoped to `main`)
+stored as the `VERCEL_DEPLOY_HOOK_URL` repo secret. Vercel then runs its own build
+(`vercel.json`'s `buildCommand`, `pnpm run build`) exactly as CI already proved it would.
+
 Next infers its workspace root from the lockfile. Running dev/build from inside the
 umbrella repo puts a second lockfile above this one and Turbopack warns that the root is
 ambiguous; it is cosmetic and does not occur for a standalone clone. Do not "fix" it by

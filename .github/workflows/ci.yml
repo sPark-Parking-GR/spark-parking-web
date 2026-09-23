@@ -60,3 +60,16 @@ jobs:
       # Proves the image that actually ships still builds from this repo alone.
       - name: Docker build
         run: docker build -t spark-web:ci .
+
+  deploy:
+    name: Deploy to Vercel
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # Vercel's own build runs the real deploy; this just starts it, only once every
+      # check in the ci job above has passed. scripts/vercel-ignore-build.sh (set as
+      # the project's Ignored Build Step) skips Vercel's automatic git-push build for
+      # main, so this hook is the only way a push to main reaches production.
+      - name: Trigger Vercel deploy
+        run: curl -sf -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
