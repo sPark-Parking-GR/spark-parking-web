@@ -77,4 +77,10 @@ jobs:
       # the project's Ignored Build Step) skips Vercel's automatic git-push build for
       # main, so this hook is the only way a push to main reaches production.
       - name: Trigger Vercel deploy
-        run: curl -sf -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
+        # Echoed explicitly (not just left to curl's default stdout) so the queued job id
+        # always shows up in the step log — a stale/misconfigured hook secret still
+        # returns 2xx from Vercel's API, so `curl -f` alone can't catch that, only a human
+        # comparing this id against what actually appears in the Deployments tab can.
+        run: |
+          response="$(curl -sf -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}")"
+          echo "Vercel response: $response"
