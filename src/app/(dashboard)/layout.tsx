@@ -24,10 +24,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     redirect('/login')
   }
 
-  const items =
-    isPlatformRole(session.user.role)
-      ? navForPlatformAdmin(session.user.role)
-      : navForOperator(session.user.role)
+  const items = isPlatformRole(session.user.role)
+    ? navForPlatformAdmin(session.user.role)
+    : navForOperator(session.user.role)
 
   return (
     <div className="dashboard-shell">

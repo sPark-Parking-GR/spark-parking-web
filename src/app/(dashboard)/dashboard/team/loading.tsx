@@ -1,5 +1,10 @@
 import { PageHeader } from '@/components/PageHeader'
-import { Skeleton, EditorSectionSkeleton, FieldSkeleton, TableSkeleton } from '@/components/Skeleton'
+import {
+  Skeleton,
+  EditorSectionSkeleton,
+  FieldSkeleton,
+  TableSkeleton,
+} from '@/components/Skeleton'
 
 export default function Loading() {
   return (

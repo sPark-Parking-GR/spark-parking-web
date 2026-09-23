@@ -139,7 +139,8 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
                         iconOnly
                       />
                     ) : null}
-                    {user.lifecycleStatus === 'ARCHIVED' || user.lifecycleStatus === 'TOMBSTONED' ? (
+                    {user.lifecycleStatus === 'ARCHIVED' ||
+                    user.lifecycleStatus === 'TOMBSTONED' ? (
                       <RestoreUserButton
                         id={user.id}
                         icon={<ShieldCheck size={18} strokeWidth={2} aria-hidden="true" />}
@@ -208,13 +209,17 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
                   </span>
                 </div>
                 <div className="operator-detail-grid__item">
-                  <span className="operator-detail-grid__label">{t('identity.fields.created')}</span>
+                  <span className="operator-detail-grid__label">
+                    {t('identity.fields.created')}
+                  </span>
                   <span className="operator-detail-grid__value">
                     {dateFmt.format(new Date(user.createdAt))}
                   </span>
                 </div>
                 <div className="operator-detail-grid__item">
-                  <span className="operator-detail-grid__label">{t('identity.fields.updated')}</span>
+                  <span className="operator-detail-grid__label">
+                    {t('identity.fields.updated')}
+                  </span>
                   <span className="operator-detail-grid__value">
                     {dateFmt.format(new Date(user.updatedAt))}
                   </span>
@@ -262,7 +267,9 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
                 <div className="operator-detail-grid__item">
                   <span className="operator-detail-grid__label">{t('lifecycle.purgeAfter')}</span>
                   <span className="operator-detail-grid__value">
-                    {user.purgeAfter ? dateFmt.format(new Date(user.purgeAfter)) : t('lifecycle.none')}
+                    {user.purgeAfter
+                      ? dateFmt.format(new Date(user.purgeAfter))
+                      : t('lifecycle.none')}
                   </span>
                 </div>
               </div>
@@ -389,7 +396,10 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
               ) : (
                 <div className="audit-card">
                   {user.recentActivity.map((entry) => (
-                    <div key={entry.id} className={`audit-row audit-row--${actionTone(entry.action)}`}>
+                    <div
+                      key={entry.id}
+                      className={`audit-row audit-row--${actionTone(entry.action)}`}
+                    >
                       <span className="audit-row__avatar" aria-hidden="true">
                         <span className="audit-row__dot" />
                       </span>

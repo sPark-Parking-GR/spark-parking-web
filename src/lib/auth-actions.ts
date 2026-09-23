@@ -18,12 +18,10 @@ const signInSchema = z.object({
 export type SignInInput = z.infer<typeof signInSchema>
 
 export type SignInErrorKey =
-  | 'credentialsInvalid'
-  | 'invalidCredentials'
-  | 'signInFailed'
-  | 'notAuthorized'
+  'credentialsInvalid' | 'invalidCredentials' | 'signInFailed' | 'notAuthorized'
 
-export type SignInResult = { ok: true; redirectTo: string } | { ok: false; errorKey: SignInErrorKey }
+export type SignInResult =
+  { ok: true; redirectTo: string } | { ok: false; errorKey: SignInErrorKey }
 
 // Only same-origin absolute paths are honored. Protocol-relative (`//host`),
 // backslash-smuggled (`/\host`) and non-rooted values fall back to the home page,
@@ -61,7 +59,6 @@ export async function signInAction(input: SignInInput, from?: string): Promise<S
   if (!isDashboardRole(result.session.user.role)) {
     return { ok: false, errorKey: 'notAuthorized' }
   }
-
 
   await establishSessions({
     accessToken: result.session.accessToken,

@@ -8,14 +8,10 @@ import { apiFetch, ApiError, AuthRequiredError } from './api'
 export type OperatorMemberRole = 'STAFF' | 'ADMIN'
 
 export type OperatorMemberErrorKey =
-  | 'errors.forbidden'
-  | 'errors.notFound'
-  | 'errors.conflict'
-  | 'errors.genericError'
+  'errors.forbidden' | 'errors.notFound' | 'errors.conflict' | 'errors.genericError'
 
 export type OperatorMemberActionResult =
-  | { ok: true }
-  | { ok: false; errorKey: OperatorMemberErrorKey; detail?: string }
+  { ok: true } | { ok: false; errorKey: OperatorMemberErrorKey; detail?: string }
 
 const roleSchema = z.enum(['STAFF', 'ADMIN'])
 

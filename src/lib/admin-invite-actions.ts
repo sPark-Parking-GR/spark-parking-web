@@ -35,12 +35,10 @@ export type ResendAdminInviteResult =
   | { ok: false; errorKey: AdminInviteMutationErrorKey; detail?: string }
 
 export type RevokeAdminInviteResult =
-  | { ok: true }
-  | { ok: false; errorKey: AdminInviteMutationErrorKey; detail?: string }
+  { ok: true } | { ok: false; errorKey: AdminInviteMutationErrorKey; detail?: string }
 
 export type ValidateAdminInviteResult =
-  | { ok: true; data: AdminInviteTokenValidation }
-  | { ok: false; status: number }
+  { ok: true; data: AdminInviteTokenValidation } | { ok: false; status: number }
 
 export type AcceptAdminInviteResult = {
   ok: false

@@ -2,13 +2,18 @@
   "name": "@spark/web",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "pnpm@10.15.1",
   "scripts": {
-    "build": "next build",
-    "dev": "dotenv -e .env -- next dev --turbopack",
+    "build:vendor": "pnpm -r run build",
+    "build": "pnpm run build:vendor && next build",
+    "dev": "pnpm run build:vendor && dotenv -e .env -- next dev --turbopack",
     "start": "dotenv -e .env -- next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit",
-    "check:i18n": "node scripts/check-i18n.js"
+    "typecheck": "pnpm -r run typecheck && tsc --noEmit",
+    "test": "pnpm -r run test",
+    "check:i18n": "node scripts/check-i18n.js",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "dependencies": {
     "@spark/types": "workspace:*",
@@ -26,7 +31,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@spark/config": "workspace:*",
     "@types/google.maps": "^3.65.2",
     "@types/node": "^22.10.1",
     "@types/react": "^19.3.0",
@@ -37,6 +41,7 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "15.5.19",
     "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.3.3",
     "typescript": "^5.6.3"
   }
 }

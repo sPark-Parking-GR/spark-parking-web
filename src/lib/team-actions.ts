@@ -22,13 +22,10 @@ export type TeamErrorKey =
 export type TeamActionResult = { ok: true } | { ok: false; errorKey: TeamErrorKey; detail?: string }
 
 export type InviteMemberErrorKey =
-  | TeamErrorKey
-  | 'errors.seatLimitReached'
-  | 'validation.emailInvalid'
+  TeamErrorKey | 'errors.seatLimitReached' | 'validation.emailInvalid'
 
 export type InviteMemberResult =
-  | { ok: true; delivered: boolean }
-  | { ok: false; errorKey: InviteMemberErrorKey; detail?: string }
+  { ok: true; delivered: boolean } | { ok: false; errorKey: InviteMemberErrorKey; detail?: string }
 
 function mapWriteError(err: unknown): { ok: false; errorKey: TeamErrorKey; detail?: string } {
   if (err instanceof AuthRequiredError) redirect('/login')

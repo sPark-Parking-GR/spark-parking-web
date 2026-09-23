@@ -45,22 +45,17 @@ export interface InviteValidation {
 }
 
 export type InviteValidationResult =
-  | { ok: true; data: InviteValidation }
-  | { ok: false; status: number }
+  { ok: true; data: InviteValidation } | { ok: false; status: number }
 
 export type SendInviteErrorKey =
-  | 'errors.sendInviteForbidden'
-  | 'errors.invalidData'
-  | 'errors.genericError'
-  | string
+  'errors.sendInviteForbidden' | 'errors.invalidData' | 'errors.genericError' | string
 
 // `delivered` is the provider's own answer, not a guess: the invite row is written before
 // the mail is handed over and the send never throws, so a rejected sender identity or a
 // dead provider leaves a PENDING invite nobody can redeem. Reporting that as success is
 // how an admin waits days for an operator who was never written to.
 export type SendInviteResult =
-  | { ok: true; delivered: boolean }
-  | { ok: false; errorKey: SendInviteErrorKey; detail?: string }
+  { ok: true; delivered: boolean } | { ok: false; errorKey: SendInviteErrorKey; detail?: string }
 
 export type InviteActionResult =
   | { ok: true }

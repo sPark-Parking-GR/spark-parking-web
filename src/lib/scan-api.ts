@@ -2,11 +2,7 @@ import { apiFetch } from './api'
 import type { BookingStatus } from './booking-api'
 
 export type TicketVerdict =
-  | 'valid'
-  | 'invalid_signature'
-  | 'outside_time_window'
-  | 'already_used'
-  | 'not_honourable'
+  'valid' | 'invalid_signature' | 'outside_time_window' | 'already_used' | 'not_honourable'
 
 export type TicketMethod = 'qr' | 'access_code'
 
