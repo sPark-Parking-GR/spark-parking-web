@@ -9,7 +9,7 @@
     "dev": "pnpm run build:vendor && dotenv -e .env -- next dev --turbopack",
     "start": "dotenv -e .env -- next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "typecheck": "pnpm -r run typecheck && tsc --noEmit",
+    "typecheck": "pnpm run build:vendor && pnpm -r run typecheck && tsc --noEmit",
     "test": "pnpm -r run test",
     "check:i18n": "node scripts/check-i18n.js",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
