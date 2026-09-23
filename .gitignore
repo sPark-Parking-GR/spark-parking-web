@@ -49,3 +49,4 @@ prisma/migrations/dev.db
 mockups
 # typescript incremental build cache
 *.tsbuildinfo
+.env*
