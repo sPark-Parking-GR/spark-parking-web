@@ -111,22 +111,29 @@ the Dockerfile, not just at runtime.
 `standalone` output. CI builds the image on every run so a broken Dockerfile fails the PR
 rather than the deploy.
 
-Deployed on Vercel. `scripts/vercel-ignore-build.sh` is set as the project's Ignored Build
-Step, and skips Vercel's own git-push-triggered build for `main` — every other ref (PRs,
-feature branches) still builds immediately, so preview deployments stay fast.
+Deployed on Vercel, using its own native Git integration — a push to `main` builds and
+deploys on Vercel's infrastructure directly, with no gate on GitHub Actions' `ci` job.
+`vercel.json`'s `buildCommand` (`pnpm run build`) is what makes that build work at all,
+since Vercel's zero-config Next.js detection otherwise runs `next build` directly and
+never compiles `vendor/*` first.
 
-Production deploys do not go through a Vercel Deploy Hook. That was tried first and
-dropped: a hook call reliably returned `201`/`PENDING` from Vercel's API — confirmed by
-curling it manually — with no deployment ever appearing in the Deployments tab and no
-error surfaced anywhere to explain why. The `deploy` job at the end of `ci.yml` instead
-builds and deploys directly from the runner with the Vercel CLI, after every step in the
-`ci` job has passed: `vercel pull` (fetches this project's real Production environment
-variables, not the `ci` job's `NEXT_PUBLIC_*` placeholders), `vercel build` (runs
-`vercel.json`'s `buildCommand`, so `build:vendor` still compiles first), then
-`vercel deploy --prebuilt` uploads that exact artifact — no second, independent build
-happens on Vercel's infrastructure, and every failure (auth, build, upload) surfaces as a
-failed step in the Actions log instead of disappearing silently. Needs `VERCEL_TOKEN`,
-`VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` in the `Production` GitHub Environment.
+A CI-gated deploy (GitHub Actions `deploy` job triggering Vercel only after `ci` passed)
+was built and then deliberately removed. Two approaches were tried and both hit dead
+ends worth knowing about if this is revisited:
+
+- **Deploy Hook** (`curl -X POST` a hook URL from the `deploy` job): the hook reliably
+  returned `201`/`PENDING` from Vercel's API — confirmed by curling it manually with the
+  exact current hook URL — but no deployment ever appeared in the Deployments tab, and
+  nothing surfaced anywhere to explain why.
+- **Vercel CLI** (`vercel pull` / `vercel build` / `vercel deploy --prebuilt` from the
+  runner, authenticated with `VERCEL_TOKEN`): `vercel pull` failed with "Could not
+  retrieve Project Settings" for every token that could be created. Root cause (see
+  [vercel/vercel#17506](https://github.com/vercel/vercel/issues/17506), open): the CLI
+  internally calls `GET /teams/{teamId}` and treats a 403 there as fatal, even though the
+  actual project fetch it needs succeeds — and a **project-scoped** token (the
+  narrower, safer option) is always forbidden from that call. Only a **team-scoped**
+  token — full access to every project under the team, not just this one — works around
+  it, which was judged not worth the broadened credential for what this fixes.
 
 Next infers its workspace root from the lockfile. Running dev/build from inside the
 umbrella repo puts a second lockfile above this one and Turbopack warns that the root is
