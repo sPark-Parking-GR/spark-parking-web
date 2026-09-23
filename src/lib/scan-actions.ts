@@ -17,16 +17,10 @@ const verifyQrInputSchema = z
   })
 
 export type ScanErrorKey =
-  | 'invalidFormat'
-  | 'malformed'
-  | 'notFound'
-  | 'redisUnavailable'
-  | 'rateLimited'
-  | 'genericError'
+  'invalidFormat' | 'malformed' | 'notFound' | 'redisUnavailable' | 'rateLimited' | 'genericError'
 
 export type VerifyQrActionResult =
-  | { ok: true; result: VerifyQrResponse }
-  | { ok: false; errorKey: ScanErrorKey }
+  { ok: true; result: VerifyQrResponse } | { ok: false; errorKey: ScanErrorKey }
 
 export interface VerifyQrActionInput {
   payload?: string

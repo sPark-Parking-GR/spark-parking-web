@@ -281,10 +281,7 @@ export function FacilityMapView({ filters, role }: Props) {
                 </button>
               )
             ) : null}
-            <Link
-              href={`${pathname}/${selected.id}`}
-              className="btn btn--secondary btn--sm"
-            >
+            <Link href={`${pathname}/${selected.id}`} className="btn btn--secondary btn--sm">
               {t('actions.edit')}
             </Link>
           </div>

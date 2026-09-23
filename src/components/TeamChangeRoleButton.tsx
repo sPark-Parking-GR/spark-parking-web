@@ -52,7 +52,11 @@ export function TeamChangeRoleButton({ operatorId, userId, email, currentRole }:
         {t('changeRole.trigger')}
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={t('changeRole.modalTitle', { email })}>
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t('changeRole.modalTitle', { email })}
+      >
         <label className="field">
           <span className="field__label">{t('changeRole.roleLabel')}</span>
           <select

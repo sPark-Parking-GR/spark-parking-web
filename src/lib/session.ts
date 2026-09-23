@@ -215,7 +215,5 @@ export function isAuthenticated(session: IronSession<SessionData>): boolean {
 // alongside it at login has passed its own, separately-tracked expiry. See
 // `adminSessionExpiresAt` on SessionData for why this can't just re-check the real cookie.
 export function hasLapsedAdminWindow(session: IronSession<SessionData>): boolean {
-  return (
-    session.adminSessionExpiresAt === undefined || Date.now() >= session.adminSessionExpiresAt
-  )
+  return session.adminSessionExpiresAt === undefined || Date.now() >= session.adminSessionExpiresAt
 }

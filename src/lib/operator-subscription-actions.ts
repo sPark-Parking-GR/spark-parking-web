@@ -9,10 +9,7 @@ import { requestOperatorCheckout, requestOperatorUpgrade } from './operator-subs
 const BILLING_PATH = '/dashboard/billing'
 
 type SharedBillingErrorKey =
-  | 'errors.forbidden'
-  | 'errors.notFound'
-  | 'errors.invalidData'
-  | 'errors.genericError'
+  'errors.forbidden' | 'errors.notFound' | 'errors.invalidData' | 'errors.genericError'
 
 export type UpgradeRequestErrorKey =
   | SharedBillingErrorKey
@@ -21,22 +18,18 @@ export type UpgradeRequestErrorKey =
   | 'validation.messageTooLong'
 
 export type CheckoutErrorKey =
-  | SharedBillingErrorKey
-  | 'plans.alreadySubscribed'
-  | 'validation.planRequired'
+  SharedBillingErrorKey | 'plans.alreadySubscribed' | 'validation.planRequired'
 
 // Duplicated per domain rather than shared, following TeamActionResult: the errorKey space
 // is namespace-local, so a shared type would only hide which messages file has to define it.
 export type UpgradeRequestResult =
-  | { ok: true }
-  | { ok: false; errorKey: UpgradeRequestErrorKey; detail?: string }
+  { ok: true } | { ok: false; errorKey: UpgradeRequestErrorKey; detail?: string }
 
 // The checkout URL is handed back rather than redirected to: a Server Action redirect to an
 // external host leaves the caller unable to render the 409 inline, and the browser has to do
 // a full document navigation to Stripe either way.
 export type CheckoutResult =
-  | { ok: true; checkoutUrl: string }
-  | { ok: false; errorKey: CheckoutErrorKey; detail?: string }
+  { ok: true; checkoutUrl: string } | { ok: false; errorKey: CheckoutErrorKey; detail?: string }
 
 function mapApiError<K extends string>(
   err: unknown,

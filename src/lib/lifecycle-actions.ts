@@ -38,8 +38,7 @@ type LifecycleFailure = { ok: false; errorKey: LifecycleErrorKey; detail?: strin
 export type LifecycleActionResult = { ok: true } | LifecycleFailure
 
 export type LifecycleImpactPreviewResult =
-  | { ok: true; data: LifecycleImpactPreview }
-  | { ok: false; errorKey: LifecycleErrorKey }
+  { ok: true; data: LifecycleImpactPreview } | { ok: false; errorKey: LifecycleErrorKey }
 
 function mapApiError(err: unknown): LifecycleFailure {
   if (err instanceof AuthRequiredError) {

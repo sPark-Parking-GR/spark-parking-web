@@ -24,8 +24,7 @@ const PLANS_PATH = '/admin/operator-plans'
 const OPERATORS_PATH = '/admin/operators'
 
 export type OperatorPlanActionResult =
-  | { ok: true }
-  | { ok: false; errorKey: string; detail?: string }
+  { ok: true } | { ok: false; errorKey: string; detail?: string }
 
 function mapApiError(err: unknown): OperatorPlanActionResult {
   if (err instanceof AuthRequiredError) {

@@ -17,12 +17,7 @@ function revalidateBookings(id?: string): void {
 }
 
 export type BookingErrorKey =
-  | 'forbidden'
-  | 'notFound'
-  | 'invalidState'
-  | 'refundFailed'
-  | 'genericError'
-  | 'missingId'
+  'forbidden' | 'notFound' | 'invalidState' | 'refundFailed' | 'genericError' | 'missingId'
 
 export type BookingActionResult = { ok: true } | { ok: false; errorKey: BookingErrorKey }
 

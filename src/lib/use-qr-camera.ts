@@ -9,11 +9,7 @@ const MAX_DECODE_WIDTH = 480
 export type CameraStatus = 'starting' | 'active' | 'error'
 
 export type CameraErrorKey =
-  | 'insecureContext'
-  | 'unsupported'
-  | 'permissionDenied'
-  | 'notFound'
-  | 'unknown'
+  'insecureContext' | 'unsupported' | 'permissionDenied' | 'notFound' | 'unknown'
 
 function mapGetUserMediaError(err: unknown): CameraErrorKey {
   const name = err instanceof DOMException ? err.name : ''

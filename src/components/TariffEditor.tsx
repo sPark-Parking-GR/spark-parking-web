@@ -244,7 +244,7 @@ export function TariffEditor({ mode, planId, plan, plans, isPlatformAdmin = fals
                 </Link>
               </span>
             ) : (
-              state.detail ?? t(state.errorKey)
+              (state.detail ?? t(state.errorKey))
             )}
           </p>
         ) : null}

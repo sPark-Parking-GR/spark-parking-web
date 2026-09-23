@@ -59,10 +59,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
                 timeStyle: 'short',
               })
               return (
-                <div
-                  key={entry.id}
-                  className={`audit-row audit-row--${actionTone(entry.action)}`}
-                >
+                <div key={entry.id} className={`audit-row audit-row--${actionTone(entry.action)}`}>
                   <span className="audit-row__avatar" aria-hidden="true">
                     <span className="audit-row__dot" />
                   </span>
@@ -78,11 +75,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
                         : entry.entityId.slice(0, 10)}
                     </p>
                   </div>
-                  <time
-                    className="audit-row__when"
-                    dateTime={entry.createdAt}
-                    title={absolute}
-                  >
+                  <time className="audit-row__when" dateTime={entry.createdAt} title={absolute}>
                     {formatRelativeTime(entry.createdAt, t)}
                   </time>
                 </div>

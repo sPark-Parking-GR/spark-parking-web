@@ -2,7 +2,11 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { Badge } from '@spark/ui'
 import type { BadgeVariant } from '@spark/ui'
-import type { IdentityLifecycleStatus, IdentityRole, IdentityUserSummary } from '@/lib/identity-types'
+import type {
+  IdentityLifecycleStatus,
+  IdentityRole,
+  IdentityUserSummary,
+} from '@/lib/identity-types'
 
 interface Props {
   items: IdentityUserSummary[]
@@ -61,9 +65,7 @@ export async function UsersTable({ items }: Props) {
                   <Badge variant={LIFECYCLE_BADGE_VARIANT[item.lifecycleStatus]}>
                     {t(`status.${item.lifecycleStatus}`)}
                   </Badge>
-                  {item.anonymisedAt ? (
-                    <Badge variant="neutral">{t('anonymised')}</Badge>
-                  ) : null}
+                  {item.anonymisedAt ? <Badge variant="neutral">{t('anonymised')}</Badge> : null}
                 </div>
               </td>
               <td className="text-secondary">

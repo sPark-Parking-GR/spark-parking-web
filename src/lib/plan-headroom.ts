@@ -4,10 +4,10 @@ import type { Entitlements, OperatorUsage } from '@spark/types'
 
 type Quota = keyof OperatorUsage
 
-const LIMIT_FOR: Record<Quota, keyof Pick<
-  Entitlements,
-  'maxFacilities' | 'maxTariffPlans' | 'maxStaffSeats'
->> = {
+const LIMIT_FOR: Record<
+  Quota,
+  keyof Pick<Entitlements, 'maxFacilities' | 'maxTariffPlans' | 'maxStaffSeats'>
+> = {
   facilities: 'maxFacilities',
   tariffPlans: 'maxTariffPlans',
   staffSeats: 'maxStaffSeats',

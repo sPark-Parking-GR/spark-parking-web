@@ -55,8 +55,7 @@ export type FacilityErrorKey =
   | 'errors.limitExceeded'
 
 export type FacilityActionResult =
-  | { ok: true }
-  | { ok: false; errorKey: FacilityErrorKey | string; detail?: string }
+  { ok: true } | { ok: false; errorKey: FacilityErrorKey | string; detail?: string }
 
 function mapApiError(err: unknown): FacilityActionResult {
   if (err instanceof AuthRequiredError) {
@@ -343,8 +342,7 @@ export async function assignTariffAction(
 }
 
 export type MapFacilitiesResult =
-  | { ok: true; data: AdminMapResponse }
-  | { ok: false; errorKey: 'errors.mapLoadFailed' }
+  { ok: true; data: AdminMapResponse } | { ok: false; errorKey: 'errors.mapLoadFailed' }
 
 export async function fetchMapFacilitiesAction(params: {
   north: number

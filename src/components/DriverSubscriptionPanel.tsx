@@ -233,9 +233,7 @@ export function DriverSubscriptionPanel({ userId, subscription, plans }: Props) 
 
         <div className="operator-detail-grid">
           <div className="operator-detail-grid__item">
-            <span className="operator-detail-grid__label">
-              {t('entitlements.bookingDiscount')}
-            </span>
+            <span className="operator-detail-grid__label">{t('entitlements.bookingDiscount')}</span>
             <span className="operator-detail-grid__value">
               {effective.bookingDiscountBps === null
                 ? t('entitlements.noDiscount')
@@ -281,9 +279,7 @@ export function DriverSubscriptionPanel({ userId, subscription, plans }: Props) 
         <section className="editor-section card">
           <div className="editor-section__head">
             <h3 className="h-heading">{t('subscription.assign.heading')}</h3>
-            <p className="text-secondary editor-section__hint">
-              {t('subscription.assign.hint')}
-            </p>
+            <p className="text-secondary editor-section__hint">{t('subscription.assign.hint')}</p>
           </div>
 
           {plans.length === 0 ? (
@@ -353,9 +349,7 @@ export function DriverSubscriptionPanel({ userId, subscription, plans }: Props) 
         <section className="editor-section card">
           <div className="editor-section__head">
             <h3 className="h-heading">{t('subscription.override.heading')}</h3>
-            <p className="text-secondary editor-section__hint">
-              {t('subscription.override.hint')}
-            </p>
+            <p className="text-secondary editor-section__hint">{t('subscription.override.hint')}</p>
           </div>
 
           {!hasSubscription ? (
@@ -416,7 +410,9 @@ export function DriverSubscriptionPanel({ userId, subscription, plans }: Props) 
                     type="number"
                     step="1"
                     min="0"
-                    disabled={!enabled.freeCancellations || unlimitedCancellations || overridePending}
+                    disabled={
+                      !enabled.freeCancellations || unlimitedCancellations || overridePending
+                    }
                     value={unlimitedCancellations ? '' : (values.freeCancellations as number)}
                     onChange={(e) =>
                       patchValues({ freeCancellations: Math.trunc(Number(e.target.value)) || 0 })
@@ -441,9 +437,7 @@ export function DriverSubscriptionPanel({ userId, subscription, plans }: Props) 
                   <input
                     type="checkbox"
                     checked={enabled.bookingFeeWaived}
-                    onChange={(e) =>
-                      setEnabled({ ...enabled, bookingFeeWaived: e.target.checked })
-                    }
+                    onChange={(e) => setEnabled({ ...enabled, bookingFeeWaived: e.target.checked })}
                   />
                   {t('entitlements.bookingFeeWaived')}
                 </label>

@@ -1,4 +1,3 @@
-import path from 'node:path'
 import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 
@@ -45,9 +44,6 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  // pnpm workspace: packages/ui and packages/types live outside apps/web, so the
-  // standalone trace root must go up to the monorepo root or those deps get dropped.
-  outputFileTracingRoot: path.join(__dirname, '../..'),
   transpilePackages: ['@spark/ui', '@spark/types'],
   async headers() {
     return [

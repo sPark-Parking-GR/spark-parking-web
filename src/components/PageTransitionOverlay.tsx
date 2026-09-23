@@ -43,7 +43,9 @@ export function PageTransitionOverlayProvider({ children }: { children: ReactNod
       {children}
       <div
         aria-hidden="true"
-        className={covered ? 'page-transition-cover page-transition-cover--covered' : 'page-transition-cover'}
+        className={
+          covered ? 'page-transition-cover page-transition-cover--covered' : 'page-transition-cover'
+        }
         hidden={!visible}
       />
     </PageTransitionOverlayContext.Provider>

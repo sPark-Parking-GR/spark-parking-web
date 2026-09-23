@@ -32,7 +32,10 @@ export function SetAdminPasswordForm({
       // strength floor and no confirmation field to match against.
       const passwordField = requiresExistingPassword
         ? z.string().min(1, t('passwordRequired'))
-        : z.string().min(PASSWORD_MIN, t('passwordTooShort')).max(PASSWORD_MAX, t('passwordTooLong'))
+        : z
+            .string()
+            .min(PASSWORD_MIN, t('passwordTooShort'))
+            .max(PASSWORD_MAX, t('passwordTooLong'))
 
       const passwordSchema = z
         .object({

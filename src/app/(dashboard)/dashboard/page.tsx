@@ -1,7 +1,15 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getFormatter, getTranslations } from 'next-intl/server'
-import { Building2, CalendarCheck, CalendarClock, Gauge, Gem, Wallet, AlertCircle } from 'lucide-react'
+import {
+  Building2,
+  CalendarCheck,
+  CalendarClock,
+  Gauge,
+  Gem,
+  Wallet,
+  AlertCircle,
+} from 'lucide-react'
 import { ProgressBar } from '@spark/ui'
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'

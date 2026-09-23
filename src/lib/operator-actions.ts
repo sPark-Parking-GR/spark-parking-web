@@ -28,8 +28,7 @@ export type OperatorErrorKey =
   | 'errors.genericError'
 
 export type OperatorActionResult =
-  | { ok: true }
-  | { ok: false; errorKey: OperatorErrorKey; detail?: string }
+  { ok: true } | { ok: false; errorKey: OperatorErrorKey; detail?: string }
 
 export interface OperatorFacilitySummary {
   id: string

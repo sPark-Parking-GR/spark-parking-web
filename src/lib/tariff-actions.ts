@@ -169,8 +169,7 @@ export async function updateTariffPlanManagersAction(
 }
 
 export type SimulateActionResult =
-  | { ok: true; quote: SimulateQuote }
-  | { ok: false; errorKey: string; detail?: string }
+  { ok: true; quote: SimulateQuote } | { ok: false; errorKey: string; detail?: string }
 
 export async function simulateTariffAction(body: SimulateRequest): Promise<SimulateActionResult> {
   const parsed = tariffDraftSchema.safeParse(body.draft)

@@ -21,9 +21,7 @@ export interface AssignDriverSubscriptionInput {
   entitlementOverride?: DriverEntitlementOverride | null
 }
 
-export function listDriverPlans(
-  params: { includeArchived?: boolean } = {},
-): Promise<DriverPlan[]> {
+export function listDriverPlans(params: { includeArchived?: boolean } = {}): Promise<DriverPlan[]> {
   const qs = params.includeArchived ? '?includeArchived=true' : ''
   return apiFetch<DriverPlan[]>(`${BASE_PATH}/plans${qs}`)
 }

@@ -11,12 +11,7 @@ export const BILLING_INTERVALS = ['MONTHLY', 'YEARLY'] as const
 
 export type BillingInterval = (typeof BILLING_INTERVALS)[number]
 
-export const DRIVER_SUBSCRIPTION_STATUSES = [
-  'TRIALING',
-  'ACTIVE',
-  'PAST_DUE',
-  'CANCELLED',
-] as const
+export const DRIVER_SUBSCRIPTION_STATUSES = ['TRIALING', 'ACTIVE', 'PAST_DUE', 'CANCELLED'] as const
 
 export type DriverSubscriptionStatus = (typeof DRIVER_SUBSCRIPTION_STATUSES)[number]
 

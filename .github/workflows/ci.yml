@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+# Cancel superseded runs on the same ref (e.g. new commits pushed to a PR).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # Installs this app and every vendor/* workspace member in one pass.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm run format:check
+
+      - name: Lint
+        run: pnpm run lint
+
+      # Typechecks vendor/types and vendor/ui before this app, via pnpm -r.
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: i18n message parity
+        run: pnpm run check:i18n
+
+      # NEXT_PUBLIC_* are inlined into the client bundle at build time, so the build
+      # needs them present. These are CI placeholders, not real keys — the deployed
+      # build supplies its own.
+      - name: Build
+        env:
+          NEXT_PUBLIC_MAP_PROVIDER: google
+          NEXT_PUBLIC_GOOGLE_MAPS_KEY: ci-placeholder
+          NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: DEMO_MAP_ID
+          NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
+        run: pnpm run build
+
+      # Proves the image that actually ships still builds from this repo alone.
+      - name: Docker build
+        run: docker build -t spark-web:ci .

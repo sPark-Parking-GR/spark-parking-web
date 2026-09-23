@@ -18,7 +18,11 @@ export default async function AcceptAdminInvitePage({ params }: AcceptAdminInvit
     <div className="auth-stack">
       <div className="auth-brand">
         <span className="auth-brand__lockup">
-          <SparkMark size={34} className="brand-lockup__mark" gradientId="spark-admin-invite-grad" />
+          <SparkMark
+            size={34}
+            className="brand-lockup__mark"
+            gradientId="spark-admin-invite-grad"
+          />
           <Image
             src="/sPark_title.png"
             alt="sPark"
