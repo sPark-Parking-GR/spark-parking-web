@@ -71,10 +71,44 @@ jobs:
     # in Settings -> Environments -> Production -> Deployment branches — that enforces
     # the restriction at the platform level, not just via the `if:` above.
     environment: Production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      # Vercel's own build runs the real deploy; this just starts it, only once every
-      # check in the ci job above has passed. scripts/vercel-ignore-build.sh (set as
-      # the project's Ignored Build Step) skips Vercel's automatic git-push build for
-      # main, so this hook is the only way a push to main reaches production.
-      - name: Trigger Vercel deploy
-        run: curl -sf -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
+      # Replaced the Deploy Hook approach: a hook call returned 2xx and queued a job even
+      # when nothing ever showed up in the Deployments tab, with no error surfaced
+      # anywhere to explain why. Building and deploying directly from this runner means
+      # every failure — auth, build, upload — shows up as a failed step right here.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.15.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Pulls this project's real Production settings and environment variable values
+      # from Vercel — the artifact built below uses real NEXT_PUBLIC_*/SESSION_SECRET
+      # values, not the ci job's placeholders (those exist only to prove the build
+      # compiles in CI).
+      - name: Pull Vercel project settings
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      # vercel.json's buildCommand (pnpm run build, which runs build:vendor first) is
+      # what actually runs here — this is the same build ci already proved compiles.
+      - name: Build with Vercel CLI
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      # Uploads the artifact built in the previous step as-is — no second, independent
+      # build happens on Vercel's own infrastructure.
+      - name: Deploy prebuilt artifact to Vercel
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"

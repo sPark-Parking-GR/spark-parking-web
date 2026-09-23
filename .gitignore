@@ -13,6 +13,9 @@ out
 # turbo
 .turbo
 
+# vercel — `vercel pull` writes real Production env var values here (.env.production.local)
+.vercel
+
 # env
 .env
 .env.local
@@ -46,3 +49,4 @@ prisma/migrations/dev.db
 mockups
 # typescript incremental build cache
 *.tsbuildinfo
+.env*

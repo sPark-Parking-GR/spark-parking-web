@@ -113,11 +113,20 @@ rather than the deploy.
 
 Deployed on Vercel. `scripts/vercel-ignore-build.sh` is set as the project's Ignored Build
 Step, and skips Vercel's own git-push-triggered build for `main` — every other ref (PRs,
-feature branches) still builds immediately, so preview deployments stay fast. The `deploy`
-job at the end of `ci.yml` is the only thing that reaches production: it runs after every
-step in the `ci` job has passed, and POSTs to a Vercel Deploy Hook (scoped to `main`)
-stored as the `VERCEL_DEPLOY_HOOK_URL` repo secret. Vercel then runs its own build
-(`vercel.json`'s `buildCommand`, `pnpm run build`) exactly as CI already proved it would.
+feature branches) still builds immediately, so preview deployments stay fast.
+
+Production deploys do not go through a Vercel Deploy Hook. That was tried first and
+dropped: a hook call reliably returned `201`/`PENDING` from Vercel's API — confirmed by
+curling it manually — with no deployment ever appearing in the Deployments tab and no
+error surfaced anywhere to explain why. The `deploy` job at the end of `ci.yml` instead
+builds and deploys directly from the runner with the Vercel CLI, after every step in the
+`ci` job has passed: `vercel pull` (fetches this project's real Production environment
+variables, not the `ci` job's `NEXT_PUBLIC_*` placeholders), `vercel build` (runs
+`vercel.json`'s `buildCommand`, so `build:vendor` still compiles first), then
+`vercel deploy --prebuilt` uploads that exact artifact — no second, independent build
+happens on Vercel's infrastructure, and every failure (auth, build, upload) surfaces as a
+failed step in the Actions log instead of disappearing silently. Needs `VERCEL_TOKEN`,
+`VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` in the `Production` GitHub Environment.
 
 Next infers its workspace root from the lockfile. Running dev/build from inside the
 umbrella repo puts a second lockfile above this one and Turbopack warns that the root is
