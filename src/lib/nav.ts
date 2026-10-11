@@ -27,6 +27,23 @@ export interface NavItem {
   permission?: PlatformPermission
 }
 
+export type NavMode = 'drawer' | 'tabs'
+
+// A bottom tab bar stops being scannable past five targets, so anyone with more routes than
+// that gets the drawer instead. Decided per user from the items they can actually reach.
+const MAX_TAB_ITEMS = 5
+
+export function navModeFor(items: NavItem[]): NavMode {
+  return items.length <= MAX_TAB_ITEMS ? 'tabs' : 'drawer'
+}
+
+export function isNavActive(pathname: string, href: string): boolean {
+  if (href === '/dashboard') {
+    return pathname === '/dashboard'
+  }
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
 interface OperatorNavItem extends NavItem {
   roles: UserRole[]
 }

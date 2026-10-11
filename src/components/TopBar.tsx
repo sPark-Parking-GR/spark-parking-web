@@ -1,9 +1,14 @@
 import Link from 'next/link'
 import { Bell, Search } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
+import { AccountMenu } from '@/components/AccountMenu'
+import { MenuButton } from '@/components/NavDrawerControls'
+import { SparkMark } from '@/components/SparkMark'
+import { TopBarTitle } from '@/components/TopBarTitle'
 import { SignOutButton } from '@/components/SignOutButton'
 import { LanguageSwitch } from '@/components/LanguageSwitch'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import type { NavItem, NavMode } from '@/lib/nav'
 import type { AuthUser } from '@spark/types'
 
 function initials(name: string): string {
@@ -15,7 +20,13 @@ function initials(name: string): string {
   return ((first[0] ?? '') + (last[0] ?? '')).toUpperCase()
 }
 
-export async function TopBar({ user }: { user: AuthUser }) {
+interface TopBarProps {
+  user: AuthUser
+  items: NavItem[]
+  navMode: NavMode
+}
+
+export async function TopBar({ user, items, navMode }: TopBarProps) {
   const t = await getTranslations('shell')
   const name = user.displayName ?? user.email
   const subtitle =
@@ -34,16 +45,21 @@ export async function TopBar({ user }: { user: AuthUser }) {
 
   return (
     <header className="topbar">
-      <span className="topbar__titles">
-        <span className="topbar__title h-heading">{t('title')}</span>
-        <span className="topbar__subtitle">{subtitle}</span>
-      </span>
+      <div className="topbar__lead">
+        {navMode === 'drawer' ? <MenuButton /> : null}
+        <SparkMark size={18} className="topbar__mark" gradientId="spark-topbar-grad" />
+        <TopBarTitle items={items} />
+        <span className="topbar__titles">
+          <span className="topbar__title h-heading">{t('title')}</span>
+          <span className="topbar__subtitle">{subtitle}</span>
+        </span>
+      </div>
       <div className="topbar__user">
-        <div className="topbar__controls">
+        <div className="topbar__controls topbar__desktop-only">
           <LanguageSwitch />
           <ThemeToggle />
         </div>
-        <div className="topbar__search" data-tooltip={t('searchComingSoon')}>
+        <div className="topbar__search topbar__desktop-only" data-tooltip={t('searchComingSoon')}>
           <Search size={16} strokeWidth={2} className="topbar__search-icon" aria-hidden="true" />
           <input
             className="topbar__search-input"
@@ -57,11 +73,15 @@ export async function TopBar({ user }: { user: AuthUser }) {
           <Bell size={17} strokeWidth={2} aria-hidden="true" />
           <span className="topbar__bell-dot" aria-hidden="true" />
         </button>
-        <span className="topbar__divider" aria-hidden="true" />
+        <span className="topbar__divider topbar__desktop-only" aria-hidden="true" />
         {/* The identity chip is where someone looks for "that is not my name" — so it is
             the link to the page that fixes it, rather than a nav item competing with the
             operator's actual work. */}
-        <Link href="/dashboard/profile" className="topbar__account" data-tooltip={user.email}>
+        <Link
+          href="/dashboard/profile"
+          className="topbar__account topbar__desktop-only"
+          data-tooltip={user.email}
+        >
           <span className="topbar__identity">
             <span className="topbar__name">{name}</span>
             <span className="topbar__role">{ROLE_LABELS[user.role]}</span>
@@ -70,7 +90,17 @@ export async function TopBar({ user }: { user: AuthUser }) {
             {initials(name)}
           </span>
         </Link>
-        <SignOutButton />
+        <span className="topbar__desktop-only">
+          <SignOutButton />
+        </span>
+        <div className="topbar__mobile-only">
+          <AccountMenu
+            name={name}
+            email={user.email}
+            roleLabel={ROLE_LABELS[user.role]}
+            initials={initials(name)}
+          />
+        </div>
       </div>
     </header>
   )

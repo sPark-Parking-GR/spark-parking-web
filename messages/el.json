@@ -70,7 +70,13 @@
     "upgradeTitle": "Πλάνο Growth",
     "upgradeSub": "Δυναμική τιμολόγηση και σύνδεση API.",
     "upgradeCta": "Αναβάθμιση",
-    "brandTagOperator": "Διαχείριση"
+    "brandTagOperator": "Διαχείριση",
+    "openMenu": "Άνοιγμα μενού",
+    "closeMenu": "Κλείσιμο μενού",
+    "accountMenu": "Μενού λογαριασμού",
+    "profile": "Προφίλ",
+    "language": "Γλώσσα",
+    "theme": "Θέμα"
   },
   "login": {
     "tagline": "Κάνε το πάρκινγκ έξυπνο",

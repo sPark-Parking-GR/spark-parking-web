@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Montserrat_Alternates } from 'next/font/google'
 import { cookies, headers } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
@@ -26,6 +26,13 @@ export const metadata: Metadata = {
   title: 'sPark Portal',
   description: 'Operator and platform administration for sPark.',
   icons: { icon: '/icon.png', apple: '/icon.png' },
+}
+
+// cover lets the shell pad itself with env(safe-area-inset-*) on notched phones.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 const lightVars = cssVarsFor(colors.light, radii, shadows.light)

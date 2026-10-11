@@ -70,7 +70,13 @@
     "upgradeTitle": "Growth plan",
     "upgradeSub": "Unlock dynamic pricing and API sync.",
     "upgradeCta": "Upgrade",
-    "brandTagOperator": "Operator"
+    "brandTagOperator": "Operator",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "accountMenu": "Account menu",
+    "profile": "Profile",
+    "language": "Language",
+    "theme": "Theme"
   },
   "login": {
     "tagline": "Make Parking Smart",
