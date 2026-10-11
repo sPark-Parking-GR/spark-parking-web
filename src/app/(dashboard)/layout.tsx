@@ -1,9 +1,6 @@
 import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { Sidebar } from '@/components/Sidebar'
-import { TopBar } from '@/components/TopBar'
-import { TooltipLayer } from '@/components/TooltipLayer'
-import { NumberWheelGuard } from '@/components/NumberWheelGuard'
+import { DashboardShell } from '@/components/DashboardShell'
 import { PageTransitionReveal } from '@/components/PageTransitionReveal'
 import { isPlatformRole } from '@spark/types'
 import { getSession, hasLapsedAdminWindow, isAuthenticated, isDashboardRole } from '@/lib/session'
@@ -29,15 +26,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     : navForOperator(session.user.role)
 
   return (
-    <div className="dashboard-shell">
-      <Sidebar items={items} role={session.user.role} />
-      <div className="dashboard-main">
-        <TopBar user={session.user} />
-        <main className="dashboard-content">{children}</main>
-      </div>
-      <TooltipLayer />
-      <NumberWheelGuard />
-      <PageTransitionReveal />
-    </div>
+    <DashboardShell items={items} user={session.user} extras={<PageTransitionReveal />}>
+      {children}
+    </DashboardShell>
   )
 }
