@@ -16,6 +16,7 @@ import {
   UsersRound,
   Car,
   Gem,
+  Smartphone,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { NavIcon } from '@/lib/nav'
@@ -37,5 +38,6 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   trash: Trash2,
   approvals: ShieldCheck,
   users: Users,
+  mobileUsers: Smartphone,
   admins: ShieldPlus,
 }

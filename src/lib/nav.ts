@@ -18,6 +18,7 @@ export type NavIcon =
   | 'trash'
   | 'approvals'
   | 'users'
+  | 'mobileUsers'
   | 'admins'
 
 export interface NavItem {
@@ -86,6 +87,7 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
   { href: '/admin/trash', icon: 'trash', permission: 'platform:tenant.read' },
   { href: '/admin/approvals', icon: 'approvals', permission: 'platform:tenant.purge' },
   { href: '/admin/users', icon: 'users', permission: 'identity:user.read' },
+  { href: '/admin/mobile-users', icon: 'mobileUsers', permission: 'identity:mobile.read' },
   { href: '/admin/admins', icon: 'admins', permission: 'identity:admin.invite' },
 ]
 

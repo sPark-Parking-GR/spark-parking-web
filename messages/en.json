@@ -34,9 +34,11 @@
       "approvals": "Pending two-person purge approvals",
       "users": "Browse every account with role and lifecycle controls",
       "admins": "Invite new platform administrators",
-      "billing": "Your subscription plan, usage and upgrade requests"
+      "billing": "Your subscription plan, usage and upgrade requests",
+      "mobileUsers": "Rider accounts from the mobile app, with suspend, session and erasure controls"
     },
-    "billing": "Plan & billing"
+    "billing": "Plan & billing",
+    "mobileUsers": "Mobile users"
   },
   "dateRange": {
     "ariaLabel": "Date range",
@@ -2254,5 +2256,151 @@
         "genericError": "Something went wrong. Please try again."
       }
     }
+  },
+  "adminMobileUsers": {
+    "title": "Mobile users",
+    "description": "Rider accounts created in the mobile app, with support and erasure controls.",
+    "loadError": "Could not load mobile users. The platform API request failed — try reloading the page.",
+    "searchPlaceholder": "Search by email or name…",
+    "filters": {
+      "statusAria": "Filter by status",
+      "anyStatus": "Any status",
+      "providerAria": "Filter by sign-in method",
+      "anyProvider": "Any sign-in method"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "DEACTIVATED": "Deactivated",
+      "SUSPENDED": "Suspended",
+      "DELETED": "Erased"
+    },
+    "provider": {
+      "password": "Password",
+      "google": "Google",
+      "facebook": "Facebook",
+      "apple": "Apple"
+    },
+    "table": {
+      "email": "Email",
+      "name": "Name",
+      "status": "Status",
+      "methods": "Sign-in methods",
+      "bookings": "Bookings",
+      "created": "Created",
+      "lastActive": "Last active",
+      "noName": "—",
+      "never": "Never"
+    },
+    "empty": {
+      "title": "No mobile users",
+      "message": "No rider has signed up in the mobile app yet."
+    },
+    "emptyFiltered": "No mobile users match these filters.",
+    "errors": {
+      "forbidden": "You are not allowed to do this.",
+      "notFound": "This account no longer exists.",
+      "conflict": "The account is not in a state that allows this action.",
+      "unsettledBookings": "This account cannot be erased while it has unsettled bookings. Settle or cancel them first.",
+      "emailMismatch": "The email you typed does not match this account.",
+      "invalidReason": "Enter a reason of at least 3 characters.",
+      "rateLimited": "Too many attempts. Wait a minute and try again.",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "detail": {
+      "back": "Back to mobile users",
+      "notFound": "This mobile user could not be found.",
+      "loadError": "Could not load this mobile user. Try reloading the page.",
+      "status": "Status",
+      "none": "—",
+      "yes": "Yes",
+      "no": "No",
+      "account": {
+        "title": "Account",
+        "id": "ID",
+        "email": "Email",
+        "displayName": "Name",
+        "created": "Created",
+        "lastActive": "Last active",
+        "hasPassword": "Has a password"
+      },
+      "methods": {
+        "title": "Sign-in methods",
+        "empty": "No sign-in methods.",
+        "table": {
+          "provider": "Method",
+          "email": "Email at provider",
+          "added": "Added",
+          "lastUsed": "Last used"
+        }
+      },
+      "profile": {
+        "title": "App profile",
+        "appVersion": "App version",
+        "locale": "Locale",
+        "lastActive": "Last active"
+      },
+      "counts": {
+        "title": "Activity",
+        "bookings": "Bookings",
+        "vehicles": "Vehicles",
+        "savedFacilities": "Saved facilities",
+        "reviews": "Reviews"
+      },
+      "subscription": {
+        "title": "Subscription",
+        "none": "No subscription.",
+        "plan": "Plan",
+        "status": "Status",
+        "periodEnd": "Current period ends"
+      },
+      "actions": {
+        "title": "Support actions",
+        "deletedNote": "This account has been erased. No further actions are available.",
+        "confirming": "Working…",
+        "suspend": {
+          "trigger": "Suspend",
+          "title": "Suspend this account",
+          "text": "{email} will be signed out and unable to sign in until reactivated.",
+          "confirm": "Suspend account"
+        },
+        "reactivate": {
+          "trigger": "Reactivate",
+          "title": "Reactivate this account",
+          "text": "{email} will be able to sign in again.",
+          "confirm": "Reactivate account"
+        },
+        "revoke": {
+          "trigger": "Revoke sessions",
+          "title": "Revoke all sessions",
+          "text": "Every signed-in device of {email} will be signed out. They can sign in again.",
+          "confirm": "Revoke sessions"
+        },
+        "erase": {
+          "trigger": "Erase account",
+          "title": "Erase this account",
+          "text": "This permanently erases the account {email} and its personal data.",
+          "irreversible": "This cannot be undone. The account and its sign-in methods are destroyed and the address can no longer be recovered. Erasure is refused while the account has unsettled bookings.",
+          "confirmEmailLabel": "Type {email} to confirm",
+          "confirm": "Erase permanently"
+        }
+      }
+    }
+  },
+  "mobileResetPassword": {
+    "tagline": "Make Parking Smart",
+    "title": "Set a new password",
+    "passwordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooLong": "Password must be at most 128 characters.",
+    "passwordsMismatch": "Passwords do not match.",
+    "rateLimited": "Too many attempts. Wait a minute and try again.",
+    "genericError": "Something went wrong. Please try again.",
+    "invalidToken": "This link is invalid or has expired.",
+    "requestNewLink": "Open the sPark app and choose Forgot password to receive a new link.",
+    "success": "Your password has been updated.",
+    "successHint": "You can close this page and sign in to the sPark app with your new password.",
+    "submit": "Update password",
+    "submitting": "Updating…"
   }
 }
