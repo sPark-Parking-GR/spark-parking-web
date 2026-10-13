@@ -54,6 +54,16 @@ const nextConfig: NextConfig = {
         source: '/admin/:path*',
         headers: [{ key: 'Cache-Control', value: 'no-store' }],
       },
+      // The path itself carries a single-use password-reset token. no-referrer keeps it out
+      // of the Referer header of anything the page loads or links to, and no-store keeps the
+      // tokenised URL's response out of shared caches.
+      {
+        source: '/mobile/reset-password/:path*',
+        headers: [
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'Cache-Control', value: 'no-store' },
+        ],
+      },
     ]
   },
 }
