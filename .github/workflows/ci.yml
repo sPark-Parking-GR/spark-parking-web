@@ -43,6 +43,9 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
+      - name: Unit tests
+        run: pnpm run test
+
       - name: i18n message parity
         run: pnpm run check:i18n
 
