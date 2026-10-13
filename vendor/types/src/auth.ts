@@ -53,6 +53,10 @@ export const IDENTITY_PERMISSIONS = [
    * this one permission and nothing else from this family.
    */
   'identity:admin.invite',
+  /** List, search and read any mobile (rider) account. */
+  'identity:mobile.read',
+  /** Suspend, reactivate, revoke sessions of and erase a mobile (rider) account. */
+  'identity:mobile.manage',
 ] as const
 
 export const ALL_PERMISSIONS = [...PLATFORM_PERMISSIONS, ...IDENTITY_PERMISSIONS] as const
@@ -158,4 +162,36 @@ export interface TokenVerificationResult {
   // Epoch SECONDS, straight from the JWT `iat` claim — the unit every issuer uses, and
   // what session revocation compares against. Not milliseconds like `expiresAt`.
   issuedAt: number
+}
+
+/** Third-party identity providers a mobile user may sign in with. */
+export const MOBILE_SOCIAL_PROVIDERS = ['google', 'facebook', 'apple'] as const
+
+export type MobileSocialProvider = (typeof MOBILE_SOCIAL_PROVIDERS)[number]
+
+/** Every sign-in method a mobile account can hold. */
+export type MobileSignInMethodKind = 'password' | MobileSocialProvider
+
+/**
+ * POST /mobile-auth/social. `linked` is true when the provider identity was attached to an
+ * account that already existed; `passwordRemoved` when that attachment also removed the
+ * account's password because the provider proved the address and the password never had.
+ */
+export interface MobileSocialAuthResult extends AuthResult {
+  linked: boolean
+  passwordRemoved: boolean
+}
+
+export interface MobileSignInMethod {
+  provider: MobileSignInMethodKind
+  email: string | null
+  /** ISO-8601. */
+  createdAt: string
+}
+
+/** GET /mobile-auth/me. */
+export interface MobileAccountView {
+  user: AuthUser
+  methods: MobileSignInMethod[]
+  hasPassword: boolean
 }
