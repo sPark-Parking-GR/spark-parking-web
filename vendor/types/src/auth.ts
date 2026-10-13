@@ -47,16 +47,16 @@ export const IDENTITY_PERMISSIONS = [
   'identity:user.lifecycle',
   /** Change a user's platform role. */
   'identity:role.assign',
+  /** List, search and read any mobile (rider) account and its sign-in methods. */
+  'identity:mobile.read',
+  /** Suspend, reactivate, sign out or erase a mobile (rider) account. */
+  'identity:mobile.manage',
   /**
    * Issue an invite that mints a platform administrator. Deliberately NOT super-admin-only:
    * recruiting a peer is a separate act from managing accounts, and platform admins hold
    * this one permission and nothing else from this family.
    */
   'identity:admin.invite',
-  /** List, search and read any mobile (rider) account. */
-  'identity:mobile.read',
-  /** Suspend, reactivate, revoke sessions of and erase a mobile (rider) account. */
-  'identity:mobile.manage',
 ] as const
 
 export const ALL_PERMISSIONS = [...PLATFORM_PERMISSIONS, ...IDENTITY_PERMISSIONS] as const
