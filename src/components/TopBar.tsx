@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Bell, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { AccountMenu } from '@/components/AccountMenu'
 import { MenuButton } from '@/components/NavDrawerControls'
@@ -69,10 +69,6 @@ export async function TopBar({ user, items, navMode }: TopBarProps) {
             disabled
           />
         </div>
-        <button type="button" className="topbar__bell" aria-label={t('notifications')}>
-          <Bell size={17} strokeWidth={2} aria-hidden="true" />
-          <span className="topbar__bell-dot" aria-hidden="true" />
-        </button>
         <span className="topbar__divider topbar__desktop-only" aria-hidden="true" />
         {/* The identity chip is where someone looks for "that is not my name" — so it is
             the link to the page that fixes it, rather than a nav item competing with the

@@ -7,7 +7,7 @@ import { SearchInput } from '@/components/SearchInput'
 import { Pagination } from '@/components/Pagination'
 import { listBookings } from '@/lib/booking-api'
 import { BOOKING_STATUS_FILTERS, parseBookingStatus } from '@/lib/booking-format'
-import { buildQuery, loadPage, requireSession } from '@/lib/dal'
+import { buildQuery, loadPage, requireBillingAccess, requireSession } from '@/lib/dal'
 
 const PAGE_SIZE = 20
 
@@ -16,7 +16,7 @@ interface PageProps {
 }
 
 export default async function BookingsPage({ searchParams }: PageProps) {
-  await requireSession()
+  await requireBillingAccess(await requireSession())
 
   const t = await getTranslations('bookings')
   const params = await searchParams

@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
+import { emailField } from '@/lib/email-schema'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
@@ -20,7 +21,7 @@ export type RegisterOperatorResult =
 
 const registerOperatorSchema = z
   .object({
-    email: z.string().trim().email('emailInvalid'),
+    email: emailField('emailInvalid'),
     password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
     confirmPassword: z.string(),
     businessName: z.string().trim().min(2, 'businessNameRequired').max(200, 'businessNameTooLong'),

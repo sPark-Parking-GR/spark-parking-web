@@ -18,7 +18,9 @@ export type NavIcon =
   | 'trash'
   | 'approvals'
   | 'users'
+  | 'mobileUsers'
   | 'admins'
+  | 'settings'
 
 export interface NavItem {
   href: string
@@ -86,11 +88,24 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
   { href: '/admin/trash', icon: 'trash', permission: 'platform:tenant.read' },
   { href: '/admin/approvals', icon: 'approvals', permission: 'platform:tenant.purge' },
   { href: '/admin/users', icon: 'users', permission: 'identity:user.read' },
+  { href: '/admin/mobile-users', icon: 'mobileUsers', permission: 'identity:mobile.read' },
   { href: '/admin/admins', icon: 'admins', permission: 'identity:admin.invite' },
+  { href: '/admin/settings', icon: 'settings', permission: 'platform:billing.manage' },
 ]
 
-export function navForOperator(role: UserRole): NavItem[] {
-  return OPERATOR_NAV_ITEMS.filter((item) => item.roles.includes(role))
+// Hrefs an operator loses while the billing system flag is off. Platform administrators are
+// never filtered: their sidebar comes from navForPlatformAdmin, which has no such step.
+const BILLING_GATED_OPERATOR_HREFS = new Set([
+  '/dashboard/bookings',
+  '/dashboard/scan',
+  '/dashboard/billing',
+])
+
+export function navForOperator(role: UserRole, billingEnabled: boolean): NavItem[] {
+  return OPERATOR_NAV_ITEMS.filter(
+    (item) =>
+      item.roles.includes(role) && (billingEnabled || !BILLING_GATED_OPERATOR_HREFS.has(item.href)),
+  )
 }
 
 // Takes the VIEWER's role rather than assuming platform_admin: the permission field is only

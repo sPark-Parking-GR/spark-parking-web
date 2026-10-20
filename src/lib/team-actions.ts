@@ -8,6 +8,7 @@ import { apiFetch, ApiError, AuthRequiredError } from './api'
 import { TEAM_MEMBER_ROLES } from './team-types'
 import { isFeatureRequiredError } from './plan-limit'
 import type { TeamMemberRole } from './team-types'
+import { emailField } from '@/lib/email-schema'
 
 const TEAM_PATH = '/dashboard/team'
 
@@ -54,7 +55,7 @@ function mapWriteError(err: unknown): { ok: false; errorKey: TeamErrorKey; detai
 }
 
 const inviteMemberSchema = z.object({
-  email: z.string().trim().email('validation.emailInvalid'),
+  email: emailField('validation.emailInvalid'),
   role: z.enum(TEAM_MEMBER_ROLES),
 })
 

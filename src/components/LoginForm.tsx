@@ -5,6 +5,7 @@ import { useActionState, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
 import { signInAction } from '@/lib/auth-actions'
+import { emailField } from '@/lib/email-schema'
 
 type LoginState = { error: string | null }
 
@@ -27,7 +28,7 @@ export function LoginForm({
   const [state, formAction, isPending] = useActionState(
     async (_prev: LoginState, formData: FormData): Promise<LoginState> => {
       const credentialsSchema = z.object({
-        email: z.string().trim().email(t('emailInvalid')),
+        email: emailField(t('emailInvalid')),
         password: z.string().min(1, t('passwordRequired')),
       })
 

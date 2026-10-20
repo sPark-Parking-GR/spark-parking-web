@@ -7,6 +7,7 @@ import {
   CalendarClock,
   Gauge,
   Gem,
+  Tags,
   Wallet,
   AlertCircle,
 } from 'lucide-react'
@@ -21,12 +22,14 @@ import { isPlatformRole } from '@spark/types'
 import { listFacilities, ApiError, AuthRequiredError } from '@/lib/api'
 import { listBookings } from '@/lib/booking-api'
 import { getAnalyticsSummary, getRevenueSeries } from '@/lib/analytics-api'
+import { listTariffPlans } from '@/lib/tariff-api'
 import { getMyOperatorSubscription } from '@/lib/operator-subscription-api'
 import type { AnalyticsSummary, RevenueSeries } from '@/lib/analytics-api'
 import type { MyOperatorSubscription } from '@/lib/operator-subscription-api'
 import { formatMoney } from '@/lib/booking-format'
 import { formatRatio, formatHours } from '@/lib/analytics-format'
 import { buildQuery, loadPage, requireSession } from '@/lib/dal'
+import { canAccessBilling } from '@/lib/system-flags-api'
 import { parseRangePreset, resolveRange, type RangePreset } from '@/lib/date-range'
 
 const STATUS_FACILITY_COUNT = 5
@@ -43,17 +46,30 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
   const t = await getTranslations('overview')
   const tBilling = await getTranslations('billing')
   const format = await getFormatter()
+  const billingVisible = await canAccessBilling(session.user.role)
+  const facilitiesHref = isPlatformRole(session.user.role)
+    ? '/admin/facilities'
+    : '/dashboard/facilities'
   const bookingsHref = isPlatformRole(session.user.role) ? '/admin/bookings' : '/dashboard/bookings'
 
   // Owner-only: /operator-subscriptions/me refuses a STAFF caller, and staff have no
   // business seeing what the operator pays either way.
   let subscription: MyOperatorSubscription | null = null
-  if (session.user.role === 'operator_admin') {
+  if (billingVisible && session.user.role === 'operator_admin') {
     try {
       subscription = await getMyOperatorSubscription()
     } catch {
       // The teaser is secondary — the overview still renders without it.
     }
+  }
+
+  // Tariffs stay visible with billing off. A role without tariff access just loses the card.
+  let tariffPlans: { active: number; total: number } | null = null
+  try {
+    const { items } = await listTariffPlans()
+    tariffPlans = { active: items.filter((p) => p.isActive).length, total: items.length }
+  } catch {
+    // Secondary card — the overview renders without it.
   }
 
   const params = await searchParams
@@ -64,23 +80,25 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
   let series: RevenueSeries | null = null
   let analyticsError: AnalyticsErrorKind | null = null
 
-  try {
-    const [summaryResult, seriesResult] = await Promise.all([
-      getAnalyticsSummary({ from: from.toISOString(), to: to.toISOString() }),
-      getRevenueSeries({ from: from.toISOString(), to: to.toISOString(), bucket }),
-    ])
-    summary = summaryResult
-    series = seriesResult
-  } catch (err) {
-    if (err instanceof AuthRequiredError) redirect('/login')
-    if (err instanceof ApiError && err.status === 403) redirect('/login?error=restricted')
-    analyticsError = err instanceof ApiError && err.status === 422 ? 'mixedCurrency' : 'unknown'
+  if (billingVisible) {
+    try {
+      const [summaryResult, seriesResult] = await Promise.all([
+        getAnalyticsSummary({ from: from.toISOString(), to: to.toISOString() }),
+        getRevenueSeries({ from: from.toISOString(), to: to.toISOString(), bucket }),
+      ])
+      summary = summaryResult
+      series = seriesResult
+    } catch (err) {
+      if (err instanceof AuthRequiredError) redirect('/login')
+      if (err instanceof ApiError && err.status === 403) redirect('/login?error=restricted')
+      analyticsError = err instanceof ApiError && err.status === 422 ? 'mixedCurrency' : 'unknown'
+    }
   }
 
   const [facilities, activeBookings, recentBookings] = await Promise.all([
     loadPage(() => listFacilities({ take: STATUS_FACILITY_COUNT })),
-    loadPage(() => listBookings({ status: 'CHECKED_IN', take: 1 })),
-    loadPage(() => listBookings({ take: RECENT_BOOKINGS_COUNT })),
+    billingVisible ? loadPage(() => listBookings({ status: 'CHECKED_IN', take: 1 })) : null,
+    billingVisible ? loadPage(() => listBookings({ take: RECENT_BOOKINGS_COUNT })) : null,
   ])
 
   const buildHref = (nextPreset: RangePreset) =>
@@ -89,150 +107,179 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
   return (
     <>
       <PageHeader title={t('title')} description={t('description')} />
-      <DateRangeControl active={preset} buildHref={buildHref} />
+      {billingVisible ? <DateRangeControl active={preset} buildHref={buildHref} /> : null}
 
       <div className="stat-grid">
-        <StatCard
-          label={t('stats.facilities.label')}
-          value={format.number(facilities.total)}
-          hint={t('stats.facilities.hint')}
-          icon={Building2}
-          tone="primary"
-          index={0}
-        />
-        <StatCard
-          label={t('stats.activeBookings.label')}
-          value={format.number(activeBookings.total)}
-          hint={t('stats.activeBookings.hint')}
-          icon={CalendarCheck}
-          tone="success"
-          index={1}
-        />
-        <StatCard
-          label={t('stats.revenue.label')}
-          value={summary ? formatMoney(summary.netRevenueCents, summary.currency) : '—'}
-          hint={t('stats.revenue.hint')}
-          icon={Wallet}
-          tone="warning"
-          index={2}
-        />
-        <StatCard
-          label={t('stats.avgOccupancy.label')}
-          value={summary ? formatRatio(summary.occupancy.ratio) : '—'}
-          hint={t('stats.avgOccupancy.hint')}
-          icon={Gauge}
-          tone="neutral"
-          index={3}
-        />
-        {subscription ? (
-          <Link href="/dashboard/billing" className="stat-card-link">
+        <Link href={facilitiesHref} className="stat-card-link">
+          <StatCard
+            label={t('stats.facilities.label')}
+            value={format.number(facilities.total)}
+            hint={t('stats.facilities.hint')}
+            icon={Building2}
+            tone="primary"
+            index={0}
+          />
+        </Link>
+        {tariffPlans ? (
+          <Link href="/dashboard/tariffs" className="stat-card-link">
             <StatCard
-              label={tBilling('teaser.label')}
-              value={subscription.planName ?? tBilling('current.noPlan')}
-              hint={tBilling('teaser.hint')}
-              icon={Gem}
+              label={t('stats.tariffs.label')}
+              value={format.number(tariffPlans.active)}
+              hint={t('stats.tariffs.hint')}
+              icon={Tags}
               tone="primary"
-              index={4}
-              trend={tBilling('teaser.usage', {
-                current: subscription.usage.facilities,
-                limit:
-                  subscription.entitlements.maxFacilities === null
-                    ? tBilling('usage.unlimitedShort')
-                    : String(subscription.entitlements.maxFacilities),
-              })}
+              index={1}
+              trend={t('stats.tariffs.total', { total: tariffPlans.total })}
             />
           </Link>
         ) : null}
+        {billingVisible ? (
+          <>
+            <StatCard
+              label={t('stats.activeBookings.label')}
+              value={format.number(activeBookings?.total ?? 0)}
+              hint={t('stats.activeBookings.hint')}
+              icon={CalendarCheck}
+              tone="success"
+              index={2}
+            />
+            <StatCard
+              label={t('stats.revenue.label')}
+              value={summary ? formatMoney(summary.netRevenueCents, summary.currency) : '—'}
+              hint={t('stats.revenue.hint')}
+              icon={Wallet}
+              tone="warning"
+              index={3}
+            />
+            <StatCard
+              label={t('stats.avgOccupancy.label')}
+              value={summary ? formatRatio(summary.occupancy.ratio) : '—'}
+              hint={t('stats.avgOccupancy.hint')}
+              icon={Gauge}
+              tone="neutral"
+              index={4}
+            />
+            {subscription ? (
+              <Link href="/dashboard/billing" className="stat-card-link">
+                <StatCard
+                  label={tBilling('teaser.label')}
+                  value={subscription.planName ?? tBilling('current.noPlan')}
+                  hint={tBilling('teaser.hint')}
+                  icon={Gem}
+                  tone="primary"
+                  index={5}
+                  trend={tBilling('teaser.usage', {
+                    current: subscription.usage.facilities,
+                    limit:
+                      subscription.entitlements.maxFacilities === null
+                        ? tBilling('usage.unlimitedShort')
+                        : String(subscription.entitlements.maxFacilities),
+                  })}
+                />
+              </Link>
+            ) : null}
+          </>
+        ) : null}
       </div>
 
-      <div className="panel-row">
-        <div className="panel-card">
-          <div className="panel-card__header">
-            <div>
-              <h2 className="panel-card__title">{t('revenuePanel.title')}</h2>
-              <p className="panel-card__subtitle text-secondary">{t('revenuePanel.subtitle')}</p>
+      {billingVisible && recentBookings ? (
+        <>
+          <div className="panel-row">
+            <div className="panel-card">
+              <div className="panel-card__header">
+                <div>
+                  <h2 className="panel-card__title">{t('revenuePanel.title')}</h2>
+                  <p className="panel-card__subtitle text-secondary">
+                    {t('revenuePanel.subtitle')}
+                  </p>
+                </div>
+              </div>
+              <div className="panel-card__body">
+                {analyticsError ? (
+                  <p className="form-banner form-banner--error" role="alert">
+                    <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
+                    {t(`errors.${analyticsError}`)}
+                  </p>
+                ) : series && series.points.length > 0 ? (
+                  <RevenueChart
+                    points={series.points}
+                    currency={series.currency}
+                    bucket={series.bucket}
+                    ariaLabel={t('revenuePanel.chartLabel')}
+                  />
+                ) : (
+                  <EmptyState
+                    title={t('revenuePanel.emptyTitle')}
+                    message={t('revenuePanel.emptyMessage')}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-          <div className="panel-card__body">
-            {analyticsError ? (
-              <p className="form-banner form-banner--error" role="alert">
-                <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-                {t(`errors.${analyticsError}`)}
-              </p>
-            ) : series && series.points.length > 0 ? (
-              <RevenueChart
-                points={series.points}
-                currency={series.currency}
-                bucket={series.bucket}
-                ariaLabel={t('revenuePanel.chartLabel')}
-              />
-            ) : (
-              <EmptyState
-                title={t('revenuePanel.emptyTitle')}
-                message={t('revenuePanel.emptyMessage')}
-              />
-            )}
-          </div>
-        </div>
 
-        <div className="panel-card">
-          <div className="panel-card__header">
-            <div>
-              <h2 className="panel-card__title">{t('occupancyPanel.title')}</h2>
-              <p className="panel-card__subtitle text-secondary">{t('occupancyPanel.subtitle')}</p>
+            <div className="panel-card">
+              <div className="panel-card__header">
+                <div>
+                  <h2 className="panel-card__title">{t('occupancyPanel.title')}</h2>
+                  <p className="panel-card__subtitle text-secondary">
+                    {t('occupancyPanel.subtitle')}
+                  </p>
+                </div>
+              </div>
+              <div className="panel-card__body">
+                {analyticsError ? (
+                  <p className="form-banner form-banner--error" role="alert">
+                    <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
+                    {t(`errors.${analyticsError}`)}
+                  </p>
+                ) : summary && summary.occupancy.capacitySlotMinutes > 0 ? (
+                  <div className="occupancy-summary">
+                    <span className="occupancy-summary__figure">
+                      {formatRatio(summary.occupancy.ratio)}
+                    </span>
+                    <ProgressBar pct={Math.round(summary.occupancy.ratio * 100)} />
+                    <p className="text-secondary occupancy-summary__detail">
+                      {t('occupancyPanel.detail', {
+                        booked: formatHours(summary.occupancy.bookedSlotMinutes, format.number),
+                        capacity: formatHours(summary.occupancy.capacitySlotMinutes, format.number),
+                      })}
+                    </p>
+                  </div>
+                ) : (
+                  <EmptyState
+                    title={t('occupancyPanel.emptyTitle')}
+                    message={t('occupancyPanel.emptyMessage')}
+                  />
+                )}
+              </div>
             </div>
           </div>
-          <div className="panel-card__body">
-            {analyticsError ? (
-              <p className="form-banner form-banner--error" role="alert">
-                <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-                {t(`errors.${analyticsError}`)}
-              </p>
-            ) : summary && summary.occupancy.capacitySlotMinutes > 0 ? (
-              <div className="occupancy-summary">
-                <span className="occupancy-summary__figure">
-                  {formatRatio(summary.occupancy.ratio)}
-                </span>
-                <ProgressBar pct={Math.round(summary.occupancy.ratio * 100)} />
-                <p className="text-secondary occupancy-summary__detail">
-                  {t('occupancyPanel.detail', {
-                    booked: formatHours(summary.occupancy.bookedSlotMinutes, format.number),
-                    capacity: formatHours(summary.occupancy.capacitySlotMinutes, format.number),
-                  })}
+
+          <div className="panel-card panel-card--wide">
+            <div className="panel-card__header">
+              <div>
+                <h2 className="panel-card__title">{t('recentBookings.title')}</h2>
+                <p className="panel-card__subtitle text-secondary">
+                  {t('recentBookings.subtitle')}
                 </p>
               </div>
-            ) : (
-              <EmptyState
-                title={t('occupancyPanel.emptyTitle')}
-                message={t('occupancyPanel.emptyMessage')}
-              />
-            )}
+              <Link href={bookingsHref} className="panel-card__link">
+                {t('recentBookings.viewAll')}
+              </Link>
+            </div>
+            <div className="panel-card__body">
+              {recentBookings.items.length === 0 ? (
+                <EmptyState
+                  title={t('recentBookings.emptyTitle')}
+                  message={t('recentBookings.emptyMessage')}
+                  icon={CalendarClock}
+                />
+              ) : (
+                <BookingTable items={recentBookings.items} basePath={bookingsHref} />
+              )}
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div className="panel-card panel-card--wide">
-        <div className="panel-card__header">
-          <div>
-            <h2 className="panel-card__title">{t('recentBookings.title')}</h2>
-            <p className="panel-card__subtitle text-secondary">{t('recentBookings.subtitle')}</p>
-          </div>
-          <Link href={bookingsHref} className="panel-card__link">
-            {t('recentBookings.viewAll')}
-          </Link>
-        </div>
-        <div className="panel-card__body">
-          {recentBookings.items.length === 0 ? (
-            <EmptyState
-              title={t('recentBookings.emptyTitle')}
-              message={t('recentBookings.emptyMessage')}
-              icon={CalendarClock}
-            />
-          ) : (
-            <BookingTable items={recentBookings.items} basePath={bookingsHref} />
-          )}
-        </div>
-      </div>
+        </>
+      ) : null}
     </>
   )
 }

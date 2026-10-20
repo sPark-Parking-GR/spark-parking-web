@@ -7,6 +7,7 @@ import { apiFetch, ApiError, AuthRequiredError } from './api'
 import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
+import { emailField } from '@/lib/email-schema'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
@@ -91,7 +92,7 @@ export type AcceptInviteResult =
     }
 
 const sendInviteSchema = z.object({
-  email: z.string().trim().email('validation.emailInvalid'),
+  email: emailField('validation.emailInvalid'),
 })
 
 const setPasswordSchema = z

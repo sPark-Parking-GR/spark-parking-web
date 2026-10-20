@@ -12,6 +12,7 @@ import type {
   AdminInviteSummary,
   AdminInviteTokenValidation,
 } from './admin-invite-types'
+import { emailField } from '@/lib/email-schema'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
@@ -48,7 +49,7 @@ export type AcceptAdminInviteResult = {
 }
 
 const sendAdminInviteSchema = z.object({
-  email: z.string().trim().email('validation.emailInvalid'),
+  email: emailField('validation.emailInvalid'),
   displayName: z
     .string()
     .trim()

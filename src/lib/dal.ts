@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import type { IronSession } from 'iron-session'
 import { getActiveSession, type SessionData } from './session'
 import { ApiError, AuthRequiredError } from './api'
+import { canAccessBilling } from './system-flags-api'
 
 export const getCachedSession = cache(getActiveSession)
 
@@ -10,6 +11,12 @@ export async function requireSession(): Promise<IronSession<SessionData>> {
   const session = await getCachedSession()
   if (!session.accessToken) redirect('/login')
   return session
+}
+
+// Pages for bookings, payments and subscriptions. While the billing flag is off only
+// platform administrators reach them; for everyone else the page does not exist.
+export async function requireBillingAccess(session: IronSession<SessionData>): Promise<void> {
+  if (!session.user || !(await canAccessBilling(session.user.role))) notFound()
 }
 
 interface LoadOptions {
