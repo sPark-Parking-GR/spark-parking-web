@@ -6,7 +6,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { BillingPlanPanel } from '@/components/BillingPlanPanel'
 import { BillingPlanCatalog } from '@/components/BillingPlanCatalog'
 import { ApiError, AuthRequiredError } from '@/lib/api'
-import { requireSession } from '@/lib/dal'
+import { requireBillingAccess, requireSession } from '@/lib/dal'
 import { getMyOperatorSubscription, listOperatorPlanCatalog } from '@/lib/operator-subscription-api'
 import type { MyOperatorSubscription, OperatorPlanSummary } from '@/lib/operator-subscription-api'
 
@@ -16,6 +16,7 @@ interface PageProps {
 
 export default async function BillingPage({ searchParams }: PageProps) {
   const session = await requireSession()
+  await requireBillingAccess(session)
   if (session.user.role !== 'operator_admin') {
     redirect('/dashboard')
   }

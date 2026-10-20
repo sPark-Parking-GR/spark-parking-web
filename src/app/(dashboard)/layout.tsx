@@ -5,6 +5,7 @@ import { PageTransitionReveal } from '@/components/PageTransitionReveal'
 import { isPlatformRole } from '@spark/types'
 import { getSession, hasLapsedAdminWindow, isAuthenticated, isDashboardRole } from '@/lib/session'
 import { navForOperator, navForPlatformAdmin } from '@/lib/nav'
+import { canAccessBilling } from '@/lib/system-flags-api'
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const session = await getSession('dashboard')
@@ -23,7 +24,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   const items = isPlatformRole(session.user.role)
     ? navForPlatformAdmin(session.user.role)
-    : navForOperator(session.user.role)
+    : navForOperator(session.user.role, await canAccessBilling(session.user.role))
 
   return (
     <DashboardShell items={items} user={session.user} extras={<PageTransitionReveal />}>

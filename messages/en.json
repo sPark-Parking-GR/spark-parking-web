@@ -35,10 +35,12 @@
       "users": "Browse every account with role and lifecycle controls",
       "admins": "Invite new platform administrators",
       "billing": "Your subscription plan, usage and upgrade requests",
-      "mobileUsers": "Rider accounts from the mobile app, with suspend, session and erasure controls"
+      "mobileUsers": "Rider accounts from the mobile app, with suspend, session and erasure controls",
+      "settings": "Switch platform-wide features such as bookings and billing on or off"
     },
     "billing": "Plan & billing",
-    "mobileUsers": "Mobile users"
+    "mobileUsers": "Mobile users",
+    "settings": "System settings"
   },
   "dateRange": {
     "ariaLabel": "Date range",
@@ -2402,5 +2404,19 @@
     "successHint": "You can close this page and sign in to the sPark app with your new password.",
     "submit": "Update password",
     "submitting": "Updating…"
+  },
+  "systemSettings": {
+    "title": "System settings",
+    "description": "Platform-wide switches. Changes take effect for every user within seconds.",
+    "billing": {
+      "label": "Bookings, payments and subscriptions",
+      "description": "When off, every booking, payment and subscription page and endpoint is unavailable to operators, and the mobile app hides them entirely. Platform administrators keep full access.",
+      "on": "On: operators and mobile riders can use bookings, payments and subscriptions.",
+      "off": "Off: bookings, payments and subscriptions are hidden from operators and mobile riders."
+    },
+    "errors": {
+      "forbidden": "You do not have permission to change system settings.",
+      "genericError": "Could not update the setting. Try again."
+    }
   }
 }

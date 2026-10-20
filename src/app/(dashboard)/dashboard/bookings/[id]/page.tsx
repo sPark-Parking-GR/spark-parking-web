@@ -2,14 +2,14 @@ import { notFound, redirect } from 'next/navigation'
 import { BookingDetailView } from '@/components/BookingDetailView'
 import { getBooking } from '@/lib/booking-api'
 import { ApiError, AuthRequiredError } from '@/lib/api'
-import { requireSession } from '@/lib/dal'
+import { requireBillingAccess, requireSession } from '@/lib/dal'
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
 export default async function BookingDetailPage({ params }: PageProps) {
-  await requireSession()
+  await requireBillingAccess(await requireSession())
 
   const { id } = await params
 
