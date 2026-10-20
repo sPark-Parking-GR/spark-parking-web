@@ -2,9 +2,6 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
 
 # Cancel superseded runs on the same ref (e.g. new commits pushed to a PR).
 concurrency:
@@ -60,6 +57,33 @@ jobs:
           NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
         run: pnpm run build
 
-      # Proves the image that actually ships still builds from this repo alone.
-      - name: Docker build
-        run: docker build -t spark-web:ci .
+  # Disabled while Vercel's own Git integration builds and deploys from source (the
+  # Dockerfile is not what ships). Re-enable if the image becomes the deploy artifact.
+  # Needs no install, so it ran beside `ci` instead of after it.
+  # docker:
+  #   name: Docker build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #
+  #     # NEXT_PUBLIC_* are inlined into the client bundle at build time, so the build
+  #     # needs them present. These are CI placeholders, not real keys — the deployed
+  #     # build supplies its own.
+  #     # Proves the image that actually ships still builds from this repo alone.
+  #     - name: Docker build
+  #       uses: docker/build-push-action@v6
+  #       with:
+  #         context: .
+  #         push: false
+  #         tags: spark-web:ci
+  #         build-args: |
+  #           NEXT_PUBLIC_MAP_PROVIDER=google
+  #           NEXT_PUBLIC_GOOGLE_MAPS_KEY=ci-placeholder
+  #           NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=DEMO_MAP_ID
+  #           NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
+  #         cache-from: type=gha
+  #         cache-to: type=gha,mode=max
