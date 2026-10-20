@@ -178,6 +178,8 @@ export type MobileSignInMethodKind = 'password' | MobileSocialProvider
  * account's password because the provider proved the address and the password never had.
  */
 export interface MobileSocialAuthResult extends AuthResult {
+  /** This sign-in created the account, so the app may offer to set a display name. */
+  created: boolean
   linked: boolean
   passwordRemoved: boolean
 }

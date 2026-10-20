@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { clearAllSessions, establishSessions, getActiveSession, isDashboardRole } from './session'
 import type { AuthResult } from '@spark/types'
+import { emailField } from '@/lib/email-schema'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
@@ -11,7 +12,7 @@ const DASHBOARD_HOME = '/dashboard'
 const LOGIN_PATH = '/login'
 
 const signInSchema = z.object({
-  email: z.string().trim().email(),
+  email: emailField(),
   password: z.string().min(1),
 })
 

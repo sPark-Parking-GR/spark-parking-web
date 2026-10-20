@@ -5,6 +5,7 @@ import { useActionState } from 'react'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
 import { forgotPasswordAction } from '@/lib/password-reset-actions'
+import { emailField } from '@/lib/email-schema'
 
 type ForgotPasswordState = { error: string | null; submitted: boolean }
 
@@ -16,7 +17,7 @@ export function ForgotPasswordForm() {
   const [state, formAction, isPending] = useActionState(
     async (_prev: ForgotPasswordState, formData: FormData): Promise<ForgotPasswordState> => {
       const emailSchema = z.object({
-        email: z.string().trim().email(t('emailInvalid')),
+        email: emailField(t('emailInvalid')),
       })
 
       const parsed = emailSchema.safeParse({ email: formData.get('email') })

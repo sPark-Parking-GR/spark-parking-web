@@ -3,11 +3,12 @@
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
+import { emailField } from '@/lib/email-schema'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
 const forgotPasswordSchema = z.object({
-  email: z.string().trim().email(),
+  email: emailField(),
 })
 
 const resetPasswordSchema = z.object({
