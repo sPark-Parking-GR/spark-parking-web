@@ -457,6 +457,11 @@
         "label": "Facilities",
         "hint": "Total parking facilities you currently manage."
       },
+      "tariffs": {
+        "label": "Tariff plans",
+        "hint": "Active tariff plans pricing your facilities.",
+        "total": "{total} in total"
+      },
       "activeBookings": {
         "label": "Active bookings",
         "hint": "Bookings currently in progress across all facilities."
