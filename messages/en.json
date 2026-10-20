@@ -2238,12 +2238,24 @@
       "nameTooLong": "Name must be at most 120 characters.",
       "genericError": "Something went wrong. Please try again."
     },
+    "security": {
+      "heading": "Password & security",
+      "description": "Your password only changes once you confirm it from your email.",
+      "steps": {
+        "confirm": "Confirm it's you",
+        "email": "Open the email link",
+        "choose": "Choose a new password"
+      }
+    },
     "changePassword": {
       "heading": "Change password",
-      "description": "Confirm the password you use now, and we'll email you a link to set the new one. Your password does not change until you open that link.",
+      "description": "Enter the password you use now and we'll email you a link to set the new one.",
       "currentPasswordLabel": "Current password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "submit": "Send confirmation email",
       "submitting": "Checking…",
+      "sentTitle": "Check your inbox",
       "confirmation": "Check your email — we've sent you a link to finish changing your password. It expires in an hour.",
       "errors": {
         "wrongPassword": "That is not your current password.",
@@ -2251,10 +2263,11 @@
       }
     },
     "forgotPassword": {
-      "heading": "Forgotten your password?",
-      "description": "If you cannot remember the password you use now, we can email you a reset link instead. It goes to the address on this account.",
+      "heading": "Can't remember it?",
+      "description": "We'll email a reset link to the address on this account instead.",
       "submit": "Email me a reset link",
       "submitting": "Sending…",
+      "sentTitle": "Reset link sent",
       "confirmation": "Check your email — we've sent you a link to reset your password. It expires in an hour.",
       "errors": {
         "genericError": "Something went wrong. Please try again."

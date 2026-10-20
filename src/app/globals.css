@@ -3050,6 +3050,193 @@ select.input {
   color: var(--muted);
 }
 
+.pw-card {
+  margin-top: var(--space-md);
+}
+
+.pw-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--space-md);
+}
+
+.pw-card__icon,
+.pw-sent__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--priSoft);
+  color: var(--pri);
+}
+
+.pw-steps {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 var(--space-md);
+  padding: 0;
+  list-style: none;
+  counter-reset: pw-step;
+}
+
+.pw-steps li {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--card2);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  counter-increment: pw-step;
+}
+
+.pw-steps li::before {
+  content: counter(pw-step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--priSoft);
+  color: var(--pri);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .pw-steps {
+    flex-direction: column;
+  }
+}
+
+.pw-sub {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pw-sub__hint {
+  margin: 2px 0 var(--space-md);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pw-input {
+  position: relative;
+  display: block;
+  max-width: 420px;
+}
+
+.pw-input__lead {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.pw-input__control {
+  padding-left: 36px;
+  padding-right: 44px;
+}
+
+.pw-input__toggle {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.pw-input__toggle:hover,
+.pw-input__toggle:focus-visible {
+  color: var(--pri);
+  background: var(--priSoft);
+  outline: none;
+}
+
+.pw-sent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--priSoft);
+}
+
+.pw-sent__title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pw-sent__text {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.pw-alt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding: 14px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+}
+
+.pw-alt__title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pw-alt__text {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pw-alt__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bad);
+}
+
+.pw-alt .btn {
+  flex-shrink: 0;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .pw-alt {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .editor-rows {
   display: flex;
   flex-direction: column;

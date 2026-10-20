@@ -3,7 +3,7 @@
 import { useActionState, useState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useTranslations } from 'next-intl'
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, MailCheck, Mail } from 'lucide-react'
 import { requestOwnPasswordResetAction } from '@/lib/profile-actions'
 import type { ResetLinkActionResult } from '@/lib/profile-actions'
 
@@ -13,7 +13,8 @@ function SubmitButton() {
   const t = useTranslations('profile.forgotPassword')
   const { pending } = useFormStatus()
   return (
-    <button type="submit" className="btn btn--secondary" disabled={pending}>
+    <button type="submit" className="btn btn--secondary btn--sm" disabled={pending}>
+      <Mail size={14} strokeWidth={2} aria-hidden="true" />
       {pending ? t('submitting') : t('submit')}
     </button>
   )
@@ -38,33 +39,42 @@ export function ProfileForgotPasswordSection() {
   const settled = hasSubmitted && !isPending
 
   return (
-    <form action={formAction} onSubmit={() => setHasSubmitted(true)}>
-      <section className="editor-section card">
-        <div className="editor-section__head">
-          <h3 className="h-heading">{t('heading')}</h3>
-          <p className="text-secondary editor-section__hint">{t('description')}</p>
+    <form
+      action={formAction}
+      onSubmit={() => setHasSubmitted(true)}
+      className="pw-alt"
+      aria-labelledby="pw-alt-title"
+    >
+      {/* Plain success or failure, unlike the logged-out page's deliberately uniform
+          answer: this caller is signed in and asking about the one address they already
+          know they own, so there is no account left to enumerate. */}
+      {settled && state.ok ? (
+        <div className="pw-sent" role="status">
+          <span className="pw-sent__icon" aria-hidden="true">
+            <MailCheck size={22} strokeWidth={2} />
+          </span>
+          <div>
+            <p className="pw-sent__title">{t('sentTitle')}</p>
+            <p className="pw-sent__text">{t('confirmation')}</p>
+          </div>
         </div>
-
-        {/* Plain success or failure, unlike the logged-out page's deliberately uniform
-            answer: this caller is signed in and asking about the one address they already
-            know they own, so there is no account left to enumerate. */}
-        {settled && state.ok ? (
-          <p className="form-banner form-banner--success" role="status">
-            <CheckCircle2 size={18} strokeWidth={2} aria-hidden="true" />
-            {t('confirmation')}
-          </p>
-        ) : null}
-        {settled && !state.ok ? (
-          <p className="form-banner form-banner--error" role="alert">
-            <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-            {t(state.errorKey)}
-          </p>
-        ) : null}
-
-        <div className="form-actions">
+      ) : (
+        <>
+          <div className="pw-alt__copy">
+            <p id="pw-alt-title" className="pw-alt__title">
+              {t('heading')}
+            </p>
+            <p className="pw-alt__text">{t('description')}</p>
+            {settled && !state.ok ? (
+              <p className="pw-alt__error" role="alert">
+                <AlertCircle size={14} strokeWidth={2} aria-hidden="true" />
+                {t(state.errorKey)}
+              </p>
+            ) : null}
+          </div>
           <SubmitButton />
-        </div>
-      </section>
+        </>
+      )}
     </form>
   )
 }

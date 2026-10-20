@@ -1,3 +1,4 @@
+import { ShieldCheck } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { ChangePasswordForm } from '@/components/ChangePasswordForm'
 import { PageHeader } from '@/components/PageHeader'
@@ -27,8 +28,24 @@ export default async function ProfilePage() {
     <>
       <PageHeader title={t('title')} description={t('description')} />
       <ProfileForm email={session.user.email} initialName={session.user.displayName ?? ''} />
-      <ChangePasswordForm />
-      <ProfileForgotPasswordSection />
+      <section className="editor-section card pw-card">
+        <div className="pw-card__head">
+          <span className="pw-card__icon" aria-hidden="true">
+            <ShieldCheck size={20} strokeWidth={2} />
+          </span>
+          <div>
+            <h3 className="h-heading">{t('security.heading')}</h3>
+            <p className="text-secondary editor-section__hint">{t('security.description')}</p>
+          </div>
+        </div>
+        <ol className="pw-steps">
+          <li>{t('security.steps.confirm')}</li>
+          <li>{t('security.steps.email')}</li>
+          <li>{t('security.steps.choose')}</li>
+        </ol>
+        <ChangePasswordForm />
+        <ProfileForgotPasswordSection />
+      </section>
     </>
   )
 }
