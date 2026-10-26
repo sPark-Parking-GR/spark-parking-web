@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { DashboardShell } from '@/components/DashboardShell'
 import { isPlatformRole } from '@spark/types'
 import { getSession, isAuthenticated } from '@/lib/session'
+import { requireLegalAcceptance } from '@/lib/legal-gate'
 import { navForPlatformAdmin } from '@/lib/nav'
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
@@ -14,6 +15,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (!isPlatformRole(session.user.role)) {
     redirect('/login?error=forbidden')
   }
+
+  await requireLegalAcceptance()
 
   const items = navForPlatformAdmin(session.user.role)
 

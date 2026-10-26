@@ -8,6 +8,7 @@ import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 import { emailField } from '@/lib/email-schema'
+import { legalAcceptanceFields, toLegalAcceptance } from './legal-schema'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
@@ -106,6 +107,7 @@ const setPasswordSchema = z
       .max(200, 'businessNameTooLong')
       .optional(),
     displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
+    legal: legalAcceptanceFields,
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'passwordsMismatch',
@@ -231,7 +233,13 @@ export async function validateInviteAction(token: string): Promise<InviteValidat
 
 export async function acceptInviteAction(
   token: string,
-  input: { password: string; confirmPassword: string; businessName?: string; displayName: string },
+  input: {
+    password: string
+    confirmPassword: string
+    businessName?: string
+    displayName: string
+    legal: Record<string, unknown>
+  },
 ): Promise<AcceptInviteResult> {
   const parsed = setPasswordSchema.safeParse(input)
   if (!parsed.success) {
@@ -247,6 +255,7 @@ export async function acceptInviteAction(
         password: parsed.data.password,
         businessName: parsed.data.businessName,
         displayName: parsed.data.displayName,
+        legalAcceptance: toLegalAcceptance(parsed.data.legal),
       }),
       cache: 'no-store',
     })
@@ -260,6 +269,7 @@ export async function acceptInviteAction(
       // genuinely redeemed already, versus an address that already has an account. Reporting
       // the second as the first is how a live invite looks like a reused one.
       const body = (await response.json().catch(() => ({}))) as { code?: string }
+      if (body.code === 'legal_version_stale') return { ok: false, errorKey: 'legalStale' }
       return {
         ok: false,
         errorKey: body.code === 'EMAIL_TAKEN' ? 'emailTaken' : 'alreadyUsed',

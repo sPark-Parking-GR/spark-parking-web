@@ -7,6 +7,7 @@ import { useFormStatus } from 'react-dom'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LanguageSwitch } from '@/components/LanguageSwitch'
+import { LegalFooterLinks } from '@/components/LegalConsent'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { signOutAction } from '@/lib/auth-actions'
 
@@ -90,6 +91,9 @@ export function AccountMenu({ name, email, roleLabel, initials }: AccountMenuPro
           <div className="account-menu__row">
             <span>{t('theme')}</span>
             <ThemeToggle />
+          </div>
+          <div className="account-menu__row account-menu__row--legal">
+            <LegalFooterLinks />
           </div>
           <form action={signOutAction}>
             <SignOutItem />

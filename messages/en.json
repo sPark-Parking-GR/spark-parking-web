@@ -161,7 +161,8 @@
     "yourNameTooLong": "Name must be at most 120 characters.",
     "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
     "existingPasswordLabel": "Existing password",
-    "passwordRequired": "Enter your password."
+    "passwordRequired": "Enter your password.",
+    "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them."
   },
   "registerOperator": {
     "tagline": "Make Parking Smart",
@@ -189,7 +190,8 @@
     "emailTaken": "This email address already has a sPark account. Sign in instead.",
     "disabled": "sPark is not open for public operator registration right now.",
     "unreachable": "Unable to reach the server right now. Please try again.",
-    "somethingWentWrong": "Something went wrong. Please try again."
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them."
   },
   "onboarding": {
     "title": "Onboard Operators",
@@ -443,7 +445,8 @@
       "somethingWentWrong": "Something went wrong. Please try again.",
       "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
       "existingPasswordLabel": "Existing password",
-      "passwordRequired": "Enter your password."
+      "passwordRequired": "Enter your password.",
+      "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them."
     }
   },
   "overview": {
@@ -2433,5 +2436,20 @@
       "forbidden": "You do not have permission to change system settings.",
       "genericError": "Could not update the setting. Try again."
     }
+  },
+  "legal": {
+    "consent": "I agree to the <terms>Terms of Use</terms> and have read the <privacy>Privacy Policy</privacy>.",
+    "required": "Accept the Terms of Use and Privacy Policy to continue.",
+    "unavailable": "We can't load the Terms of Use right now. Refresh the page or try again shortly.",
+    "stale": "The Terms of Use or Privacy Policy just changed. Review them and accept again.",
+    "genericError": "We couldn't save your acceptance. Please try again.",
+    "linksLabel": "Legal",
+    "termsName": "Terms of Use",
+    "privacyName": "Privacy Policy",
+    "updatedTitle": "Our terms have been updated",
+    "updatedMessage": "Please review and accept the updated documents to keep using sPark:",
+    "acceptAndContinue": "Accept and continue",
+    "accepting": "Saving…",
+    "signOutInstead": "Sign out"
   }
 }

@@ -4,19 +4,24 @@ import Link from 'next/link'
 import { useActionState, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { registerOperatorAction } from '@/lib/operator-registration-actions'
+import { LegalConsent } from './LegalConsent'
 import { PasswordStrengthMeter } from './PasswordStrengthMeter'
-import { PASSWORD_MIN } from '@spark/types'
+import { readLegalFields } from '@/lib/legal-schema'
+import { PASSWORD_MIN, type LegalVersions } from '@spark/types'
 
 type RegisterState = { error: string | null; loginHint?: boolean }
 
 const INITIAL_STATE: RegisterState = { error: null }
 
 export function RegisterOperatorForm({
+  versions,
   onRegisterSuccess,
 }: {
+  versions: LegalVersions
   onRegisterSuccess: (redirectTo: string) => void
 }) {
   const t = useTranslations('registerOperator')
+  const tLegal = useTranslations('legal')
   const tPassword = useTranslations('password')
   // Same reasoning as LoginForm/SetPasswordForm: React 19 clears an uncontrolled form once
   // its action resolves, so the fields worth surviving a failed submit stay controlled.
@@ -27,12 +32,15 @@ export function RegisterOperatorForm({
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: RegisterState, formData: FormData): Promise<RegisterState> => {
+      const legal = readLegalFields(formData)
+      if (!legal.legalAccepted) return { error: tLegal('required') }
       const result = await registerOperatorAction({
         email: String(formData.get('email') ?? ''),
         password: String(formData.get('password') ?? ''),
         confirmPassword: String(formData.get('confirmPassword') ?? ''),
         businessName: String(formData.get('businessName') ?? ''),
         displayName: String(formData.get('displayName') ?? ''),
+        legal,
       })
       if (!result.ok) {
         return { error: t(result.errorKey), loginHint: result.loginHint }
@@ -126,6 +134,8 @@ export function RegisterOperatorForm({
           aria-invalid={state.error ? true : undefined}
         />
       </label>
+
+      <LegalConsent versions={versions} disabled={isPending} />
 
       {state.error ? (
         <p className="auth-alert" role="alert">

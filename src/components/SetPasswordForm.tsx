@@ -5,8 +5,10 @@ import { useActionState, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
 import { acceptInviteAction } from '@/lib/invite-actions'
+import { LegalConsent } from './LegalConsent'
 import { PasswordStrengthMeter } from './PasswordStrengthMeter'
-import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
+import { readLegalFields } from '@/lib/legal-schema'
+import { PASSWORD_MAX, PASSWORD_MIN, type LegalVersions } from '@spark/types'
 
 type SetPasswordState = { error: string | null; loginHint?: boolean }
 
@@ -14,11 +16,13 @@ const INITIAL_STATE: SetPasswordState = { error: null }
 
 export function SetPasswordForm({
   token,
+  versions,
   requiresBusinessName = false,
   requiresExistingPassword = false,
   onAcceptSuccess,
 }: {
   token: string
+  versions: LegalVersions
   requiresBusinessName?: boolean
   // True when this address already has a mobile-only sPark account: accepting attaches
   // this invite to it instead of creating a new one, so the form collects the EXISTING
@@ -27,6 +31,7 @@ export function SetPasswordForm({
   onAcceptSuccess: (redirectTo: string) => void
 }) {
   const t = useTranslations('acceptInvite')
+  const tLegal = useTranslations('legal')
   // React 19 resets an uncontrolled form once its action resolves, which meant a mistyped
   // confirmation cost the invitee their business name and both passwords. The name is the
   // one worth keeping: retyping a password after a mismatch is expected, retyping the
@@ -67,6 +72,9 @@ export function SetPasswordForm({
           path: ['confirmPassword'],
         })
 
+      const legal = readLegalFields(formData)
+      if (!legal.legalAccepted) return { error: tLegal('required') }
+
       const password = formData.get('password')
       const parsed = passwordSchema.safeParse({
         password,
@@ -80,7 +88,11 @@ export function SetPasswordForm({
         return { error: parsed.error.issues[0]?.message ?? t('genericError') }
       }
 
-      const result = await acceptInviteAction(token, parsed.data)
+      const result = await acceptInviteAction(token, {
+        ...parsed.data,
+        businessName: parsed.data.businessName,
+        legal,
+      })
       if (!result.ok) {
         return { error: result.detail ?? t(result.errorKey), loginHint: result.loginHint }
       }
@@ -170,6 +182,8 @@ export function SetPasswordForm({
           />
         </label>
       )}
+
+      <LegalConsent versions={versions} disabled={isPending} />
 
       {state.error ? (
         <p className="auth-alert" role="alert">

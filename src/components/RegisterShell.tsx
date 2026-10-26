@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { RegisterOperatorForm } from './RegisterOperatorForm'
 import { SparkMark } from './SparkMark'
 import { useAuthPageExit } from '@/lib/useAuthPageExit'
+import type { LegalVersions } from '@spark/types'
 
 /**
  * Client shell for the operator sign-up page, mirroring LoginShell: owns the
@@ -14,8 +15,15 @@ import { useAuthPageExit } from '@/lib/useAuthPageExit'
  * to the dashboard the same way a successful sign-in does, instead of the plain
  * server-side redirect this page used to do (a hard cut, no exit animation).
  */
-export function RegisterShell({ enabled }: { enabled: boolean }) {
+export function RegisterShell({
+  enabled,
+  versions,
+}: {
+  enabled: boolean
+  versions: LegalVersions | null
+}) {
   const t = useTranslations('registerOperator')
+  const tLegal = useTranslations('legal')
   const { isExiting, triggerExit } = useAuthPageExit()
 
   return (
@@ -55,7 +63,13 @@ export function RegisterShell({ enabled }: { enabled: boolean }) {
               {t('title')}
             </h1>
             <p className="auth-card__context">{t('subtitle')}</p>
-            <RegisterOperatorForm onRegisterSuccess={triggerExit} />
+            {versions ? (
+              <RegisterOperatorForm versions={versions} onRegisterSuccess={triggerExit} />
+            ) : (
+              <p className="auth-alert" role="alert">
+                {tLegal('unavailable')}
+              </p>
+            )}
           </>
         )}
       </section>

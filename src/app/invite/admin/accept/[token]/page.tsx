@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server'
 import { SparkMark } from '@/components/SparkMark'
 import { SetAdminPasswordForm } from '@/components/SetAdminPasswordForm'
 import { validateAdminInviteAction } from '@/lib/admin-invite-actions'
+import { fetchLegalVersions } from '@/lib/legal-api'
 
 interface AcceptAdminInvitePageProps {
   params: Promise<{ token: string }>
@@ -12,7 +13,11 @@ interface AcceptAdminInvitePageProps {
 export default async function AcceptAdminInvitePage({ params }: AcceptAdminInvitePageProps) {
   const { token } = await params
   const t = await getTranslations('adminInvites.accept')
-  const result = await validateAdminInviteAction(token)
+  const tLegal = await getTranslations('legal')
+  const [result, versions] = await Promise.all([
+    validateAdminInviteAction(token),
+    fetchLegalVersions(),
+  ])
 
   return (
     <div className="auth-stack">
@@ -71,10 +76,17 @@ export default async function AcceptAdminInvitePage({ params }: AcceptAdminInvit
             {result.data.requiresExistingPassword ? (
               <p className="auth-card__context">{t('linkedAccountNotice')}</p>
             ) : null}
-            <SetAdminPasswordForm
-              token={token}
-              requiresExistingPassword={result.data.requiresExistingPassword}
-            />
+            {versions ? (
+              <SetAdminPasswordForm
+                token={token}
+                versions={versions}
+                requiresExistingPassword={result.data.requiresExistingPassword}
+              />
+            ) : (
+              <p className="auth-alert" role="alert">
+                {tLegal('unavailable')}
+              </p>
+            )}
           </>
         )}
       </section>

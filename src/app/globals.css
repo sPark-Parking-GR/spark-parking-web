@@ -2508,7 +2508,7 @@ select.input {
   color: var(--ink);
 }
 
-.checkbox-label input[type='checkbox'] {
+input[type='checkbox'] {
   -webkit-appearance: none;
   appearance: none;
   flex-shrink: 0;
@@ -2526,7 +2526,7 @@ select.input {
     box-shadow var(--dur) var(--ease);
 }
 
-.checkbox-label input[type='checkbox']::after {
+input[type='checkbox']::after {
   content: '';
   width: 11px;
   height: 11px;
@@ -2536,22 +2536,27 @@ select.input {
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 
-.checkbox-label input[type='checkbox']:hover:not(:checked) {
+input[type='checkbox']:hover:not(:checked) {
   border-color: var(--muted);
 }
 
-.checkbox-label input[type='checkbox']:checked {
+input[type='checkbox']:checked {
   background: linear-gradient(180deg, var(--pri), var(--pri2));
   border-color: var(--pri);
 }
 
-.checkbox-label input[type='checkbox']:checked::after {
+input[type='checkbox']:checked::after {
   transform: scale(1);
 }
 
-.checkbox-label input[type='checkbox']:focus-visible {
+input[type='checkbox']:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--priSoft);
+}
+
+input[type='checkbox']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .checkbox-label:has(input:checked) {
@@ -5105,4 +5110,44 @@ td.table-amount {
 .topbar__account:hover,
 .topbar__account:focus-visible {
   background: var(--card2);
+}
+
+/* Legal consent: checkbox row with inline document links, and the footer link pair. */
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.consent input[type='checkbox'] {
+  margin-top: 1px;
+}
+
+.consent a,
+.legal-links a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legal-links {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.legal-changes {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  font-size: 14px;
+}
+
+.account-menu__row--legal {
+  justify-content: center;
 }
