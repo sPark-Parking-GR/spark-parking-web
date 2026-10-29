@@ -2,7 +2,7 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 import { fetchLegalStatus } from './legal-api'
 
-export const ACCEPT_TERMS_PATH = '/accept-terms'
+export const ACCEPT_TERMS_PATH = '/dashboard/accept-terms'
 
 /** Sends a signed-in account to the re-acceptance page when a document's major version moved on. */
 export async function requireLegalAcceptance(): Promise<void> {
