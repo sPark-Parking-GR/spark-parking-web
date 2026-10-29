@@ -12,11 +12,7 @@ export interface LegalStatus {
   required: LegalDocument[]
 }
 
-export type LegalAcceptanceSource =
-  | 'mobile_signup'
-  | 'web_register'
-  | 'web_invite'
-  | 'reaccept'
+export type LegalAcceptanceSource = 'mobile_signup' | 'web_register' | 'web_invite' | 'reaccept'
 
 export function parseLegalVersion(value: string): { major: number; minor: number } | null {
   if (!LEGAL_VERSION_PATTERN.test(value)) return null
