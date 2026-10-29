@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 
+import { LegalFooterLinks } from './LegalConsent'
 import { LoginForm } from './LoginForm'
 import { SparkMark } from './SparkMark'
 import { useAuthPageExit } from '@/lib/useAuthPageExit'
@@ -77,6 +78,8 @@ export function LoginShell({ from, error, reset, linked }: LoginShellProps) {
 
         <LoginForm from={from} onLoginSuccess={triggerExit} />
       </section>
+
+      <LegalFooterLinks />
     </div>
   )
 }

@@ -52,3 +52,20 @@ describe('billing system flag navigation', () => {
     expect(navForAdmin('platform_admin').some((item) => item.href === '/admin/settings')).toBe(true)
   })
 })
+
+describe('ingestion navigation', () => {
+  const HREF = '/admin/ingestion'
+
+  it('is listed for platform admins and super admins only', () => {
+    expect(navForAdmin('platform_admin').some((item) => item.href === HREF)).toBe(true)
+    expect(navForAdmin('super_admin').some((item) => item.href === HREF)).toBe(true)
+    expect(navForPlatformAdmin('platform_admin').some((item) => item.href === HREF)).toBe(true)
+  })
+
+  it('stays out of operator and rider sidebars', () => {
+    for (const role of ['operator_admin', 'operator_staff'] as const) {
+      expect(navForOperator(role, true).some((item) => item.href === HREF)).toBe(false)
+      expect(navForAdmin(role).some((item) => item.href === HREF)).toBe(false)
+    }
+  })
+})

@@ -18,6 +18,7 @@ import {
   Gem,
   Smartphone,
   Settings,
+  DatabaseZap,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { NavIcon } from '@/lib/nav'
@@ -42,4 +43,5 @@ export const NAV_ICONS: Record<NavIcon, LucideIcon> = {
   mobileUsers: Smartphone,
   admins: ShieldPlus,
   settings: Settings,
+  ingestion: DatabaseZap,
 }

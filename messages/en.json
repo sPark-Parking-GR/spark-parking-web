@@ -36,11 +36,13 @@
       "admins": "Invite new platform administrators",
       "billing": "Your subscription plan, usage and upgrade requests",
       "mobileUsers": "Rider accounts from the mobile app, with suspend, session and erasure controls",
-      "settings": "Switch platform-wide features such as bookings and billing on or off"
+      "settings": "Switch platform-wide features such as bookings and billing on or off",
+      "ingestion": "Run, pause and monitor the OpenStreetMap parking import"
     },
     "billing": "Plan & billing",
     "mobileUsers": "Mobile users",
-    "settings": "System settings"
+    "settings": "System settings",
+    "ingestion": "Ingestion"
   },
   "dateRange": {
     "ariaLabel": "Date range",
@@ -78,6 +80,15 @@
     "profile": "Profile",
     "language": "Language",
     "theme": "Theme"
+  },
+  "documentTitle": {
+    "login": "Sign in",
+    "register": "Register",
+    "forgotPassword": "Forgot password",
+    "resetPassword": "Reset password",
+    "acceptTerms": "Accept terms",
+    "acceptInvite": "Accept invite",
+    "acceptAdminInvite": "Accept admin invite"
   },
   "login": {
     "tagline": "Make Parking Smart",
@@ -161,7 +172,8 @@
     "yourNameTooLong": "Name must be at most 120 characters.",
     "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
     "existingPasswordLabel": "Existing password",
-    "passwordRequired": "Enter your password."
+    "passwordRequired": "Enter your password.",
+    "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them."
   },
   "registerOperator": {
     "tagline": "Make Parking Smart",
@@ -189,7 +201,8 @@
     "emailTaken": "This email address already has a sPark account. Sign in instead.",
     "disabled": "sPark is not open for public operator registration right now.",
     "unreachable": "Unable to reach the server right now. Please try again.",
-    "somethingWentWrong": "Something went wrong. Please try again."
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them."
   },
   "onboarding": {
     "title": "Onboard Operators",
@@ -443,7 +456,8 @@
       "somethingWentWrong": "Something went wrong. Please try again.",
       "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
       "existingPasswordLabel": "Existing password",
-      "passwordRequired": "Enter your password."
+      "passwordRequired": "Enter your password.",
+      "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them."
     }
   },
   "overview": {
@@ -1688,7 +1702,8 @@
         "lifecyclePurgeRequested": "requested a permanent deletion",
         "lifecyclePurgeApproved": "approved a permanent deletion",
         "lifecyclePurgeRejected": "rejected a permanent deletion",
-        "lifecyclePurged": "completed a permanent deletion"
+        "lifecyclePurged": "completed a permanent deletion",
+        "ingestionBacklogUpdated": "turned the parking import on or off"
       }
     }
   },
@@ -2433,5 +2448,133 @@
       "forbidden": "You do not have permission to change system settings.",
       "genericError": "Could not update the setting. Try again."
     }
+  },
+  "ingestion": {
+    "title": "Parking ingestion",
+    "description": "Controls and live health of the worker that imports free parking from OpenStreetMap.",
+    "loadError": "Could not load the ingestion status. Check that the API is running and try again.",
+    "state": {
+      "unavailable": "Queue offline",
+      "offline": "Worker offline",
+      "off": "Off",
+      "finished": "Finished",
+      "running": "Running"
+    },
+    "stateHint": {
+      "unavailable": "The job queue (Redis) cannot be reached, so nothing is being imported and live queue figures are unavailable.",
+      "offline": "No worker is connected. Start the ingestion worker; the crawl cannot make progress without it.",
+      "off": "The worker is idle. Turn the crawl on to start importing, or use the actions below for a one-off run.",
+      "finished": "Every planned area has been queued and fetched. Turn the crawl off, or leave it on to pick up retries.",
+      "running": "The worker queues new areas every few minutes and imports free parking as they are fetched."
+    },
+    "crawl": {
+      "label": "Automatic crawl",
+      "description": "When on, the worker walks Athens, Thessaloniki and then all of Greece in small areas. Areas already queued finish even after you turn it off.",
+      "turnedOn": "Automatic crawl turned on.",
+      "turnedOff": "Automatic crawl turned off. Areas already queued will finish.",
+      "on": "On",
+      "off": "Off"
+    },
+    "stats": {
+      "coverage": "Coverage",
+      "coverageDetail": "{seeded} of {planned} areas queued",
+      "activeTiles": "Areas in progress",
+      "activeTilesDetail": "{fetched} fetched so far",
+      "failedTiles": "Failed areas",
+      "rawPending": "Waiting to import",
+      "rawSkipped": "{skipped} skipped (not free)",
+      "live": "Free lots live",
+      "held": "{held} held back",
+      "failedHint": "Retry them below",
+      "failedNone": "Nothing failed"
+    },
+    "health": {
+      "workers": {
+        "fetch": "Fetch worker",
+        "promote": "Import worker",
+        "backlog": "Crawl scheduler"
+      },
+      "online": "online ({count})",
+      "offline": "offline",
+      "lastTick": "Last crawl step",
+      "nextTick": "Next crawl step",
+      "never": "none yet",
+      "redis": "Job queue",
+      "upLabel": "(online)",
+      "downLabel": "(offline)",
+      "title": "Component status"
+    },
+    "tick": {
+      "paused": "skipped, crawl was off",
+      "summary": "{seeded} areas queued, {retried} retried, {inFlight} already in progress",
+      "unknown": "no details"
+    },
+    "actions": {
+      "title": "Actions",
+      "description": "One-off runs. They work whether or not the automatic crawl is on.",
+      "promote": "Import and name now",
+      "promoteHint": "Turn fetched parking into facilities and give unnamed ones a street-based name.",
+      "reclassify": "Re-check classification",
+      "reclassifyHint": "Re-evaluate lots that were skipped or unclassified, then import any that now count as free.",
+      "retry": "Retry failed areas",
+      "retryHint": "Re-queue failed areas now instead of waiting for the automatic retry. Up to 50 at a time.",
+      "queued": "Queued. The worker will pick it up shortly.",
+      "retried": "Re-queued {retried} failed areas. {remaining} still failed.",
+      "run": "Run"
+    },
+    "naming": {
+      "title": "Name resolution",
+      "description": "How the {total} generically named lots were named, from most to least specific.",
+      "layers": {
+        "address": "From the lot's own address",
+        "street": "On a street",
+        "near-street": "Near a street",
+        "landmark": "Near a landmark",
+        "neighbourhood": "Neighbourhood and number",
+        "settlement": "Town and number",
+        "none": "Could not be named"
+      }
+    },
+    "failures": {
+      "title": "Latest failures",
+      "empty": "No failed areas.",
+      "area": "Area (south, west → north, east)",
+      "error": "Error",
+      "unknown": "Unknown"
+    },
+    "errors": {
+      "forbidden": "You do not have permission to control ingestion.",
+      "rateLimited": "Too many requests. Wait a moment and try again.",
+      "queueUnavailable": "The job queue is unreachable right now. Try again shortly.",
+      "genericError": "That did not work. Try again."
+    },
+    "queues": {
+      "title": "Queues",
+      "queue": "Queue",
+      "names": {
+        "fetch": "Fetch",
+        "promote": "Import"
+      },
+      "waiting": "Waiting",
+      "active": "Active",
+      "delayed": "Delayed",
+      "failed": "Failed",
+      "unavailable": "Queue figures are unavailable while the job queue is unreachable."
+    }
+  },
+  "legal": {
+    "consent": "I agree to the <terms>Terms of Use</terms> and have read the <privacy>Privacy Policy</privacy>.",
+    "required": "Accept the Terms of Use and Privacy Policy to continue.",
+    "unavailable": "We can't load the Terms of Use right now. Refresh the page or try again shortly.",
+    "stale": "The Terms of Use or Privacy Policy just changed. Review them and accept again.",
+    "genericError": "We couldn't save your acceptance. Please try again.",
+    "linksLabel": "Legal",
+    "termsName": "Terms of Use",
+    "privacyName": "Privacy Policy",
+    "updatedTitle": "Our terms have been updated",
+    "updatedMessage": "Please review and accept the updated documents to keep using sPark:",
+    "acceptAndContinue": "Accept and continue",
+    "accepting": "Saving…",
+    "signOutInstead": "Sign out"
   }
 }

@@ -5,6 +5,7 @@ import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 import { emailField } from '@/lib/email-schema'
+import { legalAcceptanceFields, toLegalAcceptance } from './legal-schema'
 
 const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://127.0.0.1:3001/api/v1'
 
@@ -26,6 +27,7 @@ const registerOperatorSchema = z
     confirmPassword: z.string(),
     businessName: z.string().trim().min(2, 'businessNameRequired').max(200, 'businessNameTooLong'),
     displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
+    legal: legalAcceptanceFields,
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'passwordsMismatch',
@@ -52,6 +54,7 @@ export async function registerOperatorAction(input: {
   confirmPassword: string
   businessName: string
   displayName: string
+  legal: Record<string, unknown>
 }): Promise<RegisterOperatorResult> {
   const parsed = registerOperatorSchema.safeParse(input)
   if (!parsed.success) {
@@ -68,6 +71,7 @@ export async function registerOperatorAction(input: {
         password: parsed.data.password,
         businessName: parsed.data.businessName,
         displayName: parsed.data.displayName,
+        legalAcceptance: toLegalAcceptance(parsed.data.legal),
       }),
       cache: 'no-store',
     })
@@ -77,6 +81,8 @@ export async function registerOperatorAction(input: {
 
   if (!response.ok) {
     if (response.status === 409) {
+      const body = (await response.json().catch(() => ({}))) as { code?: string }
+      if (body.code === 'legal_version_stale') return { ok: false, errorKey: 'legalStale' }
       // The address already has an account — genuinely taken, or a wrong password on one
       // that could have been linked. Either way, sign in is the right next step.
       return { ok: false, errorKey: 'emailTaken', loginHint: true }

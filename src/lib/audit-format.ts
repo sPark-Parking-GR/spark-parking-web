@@ -160,6 +160,8 @@ const ACTION_META: Record<string, { key: string; tone: AuditTone }> = {
   'lifecycle.purge_approved': { key: 'lifecyclePurgeApproved', tone: 'danger' },
   'lifecycle.purge_rejected': { key: 'lifecyclePurgeRejected', tone: 'primary' },
   'lifecycle.purged': { key: 'lifecyclePurged', tone: 'danger' },
+
+  'ingestion.backlog.update': { key: 'ingestionBacklogUpdated', tone: 'warning' },
 }
 
 function humanize(action: string): string {

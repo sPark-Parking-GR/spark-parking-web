@@ -5,8 +5,10 @@ import { useActionState, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
 import { acceptAdminInviteAction } from '@/lib/admin-invite-actions'
-import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
+import { PASSWORD_MAX, PASSWORD_MIN, type LegalVersions } from '@spark/types'
+import { LegalConsent } from './LegalConsent'
 import { PasswordStrengthMeter } from './PasswordStrengthMeter'
+import { readLegalFields } from '@/lib/legal-schema'
 
 type SetPasswordState = { error: string | null; loginHint?: boolean }
 
@@ -14,9 +16,11 @@ const INITIAL_STATE: SetPasswordState = { error: null }
 
 export function SetAdminPasswordForm({
   token,
+  versions,
   requiresExistingPassword = false,
 }: {
   token: string
+  versions: LegalVersions
   // True when this address already has a mobile-only sPark account: accepting attaches
   // this invite to it instead of creating a new one, so the form collects the EXISTING
   // password (verified by sign-in) rather than letting the person choose a new one.
@@ -24,6 +28,7 @@ export function SetAdminPasswordForm({
 }) {
   const t = useTranslations('adminInvites.accept')
   const tPassword = useTranslations('password')
+  const tLegal = useTranslations('legal')
   const [password, setPassword] = useState('')
 
   const [state, formAction, isPending] = useActionState(
@@ -47,6 +52,9 @@ export function SetAdminPasswordForm({
           path: ['confirmPassword'],
         })
 
+      const legal = readLegalFields(formData)
+      if (!legal.legalAccepted) return { error: tLegal('required') }
+
       const password = formData.get('password')
       const parsed = passwordSchema.safeParse({
         password,
@@ -58,7 +66,7 @@ export function SetAdminPasswordForm({
         return { error: parsed.error.issues[0]?.message ?? t('genericError') }
       }
 
-      const result = await acceptAdminInviteAction(token, parsed.data)
+      const result = await acceptAdminInviteAction(token, { ...parsed.data, legal })
       return { error: result.detail ?? t(result.errorKey), loginHint: result.loginHint }
     },
     INITIAL_STATE,
@@ -113,6 +121,8 @@ export function SetAdminPasswordForm({
           />
         </label>
       )}
+
+      <LegalConsent versions={versions} disabled={isPending} />
 
       {state.error ? (
         <p className="auth-alert" role="alert">

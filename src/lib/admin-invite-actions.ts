@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { apiFetch, ApiError, AuthRequiredError } from './api'
+import { legalAcceptanceFields, toLegalAcceptance } from './legal-schema'
 import { establishSessions } from './session'
 import type { AuthResult } from '@spark/types'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
@@ -64,6 +65,7 @@ const setPasswordSchema = z
   .object({
     password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
     confirmPassword: z.string(),
+    legal: legalAcceptanceFields,
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'passwordsMismatch',
@@ -188,7 +190,7 @@ export async function validateAdminInviteAction(token: string): Promise<Validate
 
 export async function acceptAdminInviteAction(
   token: string,
-  input: { password: string; confirmPassword: string },
+  input: { password: string; confirmPassword: string; legal: Record<string, unknown> },
 ): Promise<AcceptAdminInviteResult> {
   const parsed = setPasswordSchema.safeParse(input)
   if (!parsed.success) {
@@ -200,7 +202,10 @@ export async function acceptAdminInviteAction(
     response = await fetch(`${BASE_URL}/admin-invites/token/${encodeURIComponent(token)}/accept`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: parsed.data.password }),
+      body: JSON.stringify({
+        password: parsed.data.password,
+        legalAcceptance: toLegalAcceptance(parsed.data.legal),
+      }),
       cache: 'no-store',
     })
   } catch {
@@ -213,6 +218,7 @@ export async function acceptAdminInviteAction(
       // genuinely redeemed already, versus an address that already has an account. Reporting
       // the second as the first is how a live invite looks like a reused one.
       const body = (await response.json().catch(() => ({}))) as { code?: string }
+      if (body.code === 'legal_version_stale') return { ok: false, errorKey: 'legalStale' }
       return {
         ok: false,
         errorKey: body.code === 'EMAIL_TAKEN' ? 'emailTaken' : 'alreadyUsed',

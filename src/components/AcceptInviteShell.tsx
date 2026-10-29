@@ -8,6 +8,7 @@ import { SetPasswordForm } from './SetPasswordForm'
 import { SparkMark } from './SparkMark'
 import { useAuthPageExit } from '@/lib/useAuthPageExit'
 import type { InviteValidationResult } from '@/lib/invite-actions'
+import type { LegalVersions } from '@spark/types'
 
 /**
  * Client shell for the invite-accept page, mirroring LoginShell: owns the exit
@@ -18,11 +19,14 @@ import type { InviteValidationResult } from '@/lib/invite-actions'
 export function AcceptInviteShell({
   token,
   result,
+  versions,
 }: {
   token: string
   result: InviteValidationResult
+  versions: LegalVersions | null
 }) {
   const t = useTranslations('acceptInvite')
+  const tLegal = useTranslations('legal')
   const { isExiting, triggerExit } = useAuthPageExit()
 
   return (
@@ -105,12 +109,19 @@ export function AcceptInviteShell({
             {result.data.requiresExistingPassword ? (
               <p className="auth-card__context">{t('linkedAccountNotice')}</p>
             ) : null}
-            <SetPasswordForm
-              token={token}
-              requiresBusinessName={result.data.kind === 'ONBOARDING'}
-              requiresExistingPassword={result.data.requiresExistingPassword}
-              onAcceptSuccess={triggerExit}
-            />
+            {versions ? (
+              <SetPasswordForm
+                token={token}
+                versions={versions}
+                requiresBusinessName={result.data.kind === 'ONBOARDING'}
+                requiresExistingPassword={result.data.requiresExistingPassword}
+                onAcceptSuccess={triggerExit}
+              />
+            ) : (
+              <p className="auth-alert" role="alert">
+                {tLegal('unavailable')}
+              </p>
+            )}
           </>
         )}
       </section>
