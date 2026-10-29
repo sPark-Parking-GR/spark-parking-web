@@ -5151,3 +5151,27 @@ td.table-amount {
 .account-menu__row--legal {
   justify-content: center;
 }
+
+.ingestion-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.ingestion-panel__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ingestion-panel__actions {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.ingestion-panel__actions p {
+  margin: 8px 0 0;
+  font-size: 13px;
+}

@@ -21,6 +21,7 @@ export type NavIcon =
   | 'mobileUsers'
   | 'admins'
   | 'settings'
+  | 'ingestion'
 
 export interface NavItem {
   href: string
@@ -90,6 +91,7 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
   { href: '/admin/users', icon: 'users', permission: 'identity:user.read' },
   { href: '/admin/mobile-users', icon: 'mobileUsers', permission: 'identity:mobile.read' },
   { href: '/admin/admins', icon: 'admins', permission: 'identity:admin.invite' },
+  { href: '/admin/ingestion', icon: 'ingestion', permission: 'platform:tenant.write' },
   { href: '/admin/settings', icon: 'settings', permission: 'platform:billing.manage' },
 ]
 
