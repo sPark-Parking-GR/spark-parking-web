@@ -2462,7 +2462,9 @@
       "label": "Automatic crawl",
       "description": "When on, the worker walks Athens, Thessaloniki and then all of Greece in small areas. Areas already queued finish even after you turn it off.",
       "turnedOn": "Automatic crawl turned on.",
-      "turnedOff": "Automatic crawl turned off. Areas already queued will finish."
+      "turnedOff": "Automatic crawl turned off. Areas already queued will finish.",
+      "on": "On",
+      "off": "Off"
     },
     "stats": {
       "coverage": "Coverage",
@@ -2473,11 +2475,11 @@
       "rawPending": "Waiting to import",
       "rawSkipped": "{skipped} skipped (not free)",
       "live": "Free lots live",
-      "held": "{held} held back"
+      "held": "{held} held back",
+      "failedHint": "Retry them below",
+      "failedNone": "Nothing failed"
     },
     "health": {
-      "title": "Worker health",
-      "redisDown": "The job queue cannot be reached. Check Redis.",
       "workers": {
         "fetch": "Fetch worker",
         "promote": "Import worker",
@@ -2485,10 +2487,13 @@
       },
       "online": "online ({count})",
       "offline": "offline",
-      "queueCounts": "{waiting} waiting, {active} active, {delayed} delayed, {failed} failed",
       "lastTick": "Last crawl step",
       "nextTick": "Next crawl step",
-      "never": "none yet"
+      "never": "none yet",
+      "redis": "Job queue",
+      "upLabel": "(online)",
+      "downLabel": "(offline)",
+      "title": "Component status"
     },
     "tick": {
       "paused": "skipped, crawl was off",
@@ -2505,7 +2510,8 @@
       "retry": "Retry failed areas",
       "retryHint": "Re-queue failed areas now instead of waiting for the automatic retry. Up to 50 at a time.",
       "queued": "Queued. The worker will pick it up shortly.",
-      "retried": "Re-queued {retried} failed areas. {remaining} still failed."
+      "retried": "Re-queued {retried} failed areas. {remaining} still failed.",
+      "run": "Run"
     },
     "naming": {
       "title": "Name resolution",
@@ -2532,6 +2538,19 @@
       "rateLimited": "Too many requests. Wait a moment and try again.",
       "queueUnavailable": "The job queue is unreachable right now. Try again shortly.",
       "genericError": "That did not work. Try again."
+    },
+    "queues": {
+      "title": "Queues",
+      "queue": "Queue",
+      "names": {
+        "fetch": "Fetch",
+        "promote": "Import"
+      },
+      "waiting": "Waiting",
+      "active": "Active",
+      "delayed": "Delayed",
+      "failed": "Failed",
+      "unavailable": "Queue figures are unavailable while the job queue is unreachable."
     }
   },
   "legal": {
