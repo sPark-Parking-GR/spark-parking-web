@@ -81,6 +81,15 @@
     "language": "Language",
     "theme": "Theme"
   },
+  "documentTitle": {
+    "login": "Sign in",
+    "register": "Register",
+    "forgotPassword": "Forgot password",
+    "resetPassword": "Reset password",
+    "acceptTerms": "Accept terms",
+    "acceptInvite": "Accept invite",
+    "acceptAdminInvite": "Accept admin invite"
+  },
   "login": {
     "tagline": "Make Parking Smart",
     "title": "Sign in to your dashboard",

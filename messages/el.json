@@ -81,6 +81,15 @@
     "language": "Γλώσσα",
     "theme": "Θέμα"
   },
+  "documentTitle": {
+    "login": "Σύνδεση",
+    "register": "Εγγραφή",
+    "forgotPassword": "Ξεχάσατε τον κωδικό",
+    "resetPassword": "Επαναφορά κωδικού",
+    "acceptTerms": "Αποδοχή όρων",
+    "acceptInvite": "Αποδοχή πρόσκλησης",
+    "acceptAdminInvite": "Αποδοχή πρόσκλησης διαχειριστή"
+  },
   "login": {
     "tagline": "Κάνε το πάρκινγκ έξυπνο",
     "title": "Σύνδεση στον πίνακα ελέγχου",
