@@ -1,2 +1,6 @@
 packages:
   - "vendor/*"
+allowBuilds:
+  '@parcel/watcher': false
+  '@swc/core': false
+  unrs-resolver: false
