@@ -2,7 +2,7 @@
   "name": "@spark/web",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@12.18.0",
   "scripts": {
     "build:vendor": "pnpm -r run build",
     "build": "pnpm run build:vendor && next build",
