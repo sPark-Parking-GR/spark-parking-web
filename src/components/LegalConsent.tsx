@@ -14,10 +14,12 @@ export function LegalConsent({
   versions,
   disabled,
   invalid,
+  describedBy,
 }: {
   versions: LegalVersions
   disabled?: boolean
   invalid?: boolean
+  describedBy?: string
 }) {
   const t = useTranslations('legal')
   const locale = useLocale()
@@ -39,6 +41,7 @@ export function LegalConsent({
           required
           disabled={disabled}
           aria-invalid={invalid ? true : undefined}
+          aria-describedby={describedBy}
         />
         <span>
           {t.rich('consent', {

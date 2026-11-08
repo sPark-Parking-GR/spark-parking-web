@@ -1,6 +1,5 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 import { emailField } from '@/lib/email-schema'
@@ -16,7 +15,8 @@ const resetPasswordSchema = z.object({
   password: z.string().min(PASSWORD_MIN).max(PASSWORD_MAX),
 })
 
-export type ForgotPasswordResult = { ok: true } | { ok: false; errorKey: 'genericError' }
+export type ForgotPasswordResult =
+  { ok: true } | { ok: false; errorKey: 'genericError' | 'tooManyAttempts' }
 
 export async function forgotPasswordAction(input: {
   email: string
@@ -33,6 +33,9 @@ export async function forgotPasswordAction(input: {
       body: JSON.stringify(parsed.data),
       cache: 'no-store',
     })
+    if (response.status === 429) {
+      return { ok: false, errorKey: 'tooManyAttempts' }
+    }
     if (!response.ok) {
       return { ok: false, errorKey: 'genericError' }
     }
@@ -43,9 +46,8 @@ export async function forgotPasswordAction(input: {
   return { ok: true }
 }
 
-export interface ResetPasswordResult {
-  errorKey: 'invalidToken' | 'genericError'
-}
+export type ResetPasswordResult =
+  { ok: true } | { ok: false; errorKey: 'invalidToken' | 'genericError' | 'tooManyAttempts' }
 
 export async function resetPasswordAction(
   token: string,
@@ -53,7 +55,7 @@ export async function resetPasswordAction(
 ): Promise<ResetPasswordResult> {
   const parsed = resetPasswordSchema.safeParse({ token, password: input.password })
   if (!parsed.success) {
-    return { errorKey: 'invalidToken' }
+    return { ok: false, errorKey: 'invalidToken' }
   }
 
   let response: Response
@@ -65,12 +67,14 @@ export async function resetPasswordAction(
       cache: 'no-store',
     })
   } catch {
-    return { errorKey: 'genericError' }
+    return { ok: false, errorKey: 'genericError' }
   }
 
-  if (!response.ok) {
-    return { errorKey: 'invalidToken' }
-  }
+  // The API answers 400 for an unknown, expired or already-used token alike (on purpose, so
+  // the endpoint cannot confirm which tokens were ever real), so those cannot be told apart.
+  if (response.status === 429) return { ok: false, errorKey: 'tooManyAttempts' }
+  if (response.status >= 500) return { ok: false, errorKey: 'genericError' }
+  if (!response.ok) return { ok: false, errorKey: 'invalidToken' }
 
-  redirect('/login?reset=success')
+  return { ok: true }
 }

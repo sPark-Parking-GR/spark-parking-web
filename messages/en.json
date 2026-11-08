@@ -121,7 +121,6 @@
     "tryAgain": "Try again",
     "takingLonger": "Taking longer than usual. Keep this page open.",
     "sessionExpired": "Your admin session ended after 30 minutes. Sign in again to continue.",
-    "logoAlt": "sPark",
     "heroTitle": "Every facility, one live view.",
     "heroSubtitle": "Occupancy, bookings and revenue for every lot you operate, updated as it happens.",
     "rememberMe": "Keep me signed in for 7 days",
@@ -132,27 +131,38 @@
     "tagline": "Make Parking Smart",
     "title": "Reset your password",
     "subtitle": "Enter the email address on your account and we'll send you a link to reset your password.",
-    "emailLabel": "Email",
+    "emailLabel": "Work email",
     "emailInvalid": "Enter a valid email address.",
     "submit": "Send reset link",
     "submitting": "Sending…",
     "genericError": "Something went wrong. Please try again.",
-    "confirmation": "If an account exists for that email, we've sent a link to reset your password.",
-    "backToLogin": "Back to sign in"
+    "backToLogin": "Back to sign in",
+    "heroTitle": "Back in, in a minute.",
+    "heroSubtitle": "We email a secure link to the address on your account. It works once and expires after an hour.",
+    "checkTitle": "Check your email",
+    "checkMessage": "If {email} has a sPark account, a reset link is on its way. It works once and expires in 1 hour.",
+    "resend": "Resend link",
+    "resendIn": "Resend in {time}",
+    "resent": "Link sent again.",
+    "useDifferentEmail": "Use a different email",
+    "tooManyAttempts": "Too many requests. Wait a minute and try again."
   },
   "resetPassword": {
     "tagline": "Make Parking Smart",
     "title": "Set a new password",
     "passwordLabel": "New password",
-    "confirmPasswordLabel": "Confirm new password",
     "passwordTooShort": "Password must be at least 8 characters.",
     "passwordTooLong": "Password must be at most 128 characters.",
-    "passwordsMismatch": "Passwords do not match.",
     "genericError": "Something went wrong. Please try again.",
-    "invalidToken": "This link is invalid or has expired.",
+    "invalidToken": "This reset link is invalid, has expired or was already used. Links work once and last an hour.",
     "submit": "Update password",
     "submitting": "Updating…",
-    "requestNewLink": "Request a new link"
+    "heroTitle": "A fresh start.",
+    "heroSubtitle": "Choose a new password. Longer is stronger than complicated.",
+    "invalidTitle": "This link no longer works",
+    "sendNewLink": "Send a new link",
+    "tooManyAttempts": "Too many attempts. Wait a minute and try again.",
+    "backToLogin": "Back to sign in"
   },
   "acceptInvite": {
     "tagline": "Make Parking Smart",
@@ -190,19 +200,21 @@
     "linkedAccountNotice": "This email already has a sPark account. Enter its existing password to attach this invite to it — no new account is created.",
     "existingPasswordLabel": "Existing password",
     "passwordRequired": "Enter your password.",
-    "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them."
+    "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them.",
+    "heroTitle": "Welcome to sPark.",
+    "heroSubtitle": "Set a password to finish creating your account."
   },
   "registerOperator": {
     "tagline": "Make Parking Smart",
     "title": "Register your business",
     "subtitle": "Set up your operator account and start publishing facilities on sPark.",
-    "emailLabel": "Email",
+    "emailLabel": "Work email",
     "businessNameLabel": "Business name",
     "yourNameLabel": "Your name",
     "passwordLabel": "Password",
     "confirmPasswordLabel": "Confirm password",
-    "submit": "Register",
-    "submitting": "Registering…",
+    "submit": "Create account",
+    "submitting": "Creating account…",
     "goToLogin": "Go to sign in",
     "disabledTitle": "Registration is by invitation only",
     "disabledMessage": "sPark is not open for public operator registration yet. Ask an existing administrator for an invitation.",
@@ -219,7 +231,14 @@
     "disabled": "sPark is not open for public operator registration right now.",
     "unreachable": "Unable to reach the server right now. Please try again.",
     "somethingWentWrong": "Something went wrong. Please try again.",
-    "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them."
+    "legalStale": "The Terms of Use or Privacy Policy just changed. Reload the page to review them.",
+    "heroTitle": "Put your facilities on the map.",
+    "heroSubtitle": "Create an operator account to publish facilities, set tariffs and follow bookings live.",
+    "emailTakenTitle": "This email already has a sPark account.",
+    "signIn": "Sign in",
+    "resetPassword": "Reset password",
+    "passwordRequired": "Enter a password.",
+    "tooManyAttempts": "Too many attempts. Wait a minute and try again."
   },
   "onboarding": {
     "title": "Onboard Operators",
@@ -2254,6 +2273,12 @@
       "fair": "Fair",
       "good": "Good",
       "strong": "Strong"
+    },
+    "length": {
+      "short": "Too short",
+      "ok": "OK",
+      "good": "Good",
+      "strong": "Strong"
     }
   },
   "profile": {
@@ -2593,5 +2618,8 @@
     "acceptAndContinue": "Accept and continue",
     "accepting": "Saving…",
     "signOutInstead": "Sign out"
+  },
+  "authShell": {
+    "logoAlt": "sPark"
   }
 }

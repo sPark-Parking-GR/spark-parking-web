@@ -6169,3 +6169,61 @@ td.table-amount {
   outline: 2px solid var(--auth-focus-outline);
   outline-offset: 2px;
 }
+
+.auth-check {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-md);
+}
+
+.auth-check__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--auth-ok-bg);
+  border: 1px solid var(--auth-ok-line);
+  color: var(--auth-ok-text);
+  animation: fadeInScale 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.auth-check .auth-card__context {
+  margin: 0;
+}
+
+.auth-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--auth-accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-link-button:focus-visible {
+  outline: 2px solid var(--auth-focus-outline);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.auth-alert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.auth-card .auth-alert .btn--ghost {
+  color: inherit;
+  border-color: currentColor;
+}
+
+a.btn.auth-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}

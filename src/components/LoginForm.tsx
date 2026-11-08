@@ -2,13 +2,16 @@
 
 import Link from 'next/link'
 import { useActionState, useEffect, useId, useRef, useState } from 'react'
-import type { CSSProperties, FormEvent, KeyboardEvent } from 'react'
+import type { CSSProperties, FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, TriangleAlert, X } from 'lucide-react'
+import { ArrowRight, Mail, X } from 'lucide-react'
+import { AuthBanner } from '@/components/AuthBanner'
 import { FloatingInput } from '@/components/FloatingInput'
+import { PasswordField } from '@/components/PasswordField'
 import { Spinner } from '@/components/Spinner'
 import { signInAction } from '@/lib/auth-actions'
 import type { SignInErrorKey } from '@/lib/auth-actions'
+import { stashAuthEmail, takeAuthEmail } from '@/lib/auth-handoff'
 import { emailField } from '@/lib/email-schema'
 import { forgetRecentLogin, readRecentLogins, rememberRecentLogin } from '@/lib/recent-logins'
 import type { RecentLogin } from '@/lib/recent-logins'
@@ -53,9 +56,7 @@ export function LoginForm({
   const t = useTranslations('login')
   const uid = useId()
   const emailErrorId = `${uid}-email-error`
-  const passwordErrorId = `${uid}-password-error`
   const alertId = `${uid}-alert`
-  const capsId = `${uid}-caps`
 
   const formRef = useRef<HTMLFormElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
@@ -76,8 +77,6 @@ export function LoginForm({
   // Off by default: a shared machine should not hold a sign-in open unless asked to.
   const [remember, setRemember] = useState(false)
   const [emailError, setEmailError] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
-  const [capsLock, setCapsLock] = useState(false)
   const [cooldownEnd, setCooldownEnd] = useState<number | null>(null)
   const [cooldown, setCooldown] = useState(0)
   const [slow, setSlow] = useState(false)
@@ -86,6 +85,8 @@ export function LoginForm({
 
   useEffect(() => {
     setRecents(readRecentLogins())
+    const handedOver = takeAuthEmail()
+    if (handedOver) setEmail(handedOver)
   }, [])
 
   const [state, formAction, isPending] = useActionState(
@@ -144,15 +145,6 @@ export function LoginForm({
         : error
       : null
   const passwordAtFault = error !== null && PASSWORD_FAULT_KINDS.has(error.kind) && !alertLeaving
-
-  const passwordDescribedBy =
-    [
-      inlinePasswordError ? passwordErrorId : null,
-      passwordAtFault && banner ? alertId : null,
-      capsLock ? capsId : null,
-    ]
-      .filter((id): id is string => id !== null)
-      .join(' ') || undefined
 
   useEffect(() => {
     if (cooldownEnd === null) {
@@ -225,8 +217,6 @@ export function LoginForm({
     setDirection('back')
     setStep('email')
     setPassword('')
-    setShowPassword(false)
-    setCapsLock(false)
     setAlertLeaving(false)
     setDismissedState(state)
   }
@@ -239,10 +229,6 @@ export function LoginForm({
     } else if (PASSWORD_FAULT_KINDS.has(error.kind)) {
       setAlertLeaving(true)
     }
-  }
-
-  const handleCapsLock = (event: KeyboardEvent<HTMLInputElement>) => {
-    setCapsLock(event.getModifierState('CapsLock'))
   }
 
   const itemClass = (extra: string) => `${extra}${staggered ? ' auth-form__item' : ''}`.trim()
@@ -336,9 +322,6 @@ export function LoginForm({
           </button>
 
           <p className={itemClass('auth-card__forgot')} style={stagger(2)}>
-            <Link href="/forgot-password">{t('forgot')}</Link>
-          </p>
-          <p className={itemClass('auth-card__forgot')} style={stagger(3)}>
             {t('newOperator')} <Link href="/register">{t('registerLink')}</Link>
           </p>
         </div>
@@ -372,54 +355,20 @@ export function LoginForm({
             className="auth-sr-only"
           />
 
-          <div className="field">
-            <FloatingInput
-              ref={passwordRef}
-              id={`${uid}-password`}
-              label={t('passwordLabel')}
-              icon={<LockKeyhole size={18} strokeWidth={2} />}
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              autoComplete="current-password"
-              autoFocus
-              required
-              disabled={isPending}
-              value={password}
-              onChange={(event) => handlePasswordChange(event.target.value)}
-              onKeyDown={handleCapsLock}
-              onKeyUp={handleCapsLock}
-              onBlur={() => setCapsLock(false)}
-              aria-invalid={passwordAtFault ? true : undefined}
-              aria-describedby={passwordDescribedBy}
-              trailing={
-                <button
-                  type="button"
-                  className="pw-input__toggle"
-                  onClick={() => setShowPassword((visible) => !visible)}
-                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
-                  aria-pressed={showPassword}
-                  disabled={isPending}
-                >
-                  {showPassword ? (
-                    <EyeOff size={16} aria-hidden="true" />
-                  ) : (
-                    <Eye size={16} aria-hidden="true" />
-                  )}
-                </button>
-              }
-            />
-            {inlinePasswordError ? (
-              <p id={passwordErrorId} className="field__error auth-field-error" role="alert">
-                {inlinePasswordError.message}
-              </p>
-            ) : null}
-            {capsLock ? (
-              <p id={capsId} className="auth-field-hint" role="status">
-                <TriangleAlert size={14} strokeWidth={2.25} aria-hidden="true" />
-                {t('capsLockOn')}
-              </p>
-            ) : null}
-          </div>
+          <PasswordField
+            ref={passwordRef}
+            id={`${uid}-password`}
+            name="password"
+            label={t('passwordLabel')}
+            autoComplete="current-password"
+            autoFocus
+            disabled={isPending}
+            value={password}
+            onChange={handlePasswordChange}
+            error={inlinePasswordError?.message ?? null}
+            invalid={passwordAtFault}
+            describedBy={passwordAtFault && banner ? alertId : undefined}
+          />
 
           <label className="auth-remember">
             <input
@@ -433,10 +382,10 @@ export function LoginForm({
           </label>
 
           {banner ? (
-            <div
+            <AuthBanner
               id={alertId}
-              className={`auth-alert${banner.kind === 'tooManyAttempts' ? ' auth-alert--warn' : ''}${alertLeaving ? ' auth-alert--leaving' : ''}`}
-              role="alert"
+              tone={banner.kind === 'tooManyAttempts' ? 'warn' : 'error'}
+              leaving={alertLeaving}
               onAnimationEnd={(event) => {
                 if (alertLeaving && event.target === event.currentTarget) {
                   setDismissedState(state)
@@ -461,7 +410,7 @@ export function LoginForm({
                   {t('tryAgain')}
                 </button>
               ) : null}
-            </div>
+            </AuthBanner>
           ) : null}
 
           <button
@@ -485,7 +434,9 @@ export function LoginForm({
           ) : null}
 
           <p className="auth-card__forgot">
-            <Link href="/forgot-password">{t('forgot')}</Link>
+            <Link href="/forgot-password" onClick={() => stashAuthEmail(email)}>
+              {t('forgot')}
+            </Link>
           </p>
         </div>
       )}

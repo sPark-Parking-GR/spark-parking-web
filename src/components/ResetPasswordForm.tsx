@@ -1,69 +1,82 @@
 'use client'
 
 import Link from 'next/link'
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { z } from 'zod'
-import { resetPasswordAction } from '@/lib/password-reset-actions'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
-import { PasswordStrengthMeter } from './PasswordStrengthMeter'
+import { AuthBanner } from '@/components/AuthBanner'
+import { PasswordField } from '@/components/PasswordField'
+import { Spinner } from '@/components/Spinner'
+import { peekAuthEmail, stashAuthEmail } from '@/lib/auth-handoff'
+import { resetPasswordAction } from '@/lib/password-reset-actions'
 
-type ResetPasswordState = { error: string | null; invalidToken: boolean }
+type ResetPasswordState = {
+  error: string | null
+  fieldError: string | null
+  invalidToken: boolean
+}
 
-const INITIAL_STATE: ResetPasswordState = { error: null, invalidToken: false }
+const INITIAL_STATE: ResetPasswordState = { error: null, fieldError: null, invalidToken: false }
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const t = useTranslations('resetPassword')
   const tPassword = useTranslations('password')
+  const router = useRouter()
+  const passwordRef = useRef<HTMLInputElement>(null)
   const [password, setPassword] = useState('')
+  // The reset link carries no address and the API has no way to look one up from it, so the
+  // address is only known when this browser tab requested the link; otherwise the hidden
+  // username field is left out rather than sent empty.
+  const [email, setEmail] = useState<string | null>(null)
+
+  useEffect(() => {
+    setEmail(peekAuthEmail())
+  }, [])
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> => {
-      const passwordSchema = z
-        .object({
-          password: z
-            .string()
-            .min(PASSWORD_MIN, t('passwordTooShort'))
-            .max(PASSWORD_MAX, t('passwordTooLong')),
-          confirmPassword: z.string(),
-        })
-        .refine((data) => data.password === data.confirmPassword, {
-          message: t('passwordsMismatch'),
-          path: ['confirmPassword'],
-        })
-
-      const parsed = passwordSchema.safeParse({
-        password: formData.get('password'),
-        confirmPassword: formData.get('confirmPassword'),
-      })
+      const parsed = z
+        .string()
+        .min(PASSWORD_MIN, t('passwordTooShort'))
+        .max(PASSWORD_MAX, t('passwordTooLong'))
+        .safeParse(formData.get('password'))
 
       if (!parsed.success) {
+        passwordRef.current?.focus()
         return {
-          error: parsed.error.issues[0]?.message ?? t('genericError'),
+          error: null,
+          fieldError: parsed.error.issues[0]?.message ?? t('genericError'),
           invalidToken: false,
         }
       }
 
-      const result = await resetPasswordAction(token, { password: parsed.data.password })
-      return { error: t(result.errorKey), invalidToken: result.errorKey === 'invalidToken' }
+      const result = await resetPasswordAction(token, { password: parsed.data })
+      if (!result.ok) {
+        return {
+          error: t(result.errorKey),
+          fieldError: null,
+          invalidToken: result.errorKey === 'invalidToken',
+        }
+      }
+
+      if (email) stashAuthEmail(email)
+      router.push('/login?reset=success')
+      return INITIAL_STATE
     },
     INITIAL_STATE,
   )
 
-  // Follows the input's own reset: React clears the field once the action resolves, so a
-  // meter still describing the wiped value would be describing nothing on screen.
-  useEffect(() => {
-    setPassword('')
-  }, [state])
-
   if (state.invalidToken) {
     return (
       <div className="auth-form">
-        <p className="auth-alert" role="alert">
-          {state.error}
-        </p>
+        <AuthBanner>{t('invalidToken')}</AuthBanner>
+        <Link href="/forgot-password" className="btn btn--primary btn--block auth-submit">
+          {t('sendNewLink')}
+        </Link>
         <p className="auth-card__forgot">
-          <Link href="/forgot-password">{t('requestNewLink')}</Link>
+          <Link href="/login">{t('backToLogin')}</Link>
         </p>
       </div>
     )
@@ -71,47 +84,43 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   return (
     <form action={formAction} className="auth-form" noValidate>
-      <label className="field">
-        <span className="field__label">{t('passwordLabel')}</span>
+      {email ? (
         <input
-          className="input"
-          type="password"
-          name="password"
-          placeholder="••••••••"
-          autoComplete="new-password"
-          required
-          disabled={isPending}
-          aria-invalid={state.error ? true : undefined}
-          onChange={(event) => setPassword(event.target.value)}
-          aria-describedby="reset-password-hint"
+          type="text"
+          name="email"
+          autoComplete="username"
+          value={email}
+          readOnly
+          tabIndex={-1}
+          aria-hidden="true"
+          className="auth-sr-only"
         />
-        <p id="reset-password-hint" className="field__hint">
-          {tPassword('hint', { min: PASSWORD_MIN })}
-        </p>
-        <PasswordStrengthMeter password={password} />
-      </label>
-
-      <label className="field">
-        <span className="field__label">{t('confirmPasswordLabel')}</span>
-        <input
-          className="input"
-          type="password"
-          name="confirmPassword"
-          placeholder="••••••••"
-          autoComplete="new-password"
-          required
-          disabled={isPending}
-          aria-invalid={state.error ? true : undefined}
-        />
-      </label>
-
-      {state.error ? (
-        <p className="auth-alert" role="alert">
-          {state.error}
-        </p>
       ) : null}
 
-      <button type="submit" className="btn btn--primary btn--block" disabled={isPending}>
+      <PasswordField
+        ref={passwordRef}
+        id="reset-password"
+        name="password"
+        label={t('passwordLabel')}
+        autoComplete="new-password"
+        autoFocus
+        disabled={isPending}
+        value={password}
+        onChange={(value) => setPassword(value)}
+        error={state.fieldError}
+        hint={tPassword('hint', { min: PASSWORD_MIN })}
+        showStrength
+      />
+
+      {state.error ? <AuthBanner tone="warn">{state.error}</AuthBanner> : null}
+
+      <button
+        type="submit"
+        className="btn btn--primary btn--block auth-submit"
+        disabled={isPending}
+        aria-busy={isPending}
+      >
+        {isPending ? <Spinner size={16} /> : null}
         {isPending ? t('submitting') : t('submit')}
       </button>
     </form>

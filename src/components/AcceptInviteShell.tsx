@@ -1,11 +1,11 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 
 import { SetPasswordForm } from './SetPasswordForm'
-import { SparkMark } from './SparkMark'
+import { AuthBanner } from './AuthBanner'
+import { AuthShell } from './AuthShell'
 import { useAuthPageExit } from '@/lib/useAuthPageExit'
 import type { InviteValidationResult } from '@/lib/invite-actions'
 import type { LegalVersions } from '@spark/types'
@@ -29,102 +29,79 @@ export function AcceptInviteShell({
   const tLegal = useTranslations('legal')
   const { isExiting, triggerExit } = useAuthPageExit()
 
-  return (
-    <div className="auth-stack">
-      <div className={isExiting ? 'auth-brand auth-brand--exiting' : 'auth-brand'}>
-        <span className="auth-brand__lockup">
-          <SparkMark size={34} className="brand-lockup__mark" gradientId="spark-invite-grad" />
-          <Image
-            src="/sPark_title.png"
-            alt="sPark"
-            width={302}
-            height={72}
-            priority
-            className="auth-brand__title"
-          />
-        </span>
-        <p className="auth-brand__tagline">{t('tagline')}</p>
-      </div>
+  const title = !result.ok
+    ? t('invalidTitle')
+    : result.data.alreadyAccepted
+      ? t('alreadyAcceptedTitle')
+      : result.data.expired
+        ? t('expiredTitle')
+        : t('title')
 
-      <section
-        className={isExiting ? 'auth-card auth-card--exiting' : 'auth-card'}
-        aria-labelledby="accept-invite-title"
-      >
-        {!result.ok ? (
-          <>
-            <h1 id="accept-invite-title" className="h-heading auth-card__title">
-              {t('invalidTitle')}
-            </h1>
-            <p className="auth-alert" role="alert">
-              {result.status === 404 ? t('invalidMessage') : t('invalidGenericMessage')}
-            </p>
-            <p className="auth-card__forgot">
-              <Link href="/login">{t('goToLogin')}</Link>
-            </p>
-          </>
-        ) : result.data.alreadyAccepted ? (
-          // A redeemed link is not a dead one: the account exists, so the person is one
-          // click from where they were going. Telling them it "expired" sent them back to
-          // the admin for a replacement invite they do not need.
-          <>
-            <h1 id="accept-invite-title" className="h-heading auth-card__title">
-              {t('alreadyAcceptedTitle')}
-            </h1>
-            <p className="auth-alert" role="alert">
-              {t('alreadyAcceptedMessage')}
-            </p>
-            <p className="auth-card__forgot">
-              <Link href="/login">{t('goToLogin')}</Link>
-            </p>
-          </>
-        ) : result.data.expired ? (
-          <>
-            <h1 id="accept-invite-title" className="h-heading auth-card__title">
-              {t('expiredTitle')}
-            </h1>
-            <p className="auth-alert" role="alert">
-              {t('expiredMessage')}
-            </p>
-            {/* The invalid-link branch has always offered this; a lapsed link needs it just
+  return (
+    <AuthShell
+      titleId="accept-invite-title"
+      title={title}
+      tagline={t('tagline')}
+      heroTitle={t('heroTitle')}
+      heroSubtitle={t('heroSubtitle')}
+      isExiting={isExiting}
+    >
+      {!result.ok ? (
+        <>
+          <AuthBanner>
+            {result.status === 404 ? t('invalidMessage') : t('invalidGenericMessage')}
+          </AuthBanner>
+          <p className="auth-card__forgot">
+            <Link href="/login">{t('goToLogin')}</Link>
+          </p>
+        </>
+      ) : result.data.alreadyAccepted ? (
+        // A redeemed link is not a dead one: the account exists, so the person is one
+        // click from where they were going. Telling them it "expired" sent them back to
+        // the admin for a replacement invite they do not need.
+        <>
+          <AuthBanner>{t('alreadyAcceptedMessage')}</AuthBanner>
+          <p className="auth-card__forgot">
+            <Link href="/login">{t('goToLogin')}</Link>
+          </p>
+        </>
+      ) : result.data.expired ? (
+        <>
+          <AuthBanner>{t('expiredMessage')}</AuthBanner>
+          {/* The invalid-link branch has always offered this; a lapsed link needs it just
                 as much, since signing in is the right move for anyone who already accepted
                 an earlier one. */}
-            <p className="auth-card__forgot">
-              <Link href="/login">{t('goToLogin')}</Link>
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 id="accept-invite-title" className="h-heading auth-card__title">
-              {t('title')}
-            </h1>
-            <p className="auth-card__context">
-              {result.data.kind === 'ONBOARDING'
-                ? t('contextOnboarding', { email: result.data.email })
-                : t.rich('context', {
-                    businessName: result.data.businessName,
-                    b: (chunks) => <strong>{chunks}</strong>,
-                    email: result.data.email,
-                  })}
-            </p>
-            {result.data.requiresExistingPassword ? (
-              <p className="auth-card__context">{t('linkedAccountNotice')}</p>
-            ) : null}
-            {versions ? (
-              <SetPasswordForm
-                token={token}
-                versions={versions}
-                requiresBusinessName={result.data.kind === 'ONBOARDING'}
-                requiresExistingPassword={result.data.requiresExistingPassword}
-                onAcceptSuccess={triggerExit}
-              />
-            ) : (
-              <p className="auth-alert" role="alert">
-                {tLegal('unavailable')}
-              </p>
-            )}
-          </>
-        )}
-      </section>
-    </div>
+          <p className="auth-card__forgot">
+            <Link href="/login">{t('goToLogin')}</Link>
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="auth-card__context">
+            {result.data.kind === 'ONBOARDING'
+              ? t('contextOnboarding', { email: result.data.email })
+              : t.rich('context', {
+                  businessName: result.data.businessName,
+                  b: (chunks) => <strong>{chunks}</strong>,
+                  email: result.data.email,
+                })}
+          </p>
+          {result.data.requiresExistingPassword ? (
+            <p className="auth-card__context">{t('linkedAccountNotice')}</p>
+          ) : null}
+          {versions ? (
+            <SetPasswordForm
+              token={token}
+              versions={versions}
+              requiresBusinessName={result.data.kind === 'ONBOARDING'}
+              requiresExistingPassword={result.data.requiresExistingPassword}
+              onAcceptSuccess={triggerExit}
+            />
+          ) : (
+            <AuthBanner>{tLegal('unavailable')}</AuthBanner>
+          )}
+        </>
+      )}
+    </AuthShell>
   )
 }
