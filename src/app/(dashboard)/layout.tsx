@@ -20,7 +20,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   // lapsed — otherwise the sidebar's /admin links look usable right up until they're
   // clicked. See hasLapsedAdminWindow for why this can't just re-check the real cookie.
   if (isPlatformRole(session.user.role) && hasLapsedAdminWindow(session)) {
-    redirect('/login')
+    redirect('/login?error=expired')
   }
 
   await requireLegalAcceptance()

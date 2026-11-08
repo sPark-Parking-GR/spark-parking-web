@@ -14,7 +14,7 @@ export interface SessionData {
    * time the separately-issued /admin cookie will hit its ADMIN_TTL_SECONDS absolute expiry.
    *
    * navForPlatformAdmin merges /dashboard and /admin/* into one sidebar, but the two scopes
-   * are separate cookies with very different lifetimes (14 days vs. 30 minutes), and Path
+   * are separate cookies with very different lifetimes (7 days vs. 30 minutes), and Path
    * scoping means a /dashboard request never carries the /admin cookie — there is no way to
    * read its real state from here. Without this shadow value, /dashboard keeps rendering as
    * fully authenticated long after the admin cookie has lapsed, and the merged sidebar's
@@ -24,6 +24,18 @@ export interface SessionData {
    * surface.
    */
   adminSessionExpiresAt?: number
+  /**
+   * Dashboard cookie only. Whether the person ticked "keep me signed in". Absent on cookies
+   * issued before the option existed, which read as remembered.
+   */
+  remember?: boolean
+  /**
+   * Dashboard cookie only: the wall-clock moment the session is over, fixed at sign-in and never
+   * extended by a token refresh. A browser-session cookie is sealed without an expiry (iron-session
+   * has no other way to leave `Max-Age` off), so this is the only server-side bound it has —
+   * enforced by expireIfPastDeadline on every read.
+   */
+  endsAt?: number
 }
 
 export type SessionScope = 'dashboard' | 'admin'
@@ -53,15 +65,22 @@ function getSessionPassword(): string {
   return password
 }
 
-const DASHBOARD_TTL_SECONDS = 14 * 24 * 60 * 60
+// Ticking "keep me signed in" buys a week; leaving it unticked ends the session when the browser
+// closes, and in any case after twelve hours, so a restored browser session or a shared machine
+// that never quits cannot hold a sign-in open indefinitely.
+const REMEMBERED_TTL_SECONDS = 7 * 24 * 60 * 60
+const UNREMEMBERED_TTL_SECONDS = 12 * 60 * 60
 const ADMIN_TTL_SECONDS = 30 * 60
+// iron-session derives the cookie's Max-Age as ttl minus a 60 second skew and reads ttl 0 as
+// "never expires", so a remaining lifetime is floored above both.
+const MIN_SEAL_TTL_SECONDS = 61
 
 export const dashboardSessionOptions: SessionOptions = {
   cookieName: 'spark_dashboard_session',
   get password() {
     return getSessionPassword()
   },
-  ttl: DASHBOARD_TTL_SECONDS,
+  ttl: REMEMBERED_TTL_SECONDS,
   cookieOptions: {
     httpOnly: true,
     secure: process.env['NODE_ENV'] === 'production',
@@ -118,19 +137,93 @@ const optionsByScope: Readonly<Record<SessionScope, SessionOptions>> = {
   admin: adminSessionOptions,
 }
 
+// Which cookie a session object was read from, so a later save re-seals it with that cookie's own
+// lifetime rules rather than the read-time defaults.
+const scopeBySession = new WeakMap<object, SessionScope>()
+
+export function sessionDeadline(remember: boolean, now: number = Date.now()): number {
+  return now + (remember ? REMEMBERED_TTL_SECONDS : UNREMEMBERED_TTL_SECONDS) * 1000
+}
+
+/**
+ * The options a dashboard session must be saved with: a remembered one is sealed for whatever is
+ * left of its fixed week (so refreshing a token never slides the deadline), an unremembered one
+ * gets no `maxAge` at all, which is what makes the browser drop the cookie when it closes.
+ */
+export function optionsForSession(
+  scope: SessionScope,
+  data: Pick<SessionData, 'remember' | 'endsAt'>,
+  now: number = Date.now(),
+): SessionOptions {
+  if (scope === 'admin') return adminSessionOptions
+  const remember = data.remember ?? true
+  if (!remember) {
+    return {
+      ...dashboardSessionOptions,
+      cookieOptions: { ...dashboardSessionOptions.cookieOptions, maxAge: undefined },
+    }
+  }
+  const endsAt = data.endsAt ?? sessionDeadline(true, now)
+  const remaining = Math.floor((endsAt - now) / 1000)
+  return { ...dashboardSessionOptions, ttl: Math.max(MIN_SEAL_TTL_SECONDS, remaining) }
+}
+
+/**
+ * Signs out a dashboard session that is past its deadline — or that never had one. A cookie
+ * issued before `endsAt` existed is still sealed for its original fourteen days; leaving it
+ * alone would let a token refresh re-seal it for a further week, so it costs one re-login instead.
+ */
+export function expireIfPastDeadline(
+  session: Partial<Pick<SessionData, 'accessToken' | 'endsAt'>> &
+    Pick<IronSession<SessionData>, 'destroy'>,
+  scope: SessionScope,
+  now: number = Date.now(),
+): void {
+  if (scope !== 'dashboard') return
+  const missingDeadline = Boolean(session.accessToken) && session.endsAt === undefined
+  const pastDeadline = session.endsAt !== undefined && now >= session.endsAt
+  if (!missingDeadline && !pastDeadline) return
+  try {
+    session.destroy()
+  } catch {
+    // Read-only render context: destroy has already emptied the session in memory, but the
+    // cookie cannot be cleared here. It is cleared by the next request through the middleware,
+    // which forwards the header on its redirect.
+  }
+}
+
 export async function getSession(scope: SessionScope): Promise<IronSession<SessionData>> {
   const cookieStore = await cookies()
-  return getIronSession<SessionData>(cookieStore, optionsByScope[scope])
+  const session = await getIronSession<SessionData>(cookieStore, optionsByScope[scope])
+  scopeBySession.set(session, scope)
+  expireIfPastDeadline(session, scope)
+  return session
+}
+
+export async function persistSession(session: IronSession<SessionData>): Promise<void> {
+  const scope = scopeBySession.get(session)
+  // Never guess: saving an admin-scope session with dashboard options would rename its cookie
+  // and turn a 30 minute token into a week-long one.
+  if (scope === undefined)
+    throw new Error('persistSession: session was not read through getSession')
+  if (scope === 'dashboard' && session.endsAt === undefined) {
+    throw new Error('persistSession: dashboard session has no deadline')
+  }
+  session.updateConfig(optionsForSession(scope, session))
+  await session.save()
 }
 
 // WHY: iron-session v8 uses the Web Crypto API and is edge-compatible, so the
 // same getIronSession can read the cookie in middleware via the (req, res) overload.
-export function getSessionFromRequest(
+export async function getSessionFromRequest(
   req: NextRequest,
   res: NextResponse,
   scope: SessionScope,
 ): Promise<IronSession<SessionData>> {
-  return getIronSession<SessionData>(req, res, optionsByScope[scope])
+  const session = await getIronSession<SessionData>(req, res, optionsByScope[scope])
+  scopeBySession.set(session, scope)
+  expireIfPastDeadline(session, scope)
+  return session
 }
 
 // WHY: middleware runs on every /dashboard and /admin request, so the legacy cookie is
@@ -164,7 +257,11 @@ export async function setSession(scope: SessionScope, data: SessionData): Promis
   session.user = data.user
   if (data.adminSessionExpiresAt === undefined) delete session.adminSessionExpiresAt
   else session.adminSessionExpiresAt = data.adminSessionExpiresAt
-  await session.save()
+  if (data.remember === undefined) delete session.remember
+  else session.remember = data.remember
+  if (data.endsAt === undefined) delete session.endsAt
+  else session.endsAt = data.endsAt
+  await persistSession(session)
 }
 
 export async function clearSession(scope: SessionScope): Promise<void> {
@@ -172,11 +269,16 @@ export async function clearSession(scope: SessionScope): Promise<void> {
   session.destroy()
 }
 
-export async function establishSessions(data: SessionData): Promise<void> {
+export async function establishSessions(
+  data: Omit<SessionData, 'remember' | 'endsAt'>,
+  { remember }: { remember: boolean },
+): Promise<void> {
   const isPlatformTier = isPlatformRole(data.user.role)
   await setSession('dashboard', {
     ...data,
     adminSessionExpiresAt: isPlatformTier ? Date.now() + ADMIN_TTL_SECONDS * 1000 : undefined,
+    remember,
+    endsAt: sessionDeadline(remember),
   })
   if (isPlatformTier) {
     await setSession('admin', data)
@@ -191,7 +293,7 @@ export async function establishSessions(data: SessionData): Promise<void> {
  *
  * The topbar and every `requireSession()` caller read the user from the cookie, not from
  * the API, so a profile change made against the database would otherwise stay invisible
- * until the session was next established — up to fourteen days for the dashboard cookie.
+ * until the session was next established — up to a week for the dashboard cookie.
  * Deliberately narrow: it patches the snapshot, it does not re-authenticate.
  */
 export async function refreshSessionUser(
@@ -205,7 +307,7 @@ export async function refreshSessionUser(
     // A null name means "no name": leaving the old key in place would keep rendering it.
     if (displayName === null) delete session.user.displayName
     else if (displayName !== undefined) session.user.displayName = displayName
-    await session.save()
+    await persistSession(session)
   }
 }
 

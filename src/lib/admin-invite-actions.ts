@@ -249,12 +249,15 @@ export async function acceptAdminInviteAction(
     redirect('/login?linked=success')
   }
 
-  await establishSessions({
-    accessToken: result.session.accessToken,
-    refreshToken: result.session.refreshToken,
-    expiresAt: result.session.expiresAt,
-    user: result.session.user,
-  })
+  await establishSessions(
+    {
+      accessToken: result.session.accessToken,
+      refreshToken: result.session.refreshToken,
+      expiresAt: result.session.expiresAt,
+      user: result.session.user,
+    },
+    { remember: false },
+  )
 
   redirect('/dashboard')
 }

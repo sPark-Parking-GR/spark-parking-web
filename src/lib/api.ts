@@ -1,4 +1,4 @@
-import { getActiveSession } from './session'
+import { getActiveSession, persistSession } from './session'
 import type { SessionData } from './session'
 import type { IronSession } from 'iron-session'
 import type { AuthResult } from '@spark/types'
@@ -241,7 +241,7 @@ async function refreshSession(session: IronSession<SessionData>): Promise<Sessio
   session.expiresAt = refreshed.expiresAt
   session.user = refreshed.user
   try {
-    await session.save()
+    await persistSession(session)
   } catch {
     // read-only render context: keep refreshed token in memory for this request only
   }

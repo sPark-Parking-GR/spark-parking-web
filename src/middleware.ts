@@ -8,6 +8,16 @@ import {
   isDashboardRole,
 } from './lib/session'
 
+// A redirect is a new response, so the cookie headers queued on `res` (an expired session being
+// cleared, the legacy cookie being dropped) would be lost with it unless they are carried over.
+function redirectTo(url: URL, res: NextResponse): NextResponse {
+  const redirect = NextResponse.redirect(url)
+  for (const cookie of res.headers.getSetCookie()) {
+    redirect.headers.append('set-cookie', cookie)
+  }
+  return redirect
+}
+
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const res = NextResponse.next()
   await clearLegacySessionFromRequest(req, res)
@@ -21,7 +31,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   if (!session.accessToken || !session.user) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('from', req.nextUrl.pathname + req.nextUrl.search)
-    return NextResponse.redirect(loginUrl)
+    return redirectTo(loginUrl, res)
   }
 
   const allowed = requiresPlatformAdmin
@@ -31,7 +41,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   if (!allowed) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('error', 'forbidden')
-    return NextResponse.redirect(loginUrl)
+    return redirectTo(loginUrl, res)
   }
 
   // Mirrors the check in (dashboard)/layout.tsx: for a platform-tier role, /dashboard must
@@ -45,7 +55,8 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   ) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('from', req.nextUrl.pathname + req.nextUrl.search)
-    return NextResponse.redirect(loginUrl)
+    loginUrl.searchParams.set('error', 'expired')
+    return redirectTo(loginUrl, res)
   }
 
   return res

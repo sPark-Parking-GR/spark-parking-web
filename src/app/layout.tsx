@@ -7,6 +7,7 @@ import { AppThemeProvider } from '../components/AppThemeProvider'
 import { DocumentTitle } from '../components/DocumentTitle'
 import { PageTransitionOverlayProvider } from '../components/PageTransitionOverlay'
 import { resolveLocale } from '../i18n/locales'
+import { authThemeVars } from '../lib/auth-theme'
 import './globals.css'
 
 const inter = Inter({
@@ -39,13 +40,19 @@ export const viewport: Viewport = {
 const lightVars = cssVarsFor(colors.light, radii, shadows.light)
 const darkVars = cssVarsFor(colors.dark, radii, shadows.dark)
 
+// Dark is the default: it applies until the system says it prefers light, and an explicit
+// choice (data-theme, set from localStorage before first paint) always wins over both.
 const themeStyle = `
-:root{${lightVars}}
-:root[data-theme="dark"]{${darkVars}}
+:root{${darkVars}${authThemeVars('dark')}}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){${lightVars}${authThemeVars('light')}} }
+:root[data-theme="dark"]{${darkVars}${authThemeVars('dark')}}
 [data-theme="dark"]{${darkVars}}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){${darkVars}} }
-:root[data-theme="light"]{${lightVars}}
+:root[data-theme="light"]{${lightVars}${authThemeVars('light')}}
 `
+
+// Runs before first paint so a remembered theme never flashes the other one. Storage can be
+// blocked (private mode), hence the try/catch.
+const themeBootScript = `try{var t=localStorage.getItem('spark-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}`
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
@@ -57,9 +64,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const messages = (await import(`../../messages/${locale}.json`)).default
 
   return (
-    <html lang={locale} className={`${inter.variable} ${montserratAlternates.variable}`}>
+    <html
+      lang={locale}
+      className={`${inter.variable} ${montserratAlternates.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
