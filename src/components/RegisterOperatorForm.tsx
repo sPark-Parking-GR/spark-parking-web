@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useActionState, useRef, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Building2, Mail, UserRound } from 'lucide-react'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
@@ -48,6 +48,9 @@ export function RegisterOperatorForm({
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
+  // Inputs are disabled while the action runs, and a disabled field cannot take focus, so the
+  // field to focus is recorded here and applied once the action has settled.
+  const pendingFocus = useRef<Field | null>(null)
 
   const validate = (
     field: Field,
@@ -132,7 +135,7 @@ export function RegisterOperatorForm({
         ['displayName', 'email', 'businessName', 'password', 'confirmPassword', 'legal'] as const
       ).find((field) => found[field] !== undefined)
       if (firstInvalid) {
-        focusField(firstInvalid)
+        pendingFocus.current = firstInvalid
         return { error: null, emailTaken: false }
       }
 
@@ -155,6 +158,12 @@ export function RegisterOperatorForm({
     },
     INITIAL_STATE,
   )
+
+  useEffect(() => {
+    if (isPending || pendingFocus.current === null) return
+    focusField(pendingFocus.current)
+    pendingFocus.current = null
+  })
 
   const fieldProps = (field: Exclude<Field, 'legal'>) => ({
     'aria-invalid': errors[field] ? (true as const) : undefined,
@@ -304,6 +313,9 @@ export function RegisterOperatorForm({
         versions={versions}
         disabled={isPending}
         invalid={Boolean(errors.legal)}
+        onCheckedChange={(checked) => {
+          if (checked) clearError('legal')
+        }}
         describedBy={errors.legal ? 'register-legal-error' : undefined}
       />
       {fieldError('legal')}

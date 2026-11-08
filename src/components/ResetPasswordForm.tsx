@@ -25,6 +25,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
   const tPassword = useTranslations('password')
   const router = useRouter()
   const passwordRef = useRef<HTMLInputElement>(null)
+  // The field is disabled while the action runs and cannot take focus until it settles.
+  const refocusPassword = useRef(false)
   const [password, setPassword] = useState('')
   // The reset link carries no address and the API has no way to look one up from it, so the
   // address is only known when this browser tab requested the link; otherwise the hidden
@@ -44,7 +46,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         .safeParse(formData.get('password'))
 
       if (!parsed.success) {
-        passwordRef.current?.focus()
+        refocusPassword.current = true
         return {
           error: null,
           fieldError: parsed.error.issues[0]?.message ?? t('genericError'),
@@ -67,6 +69,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
     },
     INITIAL_STATE,
   )
+
+  useEffect(() => {
+    if (isPending || !refocusPassword.current) return
+    refocusPassword.current = false
+    passwordRef.current?.focus()
+  })
 
   if (state.invalidToken) {
     return (

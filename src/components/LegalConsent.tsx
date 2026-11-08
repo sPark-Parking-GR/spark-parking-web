@@ -15,11 +15,13 @@ export function LegalConsent({
   disabled,
   invalid,
   describedBy,
+  onCheckedChange,
 }: {
   versions: LegalVersions
   disabled?: boolean
   invalid?: boolean
   describedBy?: string
+  onCheckedChange?: (checked: boolean) => void
 }) {
   const t = useTranslations('legal')
   const locale = useLocale()
@@ -37,7 +39,10 @@ export function LegalConsent({
           name="legalAccepted"
           value="yes"
           checked={checked}
-          onChange={(event) => setChecked(event.target.checked)}
+          onChange={(event) => {
+            setChecked(event.target.checked)
+            onCheckedChange?.(event.target.checked)
+          }}
           required
           disabled={disabled}
           aria-invalid={invalid ? true : undefined}

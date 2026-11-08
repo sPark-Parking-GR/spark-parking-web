@@ -21,6 +21,8 @@ export function ForgotPasswordForm({ onSent }: { onSent: (email: string) => void
   const submitRef = useRef<HTMLButtonElement>(null)
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState<string | null>(null)
+  // The field is disabled while the action runs and cannot take focus until it settles.
+  const refocusEmail = useRef(false)
 
   // An address typed on the sign-in page arrives already filled, so the person only has to
   // press Enter; with nothing handed over, the cursor starts in the field instead.
@@ -48,7 +50,7 @@ export function ForgotPasswordForm({ onSent }: { onSent: (email: string) => void
     async (_prev: ForgotPasswordState, formData: FormData): Promise<ForgotPasswordState> => {
       const address = validate(String(formData.get('email') ?? ''))
       if (address === null) {
-        emailRef.current?.focus()
+        refocusEmail.current = true
         return { error: null }
       }
 
@@ -61,6 +63,12 @@ export function ForgotPasswordForm({ onSent }: { onSent: (email: string) => void
     },
     INITIAL_STATE,
   )
+
+  useEffect(() => {
+    if (isPending || !refocusEmail.current) return
+    refocusEmail.current = false
+    emailRef.current?.focus()
+  })
 
   return (
     <form action={formAction} className="auth-form" noValidate>

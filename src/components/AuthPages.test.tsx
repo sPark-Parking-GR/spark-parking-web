@@ -215,6 +215,20 @@ describe('auth pages', () => {
       expect(registerOperatorAction).not.toHaveBeenCalled()
     })
 
+    it('clears the consent error as soon as the box is ticked', async () => {
+      const user = renderRegister()
+      await user.click(screen.getByRole('button', { name: 'Create account' }))
+      expect(
+        await screen.findByText('Accept the Terms of Use and Privacy Policy to continue.'),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('checkbox'))
+
+      expect(
+        screen.queryByText('Accept the Terms of Use and Privacy Policy to continue.'),
+      ).toBeNull()
+    })
+
     it('offers Sign in and Reset password when the address is already registered', async () => {
       registerOperatorAction.mockResolvedValue({
         ok: false,
