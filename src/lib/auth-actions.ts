@@ -21,7 +21,7 @@ const rememberSchema = z.object({ remember: z.boolean().optional() }).nullish()
 export type SignInInput = z.infer<typeof signInSchema>
 
 export type SignInErrorKey =
-  'credentialsInvalid' | 'invalidCredentials' | 'signInFailed' | 'notAuthorized' | 'tooManyAttempts'
+  'credentialsInvalid' | 'invalidCredentials' | 'signInFailed' | 'tooManyAttempts'
 
 export type SignInResult =
   { ok: true; redirectTo: string } | { ok: false; errorKey: SignInErrorKey; retryAfter?: number }
@@ -81,7 +81,9 @@ export async function signInAction(
   }
 
   if (!isDashboardRole(result.session.user.role)) {
-    return { ok: false, errorKey: 'notAuthorized' }
+    // Same answer as a wrong password: a distinct one would tell someone holding stolen
+    // credentials that they are valid and what kind of account they belong to.
+    return { ok: false, errorKey: 'invalidCredentials' }
   }
 
   await establishSessions(

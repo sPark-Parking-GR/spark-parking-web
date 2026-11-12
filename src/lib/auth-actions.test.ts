@@ -105,12 +105,12 @@ describe('signInAction', () => {
     expect(result).toEqual({ ok: true, redirectTo: '/dashboard' })
   })
 
-  it('refuses a signed-in account whose role has no dashboard access', async () => {
+  it('refuses a signed-in account whose role has no dashboard access with the generic message', async () => {
     vi.stubGlobal('fetch', respond(200, authResult('driver')))
 
     const result = await signInAction(CREDENTIALS)
 
-    expect(result).toEqual({ ok: false, errorKey: 'notAuthorized' })
+    expect(result).toEqual({ ok: false, errorKey: 'invalidCredentials' })
     expect(establishSessions).not.toHaveBeenCalled()
   })
 

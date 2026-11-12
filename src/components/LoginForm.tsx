@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { useActionState, useEffect, useId, useRef, useState } from 'react'
 import type { CSSProperties, FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
-import { ArrowRight, Mail, X } from 'lucide-react'
+import { ArrowRight, Check, Mail, X } from 'lucide-react'
 import { AuthBanner } from '@/components/AuthBanner'
+import { FieldError } from '@/components/FieldError'
 import { FloatingInput } from '@/components/FloatingInput'
 import { PasswordField } from '@/components/PasswordField'
 import { Spinner } from '@/components/Spinner'
@@ -25,6 +26,8 @@ const INITIAL_STATE: LoginState = { error: null }
 
 const SLOW_SIGN_IN_MS = 8000
 const DEFAULT_RETRY_AFTER_SECONDS = 60
+// How long the green "Signed in" state shows before the page exit starts.
+const SUCCESS_HOLD_MS = 450
 
 // Errors the person can fix by changing the password they typed: only these mark the field
 // invalid. A refused sign-in is deliberately generic, so the password is the one field it can
@@ -33,7 +36,6 @@ const PASSWORD_FAULT_KINDS: ReadonlySet<LoginErrorKind> = new Set([
   'passwordRequired',
   'invalidCredentials',
   'credentialsInvalid',
-  'notAuthorized',
 ])
 
 const stagger = (index: number) => ({ '--i': index }) as CSSProperties
@@ -61,6 +63,14 @@ export function LoginForm({
   const formRef = useRef<HTMLFormElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
+  const mounted = useRef(true)
+
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
 
   const [step, setStep] = useState<Step>('email')
   const [direction, setDirection] = useState<'forward' | 'back'>('forward')
@@ -80,6 +90,7 @@ export function LoginForm({
   const [cooldownEnd, setCooldownEnd] = useState<number | null>(null)
   const [cooldown, setCooldown] = useState(0)
   const [slow, setSlow] = useState(false)
+  const [succeeded, setSucceeded] = useState(false)
   // Read after mount: localStorage does not exist during server render.
   const [recents, setRecents] = useState<RecentLogin[]>([])
 
@@ -125,6 +136,10 @@ export function LoginForm({
       }
 
       if (remembered) rememberRecentLogin(parsedEmail.data)
+      setSucceeded(true)
+      await new Promise((resolve) => setTimeout(resolve, SUCCESS_HOLD_MS))
+      // The person left during the hold (e.g. clicked Forgot password): do not redirect them back.
+      if (!mounted.current) return { error: null }
       onLoginSuccess(result.redirectTo)
       return { error: null }
     },
@@ -233,12 +248,15 @@ export function LoginForm({
 
   const itemClass = (extra: string) => `${extra}${staggered ? ' auth-form__item' : ''}`.trim()
 
-  const submitDisabled = isPending || cooldown > 0
+  const submitDisabled = isPending || cooldown > 0 || succeeded
 
   return (
     <form
       ref={formRef}
       action={step === 'password' ? formAction : undefined}
+      // Before hydration the email step has no handler, and a default GET would put the address
+      // in the URL (history, logs, Referer); a POST keeps it in the body.
+      method={step === 'password' ? undefined : 'post'}
       onSubmit={handleSubmit}
       className="auth-form"
       noValidate
@@ -302,13 +320,12 @@ export function LoginForm({
               onBlur={() => {
                 if (email.length > 0) validateEmail(email)
               }}
+              valid={email.length > 0 && !emailError && emailField().safeParse(email).success}
               aria-invalid={emailError ? true : undefined}
               aria-describedby={emailError ? emailErrorId : undefined}
             />
             {emailError ? (
-              <p id={emailErrorId} className="field__error auth-field-error" role="alert">
-                {emailError}
-              </p>
+              <FieldError id={emailErrorId}>{emailError}</FieldError>
             ) : null}
           </div>
 
@@ -355,6 +372,46 @@ export function LoginForm({
             className="auth-sr-only"
           />
 
+          {banner ? (
+            <AuthBanner
+              id={alertId}
+              tone={banner.kind === 'tooManyAttempts' ? 'warn' : 'error'}
+              leaving={alertLeaving}
+              onAnimationEnd={(event) => {
+                if (alertLeaving && event.target === event.currentTarget) {
+                  setDismissedState(state)
+                  setAlertLeaving(false)
+                }
+              }}
+            >
+              {banner.kind === 'tooManyAttempts' ? (
+                <span>
+                  <strong>{t('tooManyAttempts')}</strong> {t('tooManyAttemptsHint')}
+                </span>
+              ) : banner.kind === 'invalidCredentials' ? (
+                <span>
+                  <strong>{banner.message}</strong> {t('invalidCredentialsHint')}
+                </span>
+              ) : banner.kind === 'signInFailed' ? (
+                <span>
+                  <strong>{banner.message}</strong> {t('signInFailedHint')}
+                </span>
+              ) : (
+                <span>{banner.message}</span>
+              )}
+              {banner.kind === 'signInFailed' ? (
+                <button
+                  type="button"
+                  className="auth-alert__retry"
+                  onClick={() => formRef.current?.requestSubmit()}
+                  disabled={isPending}
+                >
+                  {t('tryAgain')}
+                </button>
+              ) : null}
+            </AuthBanner>
+          ) : null}
+
           <PasswordField
             ref={passwordRef}
             id={`${uid}-password`}
@@ -381,50 +438,24 @@ export function LoginForm({
             <span>{t('rememberMe')}</span>
           </label>
 
-          {banner ? (
-            <AuthBanner
-              id={alertId}
-              tone={banner.kind === 'tooManyAttempts' ? 'warn' : 'error'}
-              leaving={alertLeaving}
-              onAnimationEnd={(event) => {
-                if (alertLeaving && event.target === event.currentTarget) {
-                  setDismissedState(state)
-                  setAlertLeaving(false)
-                }
-              }}
-            >
-              {banner.kind === 'tooManyAttempts' ? (
-                <span>
-                  <strong>{t('tooManyAttempts')}</strong> {t('tooManyAttemptsHint')}
-                </span>
-              ) : (
-                <span>{banner.message}</span>
-              )}
-              {banner.kind === 'signInFailed' ? (
-                <button
-                  type="button"
-                  className="btn btn--ghost btn--sm auth-alert__action"
-                  onClick={() => formRef.current?.requestSubmit()}
-                  disabled={isPending}
-                >
-                  {t('tryAgain')}
-                </button>
-              ) : null}
-            </AuthBanner>
-          ) : null}
-
           <button
             type="submit"
-            className="btn btn--primary btn--block auth-submit"
+            className={`btn btn--primary btn--block auth-submit${succeeded ? ' auth-submit--done' : ''}`}
             disabled={submitDisabled}
-            aria-busy={isPending}
+            aria-busy={isPending && !succeeded}
           >
-            {isPending ? <Spinner size={16} /> : null}
-            {cooldown > 0
-              ? t('tryAgainIn', { time: formatCountdown(cooldown) })
-              : isPending
-                ? t('signingIn')
-                : t('signIn')}
+            {succeeded ? (
+              <Check size={20} strokeWidth={2.6} aria-hidden="true" />
+            ) : isPending ? (
+              <Spinner size={16} />
+            ) : null}
+            {succeeded
+              ? t('signedIn')
+              : cooldown > 0
+                ? t('tryAgainIn', { time: formatCountdown(cooldown) })
+                : isPending
+                  ? t('signingIn')
+                  : t('signIn')}
           </button>
 
           {slow ? (

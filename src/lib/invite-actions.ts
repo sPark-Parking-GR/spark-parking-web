@@ -96,10 +96,8 @@ const sendInviteSchema = z.object({
   email: emailField('validation.emailInvalid'),
 })
 
-const setPasswordSchema = z
-  .object({
+const setPasswordSchema = z.object({
     password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
-    confirmPassword: z.string(),
     businessName: z
       .string()
       .trim()
@@ -108,10 +106,6 @@ const setPasswordSchema = z
       .optional(),
     displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
     legal: legalAcceptanceFields,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'passwordsMismatch',
-    path: ['confirmPassword'],
   })
 
 export async function sendInviteAction(
@@ -235,7 +229,6 @@ export async function acceptInviteAction(
   token: string,
   input: {
     password: string
-    confirmPassword: string
     businessName?: string
     displayName: string
     legal: Record<string, unknown>

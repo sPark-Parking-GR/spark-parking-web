@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { KeyboardEvent, Ref } from 'react'
 import { useTranslations } from 'next-intl'
 import { Eye, EyeOff, LockKeyhole, TriangleAlert } from 'lucide-react'
+import { FieldError } from '@/components/FieldError'
 import { FloatingInput } from '@/components/FloatingInput'
 import { PasswordLengthMeter } from '@/components/PasswordLengthMeter'
 
@@ -84,7 +85,7 @@ export function PasswordField({
         trailing={
           <button
             type="button"
-            className="pw-input__toggle"
+            className="pw-input__toggle pw-input__toggle--text"
             onClick={() => setVisible((shown) => !shown)}
             aria-label={visible ? t('hidePassword') : t('showPassword')}
             aria-pressed={visible}
@@ -95,20 +96,19 @@ export function PasswordField({
             ) : (
               <Eye size={16} aria-hidden="true" />
             )}
+            <span aria-hidden="true">{visible ? t('hide') : t('show')}</span>
           </button>
         }
       />
       {error ? (
-        <p id={errorId} className="field__error auth-field-error" role="alert">
-          {error}
-        </p>
+        <FieldError id={errorId}>{error}</FieldError>
       ) : null}
+      {showStrength ? <PasswordLengthMeter password={value} /> : null}
       {hint ? (
         <p id={hintId} className="field__hint">
           {hint}
         </p>
       ) : null}
-      {showStrength ? <PasswordLengthMeter password={value} /> : null}
       {capsLock ? (
         <p id={capsId} className="auth-field-hint" role="status">
           <TriangleAlert size={14} strokeWidth={2.25} aria-hidden="true" />

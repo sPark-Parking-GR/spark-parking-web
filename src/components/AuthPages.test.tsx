@@ -75,7 +75,9 @@ describe('auth pages', () => {
       await user.click(screen.getByRole('button', { name: 'Send reset link' }))
 
       expect(await screen.findByRole('heading', { name: 'Check your email' })).toBeInTheDocument()
-      expect(screen.getByText(/If ops@example\.gr has a sPark account/)).toBeInTheDocument()
+      expect(screen.getByText('ops@example.gr').closest('p')).toHaveTextContent(
+        /If ops@example\.gr has a sPark account/,
+      )
       expect(screen.getByRole('button', { name: /Resend in 0:\d\d/ })).toBeDisabled()
     })
 
@@ -240,11 +242,10 @@ describe('auth pages', () => {
       await user.type(screen.getByLabelText('Work email'), 'ops@example.gr')
       await user.type(screen.getByLabelText('Business name'), 'Central Park')
       await user.type(screen.getByLabelText('Password'), 'a-long-enough-pass')
-      await user.type(screen.getByLabelText('Confirm password'), 'a-long-enough-pass')
       await user.click(screen.getByRole('checkbox'))
       await user.click(screen.getByRole('button', { name: 'Create account' }))
 
-      expect(await screen.findByText('This email already has a sPark account.')).toBeInTheDocument()
+      expect(await screen.findByText('An account with this email already exists.')).toBeInTheDocument()
       await user.click(screen.getByRole('link', { name: 'Reset password' }))
       expect(window.sessionStorage.getItem('spark-auth-email')).toBe('ops@example.gr')
       expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login')

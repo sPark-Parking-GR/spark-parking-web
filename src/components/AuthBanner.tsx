@@ -22,7 +22,7 @@ export function AuthBanner({
       role="alert"
       onAnimationEnd={onAnimationEnd}
     >
-      {children}
+      <div className="auth-alert__body">{children}</div>
     </div>
   )
 }

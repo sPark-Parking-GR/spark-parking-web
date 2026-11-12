@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Building2, Mail, UserRound } from 'lucide-react'
+import { ArrowRight, Building2, Check, Mail, UserRound } from 'lucide-react'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 import type { LegalVersions } from '@spark/types'
 import { AuthBanner } from '@/components/AuthBanner'
+import { FieldError } from '@/components/FieldError'
 import { FloatingInput } from '@/components/FloatingInput'
 import { LegalConsent } from '@/components/LegalConsent'
 import { PasswordField } from '@/components/PasswordField'
@@ -16,11 +17,13 @@ import { emailField } from '@/lib/email-schema'
 import { readLegalFields } from '@/lib/legal-schema'
 import { registerOperatorAction } from '@/lib/operator-registration-actions'
 
-type Field = 'displayName' | 'email' | 'businessName' | 'password' | 'confirmPassword' | 'legal'
+type Field = 'displayName' | 'email' | 'businessName' | 'password' | 'legal'
 type FieldErrors = Partial<Record<Field, string>>
 type RegisterState = { error: string | null; emailTaken: boolean }
 
 const INITIAL_STATE: RegisterState = { error: null, emailTaken: false }
+// How long the green "Account created" state shows before the page exit starts.
+const SUCCESS_HOLD_MS = 450
 
 export function RegisterOperatorForm({
   versions,
@@ -37,8 +40,15 @@ export function RegisterOperatorForm({
   const displayNameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const businessNameRef = useRef<HTMLInputElement>(null)
+  const mounted = useRef(true)
+
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
   const passwordRef = useRef<HTMLInputElement>(null)
-  const confirmRef = useRef<HTMLInputElement>(null)
 
   // Controlled for the same reason as the login form: React 19 resets an uncontrolled form once
   // its action resolves, which would wipe everything after one failed submit.
@@ -46,8 +56,8 @@ export function RegisterOperatorForm({
   const [email, setEmail] = useState('')
   const [businessName, setBusinessName] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
+  const [succeeded, setSucceeded] = useState(false)
   // Inputs are disabled while the action runs, and a disabled field cannot take focus, so the
   // field to focus is recorded here and applied once the action has settled.
   const pendingFocus = useRef<Field | null>(null)
@@ -75,14 +85,12 @@ export function RegisterOperatorForm({
         if (values.password.length === 0) return t('passwordRequired')
         if (values.password.length < PASSWORD_MIN) return t('passwordTooShort')
         return values.password.length > PASSWORD_MAX ? t('passwordTooLong') : null
-      case 'confirmPassword':
-        return values.confirmPassword === values.password ? null : t('passwordsMismatch')
       default:
         return null
     }
   }
 
-  const values = { displayName, email, businessName, password, confirmPassword }
+  const values = { displayName, email, businessName, password }
 
   const setFieldError = (field: Field, message: string | null) =>
     setErrors((current) => {
@@ -105,7 +113,6 @@ export function RegisterOperatorForm({
       email: emailRef,
       businessName: businessNameRef,
       password: passwordRef,
-      confirmPassword: confirmRef,
     } as const
     if (field === 'legal') {
       formRef.current?.querySelector<HTMLInputElement>('input[name="legalAccepted"]')?.focus()
@@ -123,7 +130,6 @@ export function RegisterOperatorForm({
         'email',
         'businessName',
         'password',
-        'confirmPassword',
       ] as const) {
         const message = validate(field, values)
         if (message) found[field] = message
@@ -132,7 +138,7 @@ export function RegisterOperatorForm({
 
       setErrors(found)
       const firstInvalid = (
-        ['displayName', 'email', 'businessName', 'password', 'confirmPassword', 'legal'] as const
+        ['displayName', 'email', 'businessName', 'password', 'legal'] as const
       ).find((field) => found[field] !== undefined)
       if (firstInvalid) {
         pendingFocus.current = firstInvalid
@@ -143,7 +149,6 @@ export function RegisterOperatorForm({
       const result = await registerOperatorAction({
         email: address,
         password,
-        confirmPassword,
         businessName,
         displayName,
         legal,
@@ -153,6 +158,10 @@ export function RegisterOperatorForm({
       }
 
       if (result.redirectTo.startsWith('/login')) stashAuthEmail(address)
+      setSucceeded(true)
+      await new Promise((resolve) => setTimeout(resolve, SUCCESS_HOLD_MS))
+      // The person left during the hold: do not redirect them back.
+      if (!mounted.current) return { error: null, emailTaken: false }
       onRegisterSuccess(result.redirectTo)
       return { error: null, emailTaken: false }
     },
@@ -172,13 +181,41 @@ export function RegisterOperatorForm({
 
   const fieldError = (field: Field) =>
     errors[field] ? (
-      <p id={`register-${field}-error`} className="field__error auth-field-error" role="alert">
-        {errors[field]}
-      </p>
+      <FieldError id={`register-${field}-error`}>{errors[field]}</FieldError>
     ) : null
 
   return (
     <form ref={formRef} action={formAction} className="auth-form" noValidate>
+      {state.error ? (
+        <AuthBanner>
+          {state.emailTaken ? (
+            <>
+              <span>
+                <strong>{t('emailTakenTitle')}</strong> {t('emailTakenHint')}
+              </span>
+              <span className="auth-alert__actions">
+                <Link
+                  href="/login"
+                  className="auth-alert__link"
+                  onClick={() => stashAuthEmail(email)}
+                >
+                  {t('signIn')}
+                </Link>
+                <Link
+                  href="/forgot-password"
+                  className="auth-alert__link"
+                  onClick={() => stashAuthEmail(email)}
+                >
+                  {t('resetPassword')}
+                </Link>
+              </span>
+            </>
+          ) : (
+            <span>{state.error}</span>
+          )}
+        </AuthBanner>
+      ) : null}
+
       <div className="field">
         <FloatingInput
           ref={displayNameRef}
@@ -222,6 +259,7 @@ export function RegisterOperatorForm({
             clearError('email')
           }}
           onBlur={() => checkField('email')}
+          valid={email.length > 0 && !errors.email && emailField().safeParse(email).success}
           {...fieldProps('email')}
         />
         {fieldError('email')}
@@ -267,48 +305,6 @@ export function RegisterOperatorForm({
         showStrength
       />
 
-      <PasswordField
-        ref={confirmRef}
-        id="register-confirmPassword"
-        name="confirmPassword"
-        label={t('confirmPasswordLabel')}
-        autoComplete="new-password"
-        disabled={isPending}
-        value={confirmPassword}
-        onChange={(value) => {
-          setConfirmPassword(value)
-          clearError('confirmPassword')
-        }}
-        onBlur={() => {
-          if (confirmPassword.length > 0) checkField('confirmPassword')
-        }}
-        error={errors.confirmPassword ?? null}
-      />
-
-      {state.error ? (
-        <AuthBanner tone={state.emailTaken ? 'warn' : 'error'}>
-          <span>{state.emailTaken ? t('emailTakenTitle') : state.error}</span>
-          {state.emailTaken ? (
-            <span className="auth-alert__actions">
-              <Link
-                href="/login"
-                className="btn btn--ghost btn--sm"
-                onClick={() => stashAuthEmail(email)}
-              >
-                {t('signIn')}
-              </Link>
-              <Link
-                href="/forgot-password"
-                className="btn btn--ghost btn--sm"
-                onClick={() => stashAuthEmail(email)}
-              >
-                {t('resetPassword')}
-              </Link>
-            </span>
-          ) : null}
-        </AuthBanner>
-      ) : null}
-
       <LegalConsent
         versions={versions}
         disabled={isPending}
@@ -322,12 +318,19 @@ export function RegisterOperatorForm({
 
       <button
         type="submit"
-        className="btn btn--primary btn--block auth-submit"
-        disabled={isPending}
-        aria-busy={isPending}
+        className={`btn btn--primary btn--block auth-submit${succeeded ? ' auth-submit--done' : ''}`}
+        disabled={isPending || succeeded}
+        aria-busy={isPending && !succeeded}
       >
-        {isPending ? <Spinner size={16} /> : null}
-        {isPending ? t('submitting') : t('submit')}
+        {succeeded ? (
+          <Check size={20} strokeWidth={2.6} aria-hidden="true" />
+        ) : isPending ? (
+          <Spinner size={16} />
+        ) : null}
+        {succeeded ? t('accountCreated') : isPending ? t('submitting') : t('submit')}
+        {isPending || succeeded ? null : (
+          <ArrowRight size={16} strokeWidth={2.25} aria-hidden="true" />
+        )}
       </button>
     </form>
   )

@@ -46,11 +46,11 @@ export function LoginShell({ from, error, reset, linked }: LoginShellProps) {
         notice && noticePhase !== 'gone' ? (
           <AuthNote
             tone={notice.tone}
+            title={t(notice.messageKey)}
+            hint={t(`${notice.messageKey}Hint`)}
             leaving={noticePhase === 'leaving'}
             onGone={() => setNoticePhase('gone')}
-          >
-            {t(notice.messageKey)}
-          </AuthNote>
+          />
         ) : null
       }
     >

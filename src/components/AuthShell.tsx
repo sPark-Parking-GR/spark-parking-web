@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import type { ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
+import { CircleCheck, TriangleAlert } from 'lucide-react'
 import { LegalFooterLinks } from './LegalConsent'
 import { SparkMark } from './SparkMark'
 
@@ -37,25 +38,33 @@ function BrandLockup({ gradientId }: { gradientId: string }) {
 
 export function AuthNote({
   tone,
+  title,
+  hint,
   leaving,
   onGone,
-  children,
 }: {
   tone: 'ok' | 'warn'
+  title: string
+  hint?: string
   leaving?: boolean
   onGone?: () => void
-  children: ReactNode
 }) {
+  const Icon = tone === 'ok' ? CircleCheck : TriangleAlert
+
   return (
-    <p
+    <div
       className={`auth-note auth-note--${tone}${leaving ? ' auth-note--leaving' : ''}`}
       role="status"
       onAnimationEnd={(event) => {
         if (leaving && event.target === event.currentTarget) onGone?.()
       }}
     >
-      {children}
-    </p>
+      <Icon size={18} strokeWidth={2} aria-hidden="true" />
+      <div className="auth-note__body">
+        <strong>{title}</strong>
+        {hint ? <span>{hint}</span> : null}
+      </div>
+    </div>
   )
 }
 

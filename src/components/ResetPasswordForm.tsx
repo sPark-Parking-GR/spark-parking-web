@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { ArrowLeft, ArrowRight, Clock } from 'lucide-react'
 import { z } from 'zod'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 import { AuthBanner } from '@/components/AuthBanner'
@@ -20,7 +21,13 @@ type ResetPasswordState = {
 
 const INITIAL_STATE: ResetPasswordState = { error: null, fieldError: null, invalidToken: false }
 
-export function ResetPasswordForm({ token }: { token: string }) {
+export function ResetPasswordForm({
+  token,
+  onInvalidToken,
+}: {
+  token: string
+  onInvalidToken?: () => void
+}) {
   const t = useTranslations('resetPassword')
   const tPassword = useTranslations('password')
   const router = useRouter()
@@ -56,6 +63,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
       const result = await resetPasswordAction(token, { password: parsed.data })
       if (!result.ok) {
+        if (result.errorKey === 'invalidToken') onInvalidToken?.()
         return {
           error: t(result.errorKey),
           fieldError: null,
@@ -78,13 +86,22 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   if (state.invalidToken) {
     return (
-      <div className="auth-form">
-        <AuthBanner>{t('invalidToken')}</AuthBanner>
+      <div className="auth-form auth-check">
+        <span className="auth-check__icon auth-check__icon--warn" aria-hidden="true">
+          <Clock size={28} strokeWidth={1.75} />
+        </span>
+        <p className="auth-card__context" role="status">
+          {t('invalidText')}
+        </p>
         <Link href="/forgot-password" className="btn btn--primary btn--block auth-submit">
           {t('sendNewLink')}
+          <ArrowRight size={16} strokeWidth={2.25} aria-hidden="true" />
         </Link>
         <p className="auth-card__forgot">
-          <Link href="/login">{t('backToLogin')}</Link>
+          <Link href="/login" className="auth-back">
+            <ArrowLeft size={16} strokeWidth={2.25} aria-hidden="true" />
+            {t('backToLogin')}
+          </Link>
         </p>
       </div>
     )

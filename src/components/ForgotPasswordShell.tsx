@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { MailCheck } from 'lucide-react'
+import { ArrowLeft, MailCheck } from 'lucide-react'
 import { AuthBanner } from '@/components/AuthBanner'
 import { AuthShell } from '@/components/AuthShell'
 import { ForgotPasswordForm } from '@/components/ForgotPasswordForm'
@@ -55,8 +55,12 @@ function CheckEmail({ email, onUseDifferent }: { email: string; onUseDifferent: 
         <MailCheck size={28} strokeWidth={1.75} />
       </span>
       <p className="auth-card__context" role="status">
-        {t('checkMessage', { email })}
+        {t.rich('checkMessage', { email, b: (chunks) => <strong>{chunks}</strong> })}
       </p>
+      <ul className="auth-tips">
+        <li>{t('checkTipExpiry')}</li>
+        <li>{t('checkTipSpam')}</li>
+      </ul>
 
       {error ? <AuthBanner tone="warn">{error}</AuthBanner> : null}
       {resent && !error ? (
@@ -67,7 +71,7 @@ function CheckEmail({ email, onUseDifferent }: { email: string; onUseDifferent: 
 
       <button
         type="button"
-        className="btn btn--primary btn--block auth-submit"
+        className="btn btn--ghost btn--block auth-submit auth-resend"
         onClick={resend}
         disabled={isPending || remaining > 0}
         aria-busy={isPending}
@@ -76,13 +80,15 @@ function CheckEmail({ email, onUseDifferent }: { email: string; onUseDifferent: 
         {remaining > 0 ? t('resendIn', { time: formatCountdown(remaining) }) : t('resend')}
       </button>
 
-      <p className="auth-card__forgot">
+      <p className="auth-card__forgot auth-links-row">
         <button type="button" className="auth-link-button" onClick={onUseDifferent}>
           {t('useDifferentEmail')}
         </button>
-      </p>
-      <p className="auth-card__forgot">
-        <Link href="/login">{t('backToLogin')}</Link>
+        <span aria-hidden="true">·</span>
+        <Link href="/login" className="auth-back">
+          <ArrowLeft size={16} strokeWidth={2.25} aria-hidden="true" />
+          {t('backToLogin')}
+        </Link>
       </p>
     </div>
   )

@@ -65,7 +65,7 @@ describe('LoginForm', () => {
 
       const message = await screen.findByText('Enter a valid email address.')
       expect(emailInput()).toHaveAttribute('aria-invalid', 'true')
-      expect(emailInput().getAttribute('aria-describedby')).toBe(message.id)
+      expect(emailInput().getAttribute('aria-describedby')).toBe(message.closest('p')?.id)
       expect(screen.queryByLabelText('Password')).toBeNull()
     })
 
@@ -210,7 +210,7 @@ describe('LoginForm', () => {
       await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
       const banner = await screen.findByRole('alert')
-      expect(banner).toHaveTextContent('Invalid email or password.')
+      expect(banner).toHaveTextContent("That email and password don't match.")
       expect(passwordInput()).toHaveAttribute('aria-invalid', 'true')
       expect(passwordInput().getAttribute('aria-describedby')).toContain(banner.id)
       expect(passwordInput()).toHaveValue('')
@@ -248,9 +248,7 @@ describe('LoginForm', () => {
       await user.type(passwordInput(), 'right-password')
       await user.click(screen.getByRole('button', { name: 'Sign in' }))
 
-      expect(
-        await screen.findByText('Unable to sign in right now. Please try again.'),
-      ).toBeInTheDocument()
+      expect(await screen.findByText("We couldn't sign you in right now.")).toBeInTheDocument()
       expect(passwordInput()).toHaveValue('right-password')
       expect(passwordInput()).not.toHaveAttribute('aria-invalid')
 

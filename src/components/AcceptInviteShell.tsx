@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { ArrowRight, CircleCheck, Clock } from 'lucide-react'
 
 import { SetPasswordForm } from './SetPasswordForm'
 import { AuthBanner } from './AuthBanner'
 import { AuthShell } from './AuthShell'
+import { AuthStatusPanel } from './AuthStatusPanel'
 import { useAuthPageExit } from '@/lib/useAuthPageExit'
 import type { InviteValidationResult } from '@/lib/invite-actions'
 import type { LegalVersions } from '@spark/types'
@@ -37,6 +39,13 @@ export function AcceptInviteShell({
         ? t('expiredTitle')
         : t('title')
 
+  const toLogin = (
+    <Link href="/login" className="btn btn--primary btn--block auth-submit">
+      {t('goToLogin')}
+      <ArrowRight size={16} strokeWidth={2.25} aria-hidden="true" />
+    </Link>
+  )
+
   return (
     <AuthShell
       titleId="accept-invite-title"
@@ -47,34 +56,29 @@ export function AcceptInviteShell({
       isExiting={isExiting}
     >
       {!result.ok ? (
-        <>
-          <AuthBanner>
-            {result.status === 404 ? t('invalidMessage') : t('invalidGenericMessage')}
-          </AuthBanner>
-          <p className="auth-card__forgot">
-            <Link href="/login">{t('goToLogin')}</Link>
-          </p>
-        </>
+        <AuthStatusPanel
+          icon={<Clock size={28} strokeWidth={1.75} />}
+          message={result.status === 404 ? t('invalidMessage') : t('invalidGenericMessage')}
+        >
+          {toLogin}
+        </AuthStatusPanel>
       ) : result.data.alreadyAccepted ? (
         // A redeemed link is not a dead one: the account exists, so the person is one
         // click from where they were going. Telling them it "expired" sent them back to
         // the admin for a replacement invite they do not need.
-        <>
-          <AuthBanner>{t('alreadyAcceptedMessage')}</AuthBanner>
-          <p className="auth-card__forgot">
-            <Link href="/login">{t('goToLogin')}</Link>
-          </p>
-        </>
+        <AuthStatusPanel
+          tone="ok"
+          icon={<CircleCheck size={28} strokeWidth={1.75} />}
+          message={t('alreadyAcceptedMessage')}
+        >
+          {toLogin}
+        </AuthStatusPanel>
       ) : result.data.expired ? (
-        <>
-          <AuthBanner>{t('expiredMessage')}</AuthBanner>
-          {/* The invalid-link branch has always offered this; a lapsed link needs it just
-                as much, since signing in is the right move for anyone who already accepted
-                an earlier one. */}
-          <p className="auth-card__forgot">
-            <Link href="/login">{t('goToLogin')}</Link>
-          </p>
-        </>
+        // Signing in is the right move for anyone who already accepted an earlier link, so a
+        // lapsed one offers it as well.
+        <AuthStatusPanel icon={<Clock size={28} strokeWidth={1.75} />} message={t('expiredMessage')}>
+          {toLogin}
+        </AuthStatusPanel>
       ) : (
         <>
           <p className="auth-card__context">
@@ -92,6 +96,7 @@ export function AcceptInviteShell({
           {versions ? (
             <SetPasswordForm
               token={token}
+              email={result.data.email}
               versions={versions}
               requiresBusinessName={result.data.kind === 'ONBOARDING'}
               requiresExistingPassword={result.data.requiresExistingPassword}

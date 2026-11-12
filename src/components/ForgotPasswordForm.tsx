@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Mail } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Mail } from 'lucide-react'
 import { AuthBanner } from '@/components/AuthBanner'
+import { FieldError } from '@/components/FieldError'
 import { FloatingInput } from '@/components/FloatingInput'
 import { Spinner } from '@/components/Spinner'
 import { peekAuthEmail, stashAuthEmail } from '@/lib/auth-handoff'
@@ -94,13 +95,12 @@ export function ForgotPasswordForm({ onSent }: { onSent: (email: string) => void
           onBlur={() => {
             if (email.length > 0) validate(email)
           }}
+          valid={email.length > 0 && !emailError && emailField().safeParse(email).success}
           aria-invalid={emailError ? true : undefined}
           aria-describedby={emailError ? 'forgot-email-error' : undefined}
         />
         {emailError ? (
-          <p id="forgot-email-error" className="field__error auth-field-error" role="alert">
-            {emailError}
-          </p>
+          <FieldError id="forgot-email-error">{emailError}</FieldError>
         ) : null}
       </div>
 
@@ -115,10 +115,14 @@ export function ForgotPasswordForm({ onSent }: { onSent: (email: string) => void
       >
         {isPending ? <Spinner size={16} /> : null}
         {isPending ? t('submitting') : t('submit')}
+        {isPending ? null : <ArrowRight size={16} strokeWidth={2.25} aria-hidden="true" />}
       </button>
 
       <p className="auth-card__forgot">
-        <Link href="/login">{t('backToLogin')}</Link>
+        <Link href="/login" className="auth-back">
+          <ArrowLeft size={16} strokeWidth={2.25} aria-hidden="true" />
+          {t('backToLogin')}
+        </Link>
       </p>
     </form>
   )

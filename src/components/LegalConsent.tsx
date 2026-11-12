@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import type { LegalVersions } from '@spark/types'
 import { legalUrl } from '@/lib/legal-links'
@@ -29,11 +29,21 @@ export function LegalConsent({
   // Controlled: React 19 resets uncontrolled fields when a form action resolves, which would
   // silently untick the box after any failed submit.
   const [checked, setChecked] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Controlled is not enough on its own: the form reset also clears the DOM checkbox (it has
+  // no `checked` attribute to fall back to), so the property is re-applied after each render.
+  useEffect(() => {
+    if (inputRef.current && inputRef.current.checked !== checked) {
+      inputRef.current.checked = checked
+    }
+  })
 
   return (
     <div className="field field--consent">
       <label className="consent" htmlFor={id}>
         <input
+          ref={inputRef}
           id={id}
           type="checkbox"
           name="legalAccepted"
