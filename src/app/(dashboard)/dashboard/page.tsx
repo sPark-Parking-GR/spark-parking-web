@@ -1,41 +1,29 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { getFormatter, getTranslations } from 'next-intl/server'
-import {
-  Building2,
-  CalendarCheck,
-  CalendarClock,
-  Gauge,
-  Gem,
-  Tags,
-  Wallet,
-  AlertCircle,
-} from 'lucide-react'
-import { ProgressBar } from '@spark/ui'
-import { PageHeader } from '@/components/PageHeader'
-import { StatCard } from '@/components/StatCard'
-import { EmptyState } from '@/components/EmptyState'
-import { BookingTable } from '@/components/BookingTable'
-import { RevenueChart } from '@/components/RevenueChart'
-import { DateRangeControl } from '@/components/DateRangeControl'
+import { getTranslations } from 'next-intl/server'
+import { ArrowRight, Building2, CalendarCheck, Gauge, Gem, Tags, Wallet } from 'lucide-react'
 import { isPlatformRole } from '@spark/types'
-import { listFacilities, ApiError, AuthRequiredError } from '@/lib/api'
+import { PeriodControl } from '@/components/dashboard-overview/PeriodControl'
+import {
+  BookingsSection,
+  KpiSection,
+  OccupancySection,
+  RevenueSection,
+} from '@/components/dashboard-overview/Sections'
+import type { KpiConfig, KpiResult } from '@/components/dashboard-overview/Sections'
+import { listFacilities } from '@/lib/api'
 import { listBookings } from '@/lib/booking-api'
-import { getAnalyticsSummary, getRevenueSeries } from '@/lib/analytics-api'
 import { listTariffPlans } from '@/lib/tariff-api'
 import { getMyOperatorSubscription } from '@/lib/operator-subscription-api'
-import type { AnalyticsSummary, RevenueSeries } from '@/lib/analytics-api'
 import type { MyOperatorSubscription } from '@/lib/operator-subscription-api'
-import { formatMoney } from '@/lib/booking-format'
-import { formatRatio, formatHours } from '@/lib/analytics-format'
+import { loadAnalytics, settle, unwrap } from '@/lib/dashboard-overview-data'
 import { buildQuery, loadPage, requireSession } from '@/lib/dal'
 import { canAccessBilling } from '@/lib/system-flags-api'
-import { parseRangePreset, resolveRange, type RangePreset } from '@/lib/date-range'
+import { RANGE_PRESETS, parseRangePreset, resolveRange } from '@/lib/date-range'
+import type { RangePreset } from '@/lib/date-range'
+import type { Settled } from '@/lib/dashboard-overview-data'
 
 const STATUS_FACILITY_COUNT = 5
 const RECENT_BOOKINGS_COUNT = 5
-
-type AnalyticsErrorKind = 'mixedCurrency' | 'unknown'
 
 interface PageProps {
   searchParams: Promise<{ range?: string }>
@@ -45,241 +33,195 @@ export default async function DashboardOverviewPage({ searchParams }: PageProps)
   const session = await requireSession()
   const t = await getTranslations('overview')
   const tBilling = await getTranslations('billing')
-  const format = await getFormatter()
   const billingVisible = await canAccessBilling(session.user.role)
-  const facilitiesHref = isPlatformRole(session.user.role)
-    ? '/admin/facilities'
-    : '/dashboard/facilities'
-  const bookingsHref = isPlatformRole(session.user.role) ? '/admin/bookings' : '/dashboard/bookings'
-
-  // Owner-only: /operator-subscriptions/me refuses a STAFF caller, and staff have no
-  // business seeing what the operator pays either way.
-  let subscription: MyOperatorSubscription | null = null
-  if (billingVisible && session.user.role === 'operator_admin') {
-    try {
-      subscription = await getMyOperatorSubscription()
-    } catch {
-      // The teaser is secondary — the overview still renders without it.
-    }
-  }
-
-  // Tariffs stay visible with billing off. A role without tariff access just loses the card.
-  let tariffPlans: { active: number; total: number } | null = null
-  try {
-    const { items } = await listTariffPlans()
-    tariffPlans = { active: items.filter((p) => p.isActive).length, total: items.length }
-  } catch {
-    // Secondary card — the overview renders without it.
-  }
+  const platform = isPlatformRole(session.user.role)
+  const facilitiesHref = platform ? '/admin/facilities' : '/dashboard/facilities'
+  const bookingsHref = platform ? '/admin/bookings' : '/dashboard/bookings'
 
   const params = await searchParams
   const preset = parseRangePreset(params.range)
-  const { from, to, bucket } = resolveRange(preset)
+  const range = resolveRange(preset)
 
-  let summary: AnalyticsSummary | null = null
-  let series: RevenueSeries | null = null
-  let analyticsError: AnalyticsErrorKind | null = null
+  // Owner-only: /operator-subscriptions/me refuses a STAFF caller, and staff have no
+  // business seeing what the operator pays either way.
+  const subscriptionRequest =
+    billingVisible && session.user.role === 'operator_admin'
+      ? getMyOperatorSubscription().catch((): MyOperatorSubscription | null => null)
+      : Promise.resolve<MyOperatorSubscription | null>(null)
 
-  if (billingVisible) {
-    try {
-      const [summaryResult, seriesResult] = await Promise.all([
-        getAnalyticsSummary({ from: from.toISOString(), to: to.toISOString() }),
-        getRevenueSeries({ from: from.toISOString(), to: to.toISOString(), bucket }),
-      ])
-      summary = summaryResult
-      series = seriesResult
-    } catch (err) {
-      if (err instanceof AuthRequiredError) redirect('/login')
-      if (err instanceof ApiError && err.status === 403) redirect('/login?error=restricted')
-      analyticsError = err instanceof ApiError && err.status === 422 ? 'mixedCurrency' : 'unknown'
+  // Tariffs stay visible with billing off. A role without tariff access just loses the card.
+  const tariffRequest = listTariffPlans().then(
+    ({ items }) => ({ active: items.filter((p) => p.isActive).length, total: items.length }),
+    () => null,
+  )
+
+  const analytics = billingVisible ? settle(() => loadAnalytics(range)) : null
+  const facilities = settle(() => loadPage(() => listFacilities({ take: STATUS_FACILITY_COUNT })))
+  const activeBookings = billingVisible
+    ? settle(() => loadPage(() => listBookings({ status: 'CHECKED_IN', take: 1 })))
+    : null
+  const recentBookings = billingVisible
+    ? settle(() => loadPage(() => listBookings({ take: RECENT_BOOKINGS_COUNT })))
+    : null
+
+  const [subscription, tariffPlans] = await Promise.all([subscriptionRequest, tariffRequest])
+
+  const hrefs = Object.fromEntries(
+    RANGE_PRESETS.map((p) => [p, buildQuery('/dashboard', { range: p === '30d' ? undefined : p })]),
+  ) as Record<RangePreset, string>
+
+  const errorLabel = t('kpiError')
+  const iconProps = { size: 19, strokeWidth: 1.8 }
+  const cards: Array<{ config: Omit<KpiConfig, 'index'>; result: Promise<Settled<KpiResult>> }> = []
+
+  cards.push({
+    config: {
+      label: t('stats.facilities.label'),
+      hint: t('stats.facilities.hint'),
+      icon: <Building2 {...iconProps} />,
+      tone: 'blue',
+      href: facilitiesHref,
+      errorLabel,
+    },
+    result: settle(async () => ({
+      data: { kind: 'number' as const, value: unwrap(await facilities).total },
+    })),
+  })
+
+  if (tariffPlans) {
+    cards.push({
+      config: {
+        label: t('stats.tariffs.label'),
+        hint: t('stats.tariffs.hint'),
+        icon: <Tags {...iconProps} />,
+        tone: 'violet',
+        href: '/dashboard/tariffs',
+        errorLabel,
+      },
+      result: settle(async () => ({
+        data: { kind: 'number' as const, value: tariffPlans.active },
+        sub: t('stats.tariffs.total', { total: tariffPlans.total }),
+      })),
+    })
+  }
+
+  if (billingVisible && analytics && activeBookings) {
+    cards.push(
+      {
+        config: {
+          label: t('stats.activeBookings.label'),
+          hint: t('stats.activeBookings.hint'),
+          icon: <CalendarCheck {...iconProps} />,
+          tone: 'green',
+          errorLabel,
+        },
+        result: settle(async () => ({
+          data: { kind: 'number' as const, value: unwrap(await activeBookings).total ?? 0 },
+        })),
+      },
+      {
+        config: {
+          label: t('stats.revenue.label'),
+          hint: t('stats.revenue.hint'),
+          icon: <Wallet {...iconProps} />,
+          tone: 'amber',
+          errorLabel,
+        },
+        result: settle(async () => {
+          const result = unwrap(await analytics)
+          return result.kind === 'ok'
+            ? {
+                data: {
+                  kind: 'currency' as const,
+                  cents: result.summary.netRevenueCents,
+                  currency: result.summary.currency,
+                },
+              }
+            : {}
+        }),
+      },
+      {
+        config: {
+          label: t('stats.avgOccupancy.label'),
+          hint: t('stats.avgOccupancy.hint'),
+          icon: <Gauge {...iconProps} />,
+          tone: 'cyan',
+          showBar: true,
+          errorLabel,
+        },
+        result: settle(async () => {
+          const result = unwrap(await analytics)
+          return result.kind === 'ok'
+            ? { data: { kind: 'percent' as const, ratio: result.summary.occupancy.ratio } }
+            : {}
+        }),
+      },
+    )
+    if (subscription) {
+      cards.push({
+        config: {
+          label: tBilling('teaser.label'),
+          hint: tBilling('teaser.hint'),
+          icon: <Gem {...iconProps} />,
+          tone: 'violet',
+          href: '/dashboard/billing',
+          errorLabel,
+        },
+        result: settle(async () => ({
+          data: {
+            kind: 'text' as const,
+            text: subscription.planName ?? tBilling('current.noPlan'),
+          },
+          sub: tBilling('teaser.usage', {
+            current: subscription.usage.facilities,
+            limit:
+              subscription.entitlements.maxFacilities === null
+                ? tBilling('usage.unlimitedShort')
+                : String(subscription.entitlements.maxFacilities),
+          }),
+        })),
+      })
     }
   }
 
-  const [facilities, activeBookings, recentBookings] = await Promise.all([
-    loadPage(() => listFacilities({ take: STATUS_FACILITY_COUNT })),
-    billingVisible ? loadPage(() => listBookings({ status: 'CHECKED_IN', take: 1 })) : null,
-    billingVisible ? loadPage(() => listBookings({ take: RECENT_BOOKINGS_COUNT })) : null,
-  ])
-
-  const buildHref = (nextPreset: RangePreset) =>
-    buildQuery('/dashboard', { range: nextPreset === '30d' ? undefined : nextPreset })
-
   return (
-    <>
-      <PageHeader title={t('title')} description={t('description')} />
-      {billingVisible ? <DateRangeControl active={preset} buildHref={buildHref} /> : null}
+    <div className="ov">
+      <header className="ov-phead">
+        <div>
+          <h1>{t('title')}</h1>
+          <p>{t('description')}</p>
+        </div>
+        <PeriodControl active={preset} hrefs={hrefs} showPeriods={billingVisible} />
+      </header>
 
-      <div className="stat-grid">
-        <Link href={facilitiesHref} className="stat-card-link">
-          <StatCard
-            label={t('stats.facilities.label')}
-            value={format.number(facilities.total)}
-            hint={t('stats.facilities.hint')}
-            icon={Building2}
-            tone="primary"
-            index={0}
+      <section className="ov-kpis" aria-label={t('kpiRegion')} data-count={cards.length}>
+        {cards.map((card, index) => (
+          <KpiSection
+            key={card.config.label}
+            config={{ ...card.config, index }}
+            result={card.result}
           />
-        </Link>
-        {tariffPlans ? (
-          <Link href="/dashboard/tariffs" className="stat-card-link">
-            <StatCard
-              label={t('stats.tariffs.label')}
-              value={format.number(tariffPlans.active)}
-              hint={t('stats.tariffs.hint')}
-              icon={Tags}
-              tone="primary"
-              index={1}
-              trend={t('stats.tariffs.total', { total: tariffPlans.total })}
-            />
-          </Link>
-        ) : null}
-        {billingVisible ? (
-          <>
-            <StatCard
-              label={t('stats.activeBookings.label')}
-              value={format.number(activeBookings?.total ?? 0)}
-              hint={t('stats.activeBookings.hint')}
-              icon={CalendarCheck}
-              tone="success"
-              index={2}
-            />
-            <StatCard
-              label={t('stats.revenue.label')}
-              value={summary ? formatMoney(summary.netRevenueCents, summary.currency) : '—'}
-              hint={t('stats.revenue.hint')}
-              icon={Wallet}
-              tone="warning"
-              index={3}
-            />
-            <StatCard
-              label={t('stats.avgOccupancy.label')}
-              value={summary ? formatRatio(summary.occupancy.ratio) : '—'}
-              hint={t('stats.avgOccupancy.hint')}
-              icon={Gauge}
-              tone="neutral"
-              index={4}
-            />
-            {subscription ? (
-              <Link href="/dashboard/billing" className="stat-card-link">
-                <StatCard
-                  label={tBilling('teaser.label')}
-                  value={subscription.planName ?? tBilling('current.noPlan')}
-                  hint={tBilling('teaser.hint')}
-                  icon={Gem}
-                  tone="primary"
-                  index={5}
-                  trend={tBilling('teaser.usage', {
-                    current: subscription.usage.facilities,
-                    limit:
-                      subscription.entitlements.maxFacilities === null
-                        ? tBilling('usage.unlimitedShort')
-                        : String(subscription.entitlements.maxFacilities),
-                  })}
-                />
-              </Link>
-            ) : null}
-          </>
-        ) : null}
-      </div>
+        ))}
+      </section>
 
-      {billingVisible && recentBookings ? (
+      {billingVisible && analytics && recentBookings ? (
         <>
-          <div className="panel-row">
-            <div className="panel-card">
-              <div className="panel-card__header">
-                <div>
-                  <h2 className="panel-card__title">{t('revenuePanel.title')}</h2>
-                  <p className="panel-card__subtitle text-secondary">
-                    {t('revenuePanel.subtitle')}
-                  </p>
-                </div>
-              </div>
-              <div className="panel-card__body">
-                {analyticsError ? (
-                  <p className="form-banner form-banner--error" role="alert">
-                    <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-                    {t(`errors.${analyticsError}`)}
-                  </p>
-                ) : series && series.points.length > 0 ? (
-                  <RevenueChart
-                    points={series.points}
-                    currency={series.currency}
-                    bucket={series.bucket}
-                    ariaLabel={t('revenuePanel.chartLabel')}
-                  />
-                ) : (
-                  <EmptyState
-                    title={t('revenuePanel.emptyTitle')}
-                    message={t('revenuePanel.emptyMessage')}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="panel-card">
-              <div className="panel-card__header">
-                <div>
-                  <h2 className="panel-card__title">{t('occupancyPanel.title')}</h2>
-                  <p className="panel-card__subtitle text-secondary">
-                    {t('occupancyPanel.subtitle')}
-                  </p>
-                </div>
-              </div>
-              <div className="panel-card__body">
-                {analyticsError ? (
-                  <p className="form-banner form-banner--error" role="alert">
-                    <AlertCircle size={18} strokeWidth={2} aria-hidden="true" />
-                    {t(`errors.${analyticsError}`)}
-                  </p>
-                ) : summary && summary.occupancy.capacitySlotMinutes > 0 ? (
-                  <div className="occupancy-summary">
-                    <span className="occupancy-summary__figure">
-                      {formatRatio(summary.occupancy.ratio)}
-                    </span>
-                    <ProgressBar pct={Math.round(summary.occupancy.ratio * 100)} />
-                    <p className="text-secondary occupancy-summary__detail">
-                      {t('occupancyPanel.detail', {
-                        booked: formatHours(summary.occupancy.bookedSlotMinutes, format.number),
-                        capacity: formatHours(summary.occupancy.capacitySlotMinutes, format.number),
-                      })}
-                    </p>
-                  </div>
-                ) : (
-                  <EmptyState
-                    title={t('occupancyPanel.emptyTitle')}
-                    message={t('occupancyPanel.emptyMessage')}
-                  />
-                )}
-              </div>
-            </div>
+          <div className="ov-row2">
+            <RevenueSection analytics={analytics} />
+            <OccupancySection analytics={analytics} />
           </div>
-
-          <div className="panel-card panel-card--wide">
-            <div className="panel-card__header">
-              <div>
-                <h2 className="panel-card__title">{t('recentBookings.title')}</h2>
-                <p className="panel-card__subtitle text-secondary">
-                  {t('recentBookings.subtitle')}
-                </p>
-              </div>
-              <Link href={bookingsHref} className="panel-card__link">
+          <BookingsSection
+            bookings={recentBookings}
+            basePath={bookingsHref}
+            viewAll={
+              <Link href={bookingsHref} className="ov-link">
                 {t('recentBookings.viewAll')}
+                <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
               </Link>
-            </div>
-            <div className="panel-card__body">
-              {recentBookings.items.length === 0 ? (
-                <EmptyState
-                  title={t('recentBookings.emptyTitle')}
-                  message={t('recentBookings.emptyMessage')}
-                  icon={CalendarClock}
-                />
-              ) : (
-                <BookingTable items={recentBookings.items} basePath={bookingsHref} />
-              )}
-            </div>
-          </div>
+            }
+          />
         </>
       ) : null}
-    </>
+    </div>
   )
 }

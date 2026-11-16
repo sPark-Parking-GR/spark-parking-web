@@ -23,21 +23,72 @@ export type NavIcon =
   | 'settings'
   | 'ingestion'
 
+export type NavGroupId = 'operations' | 'network' | 'manage' | 'review' | 'accounts' | 'system'
+
 export interface NavItem {
   href: string
   icon: NavIcon
+  group: NavGroupId
   /** Extra gate beyond role, checked with `hasPlatformPermission`. Omit when role alone decides. */
   permission?: PlatformPermission
 }
 
-export type NavMode = 'drawer' | 'tabs'
+export interface NavGroup {
+  id: NavGroupId
+  items: NavItem[]
+}
 
-// A bottom tab bar stops being scannable past five targets, so anyone with more routes than
-// that gets the drawer instead. Decided per user from the items they can actually reach.
-const MAX_TAB_ITEMS = 5
+const GROUP_ORDER: NavGroupId[] = [
+  'operations',
+  'network',
+  'manage',
+  'review',
+  'accounts',
+  'system',
+]
 
-export function navModeFor(items: NavItem[]): NavMode {
-  return items.length <= MAX_TAB_ITEMS ? 'tabs' : 'drawer'
+// Sidebar order within a group. Lives apart from the item lists so gating stays where it was
+// and the merged administrative list can still be assembled from the operator one.
+const ITEM_ORDER: NavIcon[] = [
+  'overview',
+  'analytics',
+  'bookings',
+  'scan',
+  'operatorDirectory',
+  'facilities',
+  'tariffs',
+  'operatorPlans',
+  'driverPlans',
+  'onboarding',
+  'approvals',
+  'ingestion',
+  'users',
+  'mobileUsers',
+  'admins',
+  'team',
+  'audit',
+  'trash',
+  'settings',
+  'billing',
+]
+
+export function groupNavItems(items: NavItem[]): NavGroup[] {
+  const rank = (item: NavItem) => ITEM_ORDER.indexOf(item.icon)
+  return GROUP_ORDER.flatMap((id) => {
+    const inGroup = items.filter((item) => item.group === id).sort((a, b) => rank(a) - rank(b))
+    return inGroup.length > 0 ? [{ id, items: inGroup }] : []
+  })
+}
+
+// The phone tab bar carries the four destinations people reach for most, plus a Menu button
+// that opens the drawer. Only routes the viewer can actually reach are offered.
+const TAB_ICONS: NavIcon[] = ['overview', 'bookings', 'scan', 'analytics']
+
+export function tabItemsFor(items: NavItem[]): NavItem[] {
+  return TAB_ICONS.flatMap((icon) => {
+    const item = items.find((candidate) => candidate.icon === icon)
+    return item ? [item] : []
+  })
 }
 
 export function isNavActive(pathname: string, href: string): boolean {
@@ -67,32 +118,77 @@ const OPERATOR_ADMIN_ROLES: UserRole[] = ['operator_admin']
 const OPERATOR_STAFF_ROLES: UserRole[] = ['operator_staff', 'operator_admin']
 
 const OPERATOR_NAV_ITEMS: OperatorNavItem[] = [
-  { href: '/dashboard', icon: 'overview', roles: OPERATOR_ROLES },
-  { href: '/dashboard/facilities', icon: 'facilities', roles: OPERATOR_ADMIN_ROLES },
-  { href: '/dashboard/tariffs', icon: 'tariffs', roles: OPERATOR_ADMIN_ROLES },
-  { href: '/dashboard/bookings', icon: 'bookings', roles: OPERATOR_STAFF_ROLES },
-  { href: '/dashboard/scan', icon: 'scan', roles: OPERATOR_ROLES },
-  { href: '/dashboard/team', icon: 'team', roles: OPERATOR_ADMIN_ROLES },
-  { href: '/dashboard/billing', icon: 'billing', roles: OPERATOR_ADMIN_ROLES },
+  { href: '/dashboard', icon: 'overview', group: 'operations', roles: OPERATOR_ROLES },
+  {
+    href: '/dashboard/facilities',
+    icon: 'facilities',
+    group: 'manage',
+    roles: OPERATOR_ADMIN_ROLES,
+  },
+  { href: '/dashboard/tariffs', icon: 'tariffs', group: 'manage', roles: OPERATOR_ADMIN_ROLES },
+  {
+    href: '/dashboard/bookings',
+    icon: 'bookings',
+    group: 'operations',
+    roles: OPERATOR_STAFF_ROLES,
+  },
+  { href: '/dashboard/scan', icon: 'scan', group: 'operations', roles: OPERATOR_ROLES },
+  { href: '/dashboard/team', icon: 'team', group: 'accounts', roles: OPERATOR_ADMIN_ROLES },
+  { href: '/dashboard/billing', icon: 'billing', group: 'system', roles: OPERATOR_ADMIN_ROLES },
 ]
 
 const ADMIN_NAV_ITEMS: NavItem[] = [
-  { href: '/admin/operators', icon: 'operatorDirectory', permission: 'platform:tenant.read' },
-  { href: '/admin/facilities', icon: 'facilities' },
-  { href: '/admin/tariffs', icon: 'tariffs' },
-  { href: '/admin/operator-plans', icon: 'operatorPlans', permission: 'platform:billing.manage' },
-  { href: '/admin/driver-plans', icon: 'driverPlans', permission: 'platform:billing.manage' },
-  { href: '/admin/bookings', icon: 'bookings' },
-  { href: '/admin/onboarding', icon: 'onboarding' },
-  { href: '/admin/analytics', icon: 'analytics' },
-  { href: '/admin/audit', icon: 'audit' },
-  { href: '/admin/trash', icon: 'trash', permission: 'platform:tenant.read' },
-  { href: '/admin/approvals', icon: 'approvals', permission: 'platform:tenant.purge' },
-  { href: '/admin/users', icon: 'users', permission: 'identity:user.read' },
-  { href: '/admin/mobile-users', icon: 'mobileUsers', permission: 'identity:mobile.read' },
-  { href: '/admin/admins', icon: 'admins', permission: 'identity:admin.invite' },
-  { href: '/admin/ingestion', icon: 'ingestion', permission: 'platform:tenant.write' },
-  { href: '/admin/settings', icon: 'settings', permission: 'platform:billing.manage' },
+  {
+    href: '/admin/operators',
+    icon: 'operatorDirectory',
+    group: 'network',
+    permission: 'platform:tenant.read',
+  },
+  { href: '/admin/facilities', icon: 'facilities', group: 'network' },
+  { href: '/admin/tariffs', icon: 'tariffs', group: 'network' },
+  {
+    href: '/admin/operator-plans',
+    icon: 'operatorPlans',
+    group: 'network',
+    permission: 'platform:billing.manage',
+  },
+  {
+    href: '/admin/driver-plans',
+    icon: 'driverPlans',
+    group: 'network',
+    permission: 'platform:billing.manage',
+  },
+  { href: '/admin/bookings', icon: 'bookings', group: 'operations' },
+  { href: '/admin/onboarding', icon: 'onboarding', group: 'review' },
+  { href: '/admin/analytics', icon: 'analytics', group: 'operations' },
+  { href: '/admin/audit', icon: 'audit', group: 'system' },
+  { href: '/admin/trash', icon: 'trash', group: 'system', permission: 'platform:tenant.read' },
+  {
+    href: '/admin/approvals',
+    icon: 'approvals',
+    group: 'review',
+    permission: 'platform:tenant.purge',
+  },
+  { href: '/admin/users', icon: 'users', group: 'accounts', permission: 'identity:user.read' },
+  {
+    href: '/admin/mobile-users',
+    icon: 'mobileUsers',
+    group: 'accounts',
+    permission: 'identity:mobile.read',
+  },
+  { href: '/admin/admins', icon: 'admins', group: 'accounts', permission: 'identity:admin.invite' },
+  {
+    href: '/admin/ingestion',
+    icon: 'ingestion',
+    group: 'review',
+    permission: 'platform:tenant.write',
+  },
+  {
+    href: '/admin/settings',
+    icon: 'settings',
+    group: 'system',
+    permission: 'platform:billing.manage',
+  },
 ]
 
 // Hrefs an operator loses while the billing system flag is off. Platform administrators are

@@ -1,9 +1,8 @@
 'use client'
 
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { SegmentedControl } from '@spark/ui'
 import { setLocale } from '@/lib/locale'
 import { isLocale } from '@/i18n/locales'
 
@@ -15,6 +14,7 @@ const OPTIONS = [
 export function LanguageSwitch() {
   const locale = useLocale()
   const router = useRouter()
+  const t = useTranslations('shell')
   const [, startTransition] = useTransition()
 
   const handleChange = (next: string) => {
@@ -24,5 +24,19 @@ export function LanguageSwitch() {
     })
   }
 
-  return <SegmentedControl options={OPTIONS} value={locale} onChange={handleChange} size="md" />
+  return (
+    <div className="ds-lang" role="group" aria-label={t('language')}>
+      {OPTIONS.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          lang={option.value}
+          aria-pressed={option.value === locale}
+          onClick={() => handleChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  )
 }

@@ -4,26 +4,28 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { NAV_ICONS } from '@/components/nav-icons'
+import { useShellNav } from '@/components/ShellFrame'
 import { isNavActive, type NavItem } from '@/lib/nav'
 
 export function NavLink({ item }: { item: NavItem }) {
   const pathname = usePathname()
   const t = useTranslations('nav')
+  const { rail, close } = useShellNav()
   const active = isNavActive(pathname, item.href)
   const Icon = NAV_ICONS[item.icon]
+  const label = t(item.icon)
 
   return (
     <Link
       href={item.href}
-      className={`navlink${active ? ' navlink--active' : ''}`}
+      className="ds-navlink"
       aria-current={active ? 'page' : undefined}
-      data-tooltip={t(`descriptions.${item.icon}`)}
+      data-tooltip={rail ? label : undefined}
       data-tooltip-pos="right"
+      onClick={close}
     >
-      <span className="navlink__icon" aria-hidden="true">
-        <Icon size={19} strokeWidth={2} />
-      </span>
-      <span className="navlink__label">{t(item.icon)}</span>
+      <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
+      <span className="ds-navlink__label">{label}</span>
     </Link>
   )
 }

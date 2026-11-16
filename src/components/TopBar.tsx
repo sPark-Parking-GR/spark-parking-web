@@ -1,103 +1,73 @@
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
-import { AccountMenu } from '@/components/AccountMenu'
 import { MenuButton } from '@/components/NavDrawerControls'
-import { SparkMark } from '@/components/SparkMark'
 import { TopBarTitle } from '@/components/TopBarTitle'
 import { SignOutButton } from '@/components/SignOutButton'
 import { LanguageSwitch } from '@/components/LanguageSwitch'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import type { NavItem, NavMode } from '@/lib/nav'
-import type { AuthUser } from '@spark/types'
-
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  const first = parts[0]
-  if (!first) return '?'
-  const last = parts[parts.length - 1]
-  if (parts.length === 1 || !last) return first.slice(0, 2).toUpperCase()
-  return ((first[0] ?? '') + (last[0] ?? '')).toUpperCase()
-}
+import type { NavItem } from '@/lib/nav'
+import type { ShellAccount } from '@/lib/shell-account'
 
 interface TopBarProps {
-  user: AuthUser
+  account: ShellAccount
   items: NavItem[]
-  navMode: NavMode
+  isPlatform: boolean
 }
 
-export async function TopBar({ user, items, navMode }: TopBarProps) {
+export async function TopBar({ account, items, isPlatform }: TopBarProps) {
   const t = await getTranslations('shell')
-  const name = user.displayName ?? user.email
-  const subtitle =
-    user.role === 'platform_admin' || user.role === 'super_admin'
-      ? t('subtitlePlatform')
-      : t('subtitleOperator')
-
-  const ROLE_LABELS: Record<AuthUser['role'], string> = {
-    guest: t('roleGuest'),
-    user: t('roleUser'),
-    operator_staff: t('roleOperatorStaff'),
-    operator_admin: t('roleOperatorAdmin'),
-    platform_admin: t('rolePlatformAdmin'),
-    super_admin: t('roleSuperAdmin'),
-  }
+  const subtitle = isPlatform ? t('subtitlePlatform') : t('subtitleOperator')
 
   return (
-    <header className="topbar">
-      <div className="topbar__lead">
-        {navMode === 'drawer' ? <MenuButton /> : null}
-        <SparkMark size={18} className="topbar__mark" gradientId="spark-topbar-grad" />
+    <header className="ds-header">
+      <MenuButton />
+      <div className="ds-title">
+        <b className="ds-title__main">{t('title')}</b>
         <TopBarTitle items={items} />
-        <span className="topbar__titles">
-          <span className="topbar__title h-heading">{t('title')}</span>
-          <span className="topbar__subtitle">{subtitle}</span>
-        </span>
+        <small>{subtitle}</small>
       </div>
-      <div className="topbar__user">
-        <div className="topbar__controls topbar__desktop-only">
-          <LanguageSwitch />
-          <ThemeToggle />
-        </div>
-        <div className="topbar__search topbar__desktop-only" data-tooltip={t('searchComingSoon')}>
-          <Search size={16} strokeWidth={2} className="topbar__search-icon" aria-hidden="true" />
-          <input
-            className="topbar__search-input"
-            type="search"
-            placeholder={t('searchComingSoon')}
-            aria-label={t('searchComingSoon')}
-            disabled
-          />
-        </div>
-        <span className="topbar__divider topbar__desktop-only" aria-hidden="true" />
-        {/* The identity chip is where someone looks for "that is not my name" — so it is
-            the link to the page that fixes it, rather than a nav item competing with the
-            operator's actual work. */}
-        <Link
-          href="/dashboard/profile"
-          className="topbar__account topbar__desktop-only"
-          data-tooltip={user.email}
-        >
-          <span className="topbar__identity">
-            <span className="topbar__name">{name}</span>
-            <span className="topbar__role">{ROLE_LABELS[user.role]}</span>
-          </span>
-          <span className="topbar__avatar" aria-label={t('signedInAs', { name })}>
-            {initials(name)}
-          </span>
-        </Link>
-        <span className="topbar__desktop-only">
-          <SignOutButton />
-        </span>
-        <div className="topbar__mobile-only">
-          <AccountMenu
-            name={name}
-            email={user.email}
-            roleLabel={ROLE_LABELS[user.role]}
-            initials={initials(name)}
-          />
-        </div>
+      <div className="ds-spacer" />
+      <div className="ds-search" aria-disabled="true" data-tooltip={t('searchComingSoon')}>
+        <Search size={18} strokeWidth={1.8} aria-hidden="true" />
+        <span>{t('searchLabel')}</span>
+        <kbd>{t('soon')}</kbd>
       </div>
+      <button
+        type="button"
+        className="ds-ibtn ds-search-btn"
+        aria-disabled="true"
+        aria-label={t('searchComingSoon')}
+        data-tooltip={t('searchComingSoon')}
+        data-tooltip-pos="bottom"
+      >
+        <Search size={20} strokeWidth={1.8} aria-hidden="true" />
+      </button>
+      <LanguageSwitch />
+      <ThemeToggle />
+      <span className="ds-vsep" aria-hidden="true" />
+      {/* The identity chip is where someone looks for "that is not my name" — so it is
+          the link to the page that fixes it, rather than a nav item competing with the
+          operator's actual work. */}
+      <Link
+        href="/dashboard/profile"
+        className="ds-who"
+        aria-label={t('signedInAs', { name: account.name })}
+        data-tooltip={account.email}
+        data-tooltip-pos="bottom"
+      >
+        <span className="ds-who__text">
+          <b>{account.name}</b>
+          <small>{account.roleLabel}</small>
+        </span>
+        <span className="ds-avatar" aria-hidden="true">
+          {account.initials}
+        </span>
+      </Link>
+      <span className="ds-signout-slot">
+        <SignOutButton />
+      </span>
+      <div className="ds-progress" aria-hidden="true" />
     </header>
   )
 }
