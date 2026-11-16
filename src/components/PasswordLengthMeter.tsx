@@ -11,10 +11,42 @@ function levelFor(length: number): 'short' | 'ok' | 'good' | 'strong' {
 
 const SCORE = { short: 1, ok: 2, good: 3, strong: 4 } as const
 
-export function PasswordLengthMeter({ password }: { password: string }) {
+export function PasswordLengthMeter({
+  password,
+  segmented = false,
+}: {
+  password: string
+  // Four discrete bars with the label beside them, as the profile redesign draws it.
+  segmented?: boolean
+}) {
   const t = useTranslations('password')
   if (password === '') return null
   const level = levelFor(password.length)
+
+  if (segmented) {
+    return (
+      <div
+        className="pf-meter"
+        data-s={SCORE[level]}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={4}
+        aria-valuenow={SCORE[level]}
+        aria-label={t('meterLabel')}
+      >
+        <div className="pf-meter__bars" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <i />
+        </div>
+        <div className="pf-meter__row">
+          <span>{t('meterLabel')}</span>
+          <b aria-live="polite">{t(`length.${level}`)}</b>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="password-meter">

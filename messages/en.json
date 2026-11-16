@@ -2348,6 +2348,9 @@
       "ok": "OK",
       "good": "Good",
       "strong": "Strong"
+    },
+    "rules": {
+      "minLength": "At least {min} characters"
     }
   },
   "profile": {
@@ -2359,7 +2362,6 @@
     "emailLabel": "Email",
     "save": "Save changes",
     "saving": "Saving…",
-    "saved": "Profile updated.",
     "errors": {
       "nameTooLong": "Name must be at most 120 characters.",
       "genericError": "Something went wrong. Please try again."
@@ -2371,7 +2373,10 @@
         "confirm": "Confirm it's you",
         "email": "Open the email link",
         "choose": "Choose a new password"
-      }
+      },
+      "stepsLabel": "Password change steps",
+      "stepDone": "Done:",
+      "stepOf": "Step {current} of {total}"
     },
     "changePassword": {
       "heading": "Change password",
@@ -2381,23 +2386,53 @@
       "hidePassword": "Hide password",
       "submit": "Send confirmation email",
       "submitting": "Checking…",
-      "sentTitle": "Check your inbox",
-      "confirmation": "Check your email — we've sent you a link to finish changing your password. It expires in an hour.",
       "errors": {
         "wrongPassword": "That is not your current password.",
-        "genericError": "Something went wrong. Please try again."
-      }
+        "genericError": "Something went wrong. Please try again.",
+        "empty": "Enter your current password."
+      },
+      "checkTitle": "Check your email",
+      "checkText": "We sent a confirmation link to <b>{email}</b>. Open it to choose your new password.",
+      "resend": "Resend email",
+      "resendIn": "Resend in {time}",
+      "startOver": "Start over",
+      "spamHint": "Can't find it? Check your spam folder.",
+      "resentToast": "Email sent again"
     },
     "forgotPassword": {
       "heading": "Can't remember it?",
       "description": "We'll email a reset link to the address on this account instead.",
       "submit": "Email me a reset link",
       "submitting": "Sending…",
-      "sentTitle": "Reset link sent",
-      "confirmation": "Check your email — we've sent you a link to reset your password. It expires in an hour.",
-      "errors": {
-        "genericError": "Something went wrong. Please try again."
-      }
+      "sentTo": "Reset link sent to {email}.",
+      "sentHint": "Open it to choose a new password.",
+      "failedTitle": "Couldn't send the email.",
+      "failedHint": "Check your connection and try again.",
+      "resend": "Resend",
+      "resendIn": "Resend in {time}",
+      "retry": "Try again"
+    },
+    "loading": "Loading your profile",
+    "detailsSubtitle": "Your name and the email you sign in with.",
+    "emailLocked": "Your sign-in email can't be changed here",
+    "unsaved": "Unsaved changes",
+    "allSaved": "All changes saved",
+    "discard": "Discard",
+    "savedShort": "Saved",
+    "saveFailed": "Couldn't save your changes.",
+    "retry": "Try again",
+    "toastSaved": "Profile updated",
+    "identity": {
+      "label": "Your identity",
+      "navLabel": "On this page",
+      "addNameTitle": "Add your name",
+      "addNameText": "You're shown by your email right now. A name helps your team recognize you.",
+      "addNameLink": "Add your name"
+    },
+    "loadError": {
+      "title": "Couldn't load your profile",
+      "message": "Check your connection and try again.",
+      "retry": "Try again"
     }
   },
   "adminMobileUsers": {

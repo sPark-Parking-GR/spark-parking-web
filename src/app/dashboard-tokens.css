@@ -39,6 +39,9 @@
   --d-t-cyan-bg: rgba(45, 200, 210, 0.12);
   --d-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 20px 40px -28px rgba(0, 0, 0, 0.9);
   --d-glow-op: 0.5;
+  --d-input: #0c131e;
+  --d-input-line: rgba(255, 255, 255, 0.09);
+  --d-input-hover: rgba(255, 255, 255, 0.24);
   --d-r-lg: 18px;
   --d-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --d-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -79,6 +82,9 @@ html[data-theme='light'] .dashboard-shell {
   --d-t-cyan-bg: rgba(14, 143, 151, 0.1);
   --d-shadow: 0 1px 2px rgba(16, 30, 50, 0.05), 0 12px 28px -20px rgba(16, 30, 50, 0.25);
   --d-glow-op: 0.16;
+  --d-input: #ffffff;
+  --d-input-line: #d3dce7;
+  --d-input-hover: #a9b8c9;
   color-scheme: light;
 }
 
@@ -100,5 +106,8 @@ html[data-theme='light'] .dashboard-shell {
     --d-skel-hi: #f3f6fa;
     --d-shadow: 0 1px 2px rgba(16, 30, 50, 0.05), 0 12px 28px -20px rgba(16, 30, 50, 0.25);
     --d-glow-op: 0.16;
+    --d-input: #ffffff;
+    --d-input-line: #d3dce7;
+    --d-input-hover: #a9b8c9;
   }
 }

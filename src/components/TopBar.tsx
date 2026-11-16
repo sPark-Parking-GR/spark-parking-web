@@ -1,6 +1,6 @@
-import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
+import { ProfileLink } from '@/components/ProfileLink'
 import { MenuButton } from '@/components/NavDrawerControls'
 import { TopBarTitle } from '@/components/TopBarTitle'
 import { SignOutButton } from '@/components/SignOutButton'
@@ -49,13 +49,7 @@ export async function TopBar({ account, items, isPlatform }: TopBarProps) {
       {/* The identity chip is where someone looks for "that is not my name" — so it is
           the link to the page that fixes it, rather than a nav item competing with the
           operator's actual work. */}
-      <Link
-        href="/dashboard/profile"
-        className="ds-who"
-        aria-label={t('signedInAs', { name: account.name })}
-        data-tooltip={account.email}
-        data-tooltip-pos="bottom"
-      >
+      <ProfileLink label={t('signedInAs', { name: account.name })} tooltip={account.email}>
         <span className="ds-who__text">
           <b>{account.name}</b>
           <small>{account.roleLabel}</small>
@@ -63,7 +57,7 @@ export async function TopBar({ account, items, isPlatform }: TopBarProps) {
         <span className="ds-avatar" aria-hidden="true">
           {account.initials}
         </span>
-      </Link>
+      </ProfileLink>
       <span className="ds-signout-slot">
         <SignOutButton />
       </span>

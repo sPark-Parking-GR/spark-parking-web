@@ -9,6 +9,9 @@ import { z } from 'zod'
 import { PASSWORD_MAX, PASSWORD_MIN } from '@spark/types'
 import { AuthBanner } from '@/components/AuthBanner'
 import { PasswordField } from '@/components/PasswordField'
+import { PasswordLengthMeter } from '@/components/PasswordLengthMeter'
+import { PasswordRules } from '@/components/PasswordRules'
+import { Stepper } from '@/components/profile/Stepper'
 import { Spinner } from '@/components/Spinner'
 import { peekAuthEmail, stashAuthEmail } from '@/lib/auth-handoff'
 import { resetPasswordAction } from '@/lib/password-reset-actions'
@@ -29,12 +32,13 @@ export function ResetPasswordForm({
   onInvalidToken?: () => void
 }) {
   const t = useTranslations('resetPassword')
-  const tPassword = useTranslations('password')
   const router = useRouter()
   const passwordRef = useRef<HTMLInputElement>(null)
   // The field is disabled while the action runs and cannot take focus until it settles.
   const refocusPassword = useRef(false)
   const [password, setPassword] = useState('')
+  // A field error belongs to the attempt that raised it; typing again retires it.
+  const [clearedFor, setClearedFor] = useState<ResetPasswordState | null>(null)
   // The reset link carries no address and the API has no way to look one up from it, so the
   // address is only known when this browser tab requested the link; otherwise the hidden
   // username field is left out rather than sent empty.
@@ -109,6 +113,10 @@ export function ResetPasswordForm({
 
   return (
     <form action={formAction} className="auth-form" noValidate>
+      {/* The emailed link is steps one and two done: the password was confirmed and the
+          mailbox proved. Only the choice of a new one is left. */}
+      <Stepper current={3} />
+
       {email ? (
         <input
           type="text"
@@ -131,11 +139,14 @@ export function ResetPasswordForm({
         autoFocus
         disabled={isPending}
         value={password}
-        onChange={(value) => setPassword(value)}
-        error={state.fieldError}
-        hint={tPassword('hint', { min: PASSWORD_MIN })}
-        showStrength
+        onChange={(value) => {
+          setPassword(value)
+          setClearedFor(state)
+        }}
+        error={clearedFor === state ? null : state.fieldError}
       />
+      <PasswordLengthMeter password={password} segmented />
+      <PasswordRules password={password} />
 
       {state.error ? <AuthBanner tone="warn">{state.error}</AuthBanner> : null}
 

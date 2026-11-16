@@ -12,6 +12,7 @@ import './globals.css'
 import './dashboard-tokens.css'
 import './dashboard-shell.css'
 import './dashboard-overview.css'
+import './profile.css'
 
 const inter = Inter({
   subsets: ['latin', 'greek'],

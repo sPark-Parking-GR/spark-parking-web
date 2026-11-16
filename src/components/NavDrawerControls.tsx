@@ -5,19 +5,23 @@ import { useTranslations } from 'next-intl'
 import { SIDEBAR_ID, useShellNav } from '@/components/ShellFrame'
 
 export function MenuButton() {
-  const { open, openMenu } = useShellNav()
+  const { open, openMenu, close } = useShellNav()
   const t = useTranslations('shell')
 
   return (
     <button
       type="button"
       className="ds-ibtn ds-menu-btn"
-      onClick={(event) => openMenu(event.currentTarget)}
+      onClick={(event) => (open ? close() : openMenu(event.currentTarget))}
       aria-expanded={open}
       aria-controls={SIDEBAR_ID}
-      aria-label={t('openMenu')}
+      aria-label={open ? t('closeMenu') : t('openMenu')}
     >
-      <Menu size={20} strokeWidth={1.8} aria-hidden="true" />
+      {open ? (
+        <X size={20} strokeWidth={1.8} aria-hidden="true" />
+      ) : (
+        <Menu size={20} strokeWidth={1.8} aria-hidden="true" />
+      )}
     </button>
   )
 }

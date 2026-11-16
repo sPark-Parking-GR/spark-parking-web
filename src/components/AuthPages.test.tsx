@@ -165,6 +165,34 @@ describe('auth pages', () => {
       )
     })
 
+    it('shows steps one and two as done with the new password as the current step', () => {
+      wrap(<ResetPasswordForm token="t" />)
+
+      expect(screen.getByText('Choose a new password').closest('li')).toHaveAttribute(
+        'aria-current',
+        'step',
+      )
+      expect(screen.getByText("Confirm it's you").closest('li')).toHaveClass('pf-step--done')
+      expect(screen.getByText('Open the email link').closest('li')).toHaveClass('pf-step--done')
+      expect(screen.getByText('Step 3 of 3')).toBeInTheDocument()
+    })
+
+    it('ticks the length rule live and retires the field error on typing', async () => {
+      const user = wrap(<ResetPasswordForm token="abc" />)
+      const field = screen.getByLabelText('New password')
+      const rule = screen.getByText('At least 8 characters').closest('li')
+
+      await user.type(field, 'short')
+      expect(rule).not.toHaveClass('pf-rules__ok')
+      await user.click(screen.getByRole('button', { name: 'Update password' }))
+      expect(await screen.findByText('Password must be at least 8 characters.')).toBeInTheDocument()
+
+      await user.type(field, 'er-and-longer')
+      expect(rule).toHaveClass('pf-rules__ok')
+      expect(field).not.toHaveAttribute('aria-invalid')
+      expect(screen.queryByText('Password must be at least 8 characters.')).toBeNull()
+    })
+
     it('refuses a short password inline and keeps focus there', async () => {
       const user = wrap(<ResetPasswordForm token="abc" />)
 
@@ -245,7 +273,9 @@ describe('auth pages', () => {
       await user.click(screen.getByRole('checkbox'))
       await user.click(screen.getByRole('button', { name: 'Create account' }))
 
-      expect(await screen.findByText('An account with this email already exists.')).toBeInTheDocument()
+      expect(
+        await screen.findByText('An account with this email already exists.'),
+      ).toBeInTheDocument()
       await user.click(screen.getByRole('link', { name: 'Reset password' }))
       expect(window.sessionStorage.getItem('spark-auth-email')).toBe('ops@example.gr')
       expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login')

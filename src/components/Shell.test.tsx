@@ -47,6 +47,7 @@ function renderShell() {
         <Sidebar items={items} account={account} isPlatform={false} />
         <div data-shell-main>
           <MenuButton />
+          <div className="dashboard-scroll" />
           <BottomTabBar items={tabItemsFor(items)} />
         </div>
       </ShellFrame>
@@ -110,21 +111,33 @@ describe('off-canvas drawer', () => {
     const opener = screen.getByRole('button', { name: 'Open menu' })
     await user.click(opener)
     expect(opener).toHaveAttribute('aria-expanded', 'true')
+    expect(opener).toHaveAccessibleName('Close menu')
     expect(sidebarEl()).not.toHaveAttribute('inert')
-    expect(document.querySelector('[data-shell-main]')).toHaveAttribute('inert')
+    // The menu hangs from the header, so the header stays live as the toggle.
+    expect(document.querySelector('[data-shell-main]')).not.toHaveAttribute('inert')
+    expect(document.querySelector('.dashboard-scroll')).toHaveAttribute('inert')
     expect(within(sidebarEl()).getByRole('link', { name: 'Bookings' })).toHaveFocus()
 
     await user.keyboard('{Escape}')
     expect(sidebarEl()).toHaveAttribute('inert')
-    expect(document.querySelector('[data-shell-main]')).not.toHaveAttribute('inert')
+    expect(document.querySelector('.dashboard-scroll')).not.toHaveAttribute('inert')
     expect(opener).toHaveFocus()
+  })
+
+  it('toggles closed from the same header button', async () => {
+    const user = renderShell()
+    const toggle = screen.getByRole('button', { name: 'Open menu' })
+    await user.click(toggle)
+    await user.click(toggle)
+    expect(shellEl()).not.toHaveAttribute('data-open')
+    expect(toggle).toHaveAccessibleName('Open menu')
   })
 
   it('closes from the close button and returns focus to the Menu tab that opened it', async () => {
     const user = renderShell()
     const tab = screen.getByRole('button', { name: 'Menu' })
     await user.click(tab)
-    await user.click(screen.getByRole('button', { name: 'Close menu' }))
+    await user.click(document.querySelector<HTMLElement>('[data-drawer-close]')!)
     expect(tab).toHaveFocus()
     expect(tab).toHaveAttribute('aria-expanded', 'false')
   })
