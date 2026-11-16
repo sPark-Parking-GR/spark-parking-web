@@ -1,27 +1,39 @@
 'use client'
 
 import Link from 'next/link'
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { ArrowRight, Building2, Check, UserRound } from 'lucide-react'
 import { z } from 'zod'
 import { acceptInviteAction } from '@/lib/invite-actions'
+import { AuthBanner } from './AuthBanner'
+import { FieldError } from './FieldError'
+import { FloatingInput } from './FloatingInput'
 import { LegalConsent } from './LegalConsent'
-import { PasswordStrengthMeter } from './PasswordStrengthMeter'
+import { PasswordField } from './PasswordField'
+import { Spinner } from './Spinner'
 import { readLegalFields } from '@/lib/legal-schema'
 import { PASSWORD_MAX, PASSWORD_MIN, type LegalVersions } from '@spark/types'
 
+type FieldName = 'displayName' | 'businessName' | 'password' | 'legal'
+type FieldErrors = Partial<Record<FieldName, string>>
 type SetPasswordState = { error: string | null; loginHint?: boolean }
 
 const INITIAL_STATE: SetPasswordState = { error: null }
+// How long the green "Account ready" state shows before the page exit starts.
+const SUCCESS_HOLD_MS = 450
 
 export function SetPasswordForm({
   token,
+  email,
   versions,
   requiresBusinessName = false,
   requiresExistingPassword = false,
   onAcceptSuccess,
 }: {
   token: string
+  // Paired with the password by password managers; never sent anywhere.
+  email: string
   versions: LegalVersions
   requiresBusinessName?: boolean
   // True when this address already has a mobile-only sPark account: accepting attaches
@@ -32,19 +44,36 @@ export function SetPasswordForm({
 }) {
   const t = useTranslations('acceptInvite')
   const tLegal = useTranslations('legal')
-  // React 19 resets an uncontrolled form once its action resolves, which meant a mistyped
-  // confirmation cost the invitee their business name and both passwords. The name is the
-  // one worth keeping: retyping a password after a mismatch is expected, retyping the
-  // company you already entered is not.
-  const [businessName, setBusinessName] = useState('')
-  const [displayName, setDisplayName] = useState('')
   const tPassword = useTranslations('password')
+  const mounted = useRef(true)
+  const [displayName, setDisplayName] = useState('')
+  const [businessName, setBusinessName] = useState('')
   const [password, setPassword] = useState('')
+  const [errors, setErrors] = useState<FieldErrors>({})
+  const [succeeded, setSucceeded] = useState(false)
+
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
+
+  const clearError = (field: FieldName) => {
+    if (!errors[field]) return
+    setErrors((current) => {
+      const next = { ...current }
+      delete next[field]
+      return next
+    })
+  }
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: SetPasswordState, formData: FormData): Promise<SetPasswordState> => {
-      // An existing password is verified by sign-in server-side, not chosen here — no
-      // strength floor and no confirmation field to match against.
+      const legal = readLegalFields(formData)
+
+      // An existing password is verified by sign-in server-side, not chosen here, so it gets
+      // no strength floor.
       const passwordField = requiresExistingPassword
         ? z.string().min(1, t('passwordRequired'))
         : z
@@ -52,10 +81,9 @@ export function SetPasswordForm({
             .min(PASSWORD_MIN, t('passwordTooShort'))
             .max(PASSWORD_MAX, t('passwordTooLong'))
 
-      const passwordSchema = z
+      const parsed = z
         .object({
           password: passwordField,
-          confirmPassword: z.string(),
           businessName: requiresBusinessName
             ? z.string().trim().min(1, t('businessNameRequired')).max(200, t('businessNameTooLong'))
             : z.string().trim().max(200, t('businessNameTooLong')).optional(),
@@ -67,26 +95,22 @@ export function SetPasswordForm({
             .min(1, t('yourNameRequired'))
             .max(120, t('yourNameTooLong')),
         })
-        .refine((data) => requiresExistingPassword || data.password === data.confirmPassword, {
-          message: t('passwordsMismatch'),
-          path: ['confirmPassword'],
+        .safeParse({
+          password: formData.get('password'),
+          businessName: formData.get('businessName') ?? undefined,
+          displayName: formData.get('displayName'),
         })
 
-      const legal = readLegalFields(formData)
-      if (!legal.legalAccepted) return { error: tLegal('required') }
-
-      const password = formData.get('password')
-      const parsed = passwordSchema.safeParse({
-        password,
-        // No confirmation field is rendered for an existing password — nothing to mismatch.
-        confirmPassword: requiresExistingPassword ? password : formData.get('confirmPassword'),
-        businessName: formData.get('businessName') ?? undefined,
-        displayName: formData.get('displayName'),
-      })
-
+      const found: FieldErrors = {}
       if (!parsed.success) {
-        return { error: parsed.error.issues[0]?.message ?? t('genericError') }
+        for (const issue of parsed.error.issues) {
+          const field = issue.path[0] as FieldName
+          if (found[field] === undefined) found[field] = issue.message
+        }
       }
+      if (!legal.legalAccepted) found.legal = tLegal('required')
+      setErrors(found)
+      if (!parsed.success || found.legal !== undefined) return { error: null }
 
       const result = await acceptInviteAction(token, {
         ...parsed.data,
@@ -96,109 +120,134 @@ export function SetPasswordForm({
       if (!result.ok) {
         return { error: result.detail ?? t(result.errorKey), loginHint: result.loginHint }
       }
+
+      setSucceeded(true)
+      await new Promise((resolve) => setTimeout(resolve, SUCCESS_HOLD_MS))
+      // The person left during the hold: do not redirect them back.
+      if (!mounted.current) return { error: null }
       onAcceptSuccess(result.redirectTo)
       return { error: null }
     },
     INITIAL_STATE,
   )
 
-  // Follows the input's own reset: React clears the field once the action resolves, and a
-  // meter still describing the wiped value would be describing nothing on screen.
-  useEffect(() => {
-    setPassword('')
-  }, [state])
-
   return (
     <form action={formAction} className="auth-form" noValidate>
-      <label className="field">
-        <span className="field__label">{t('yourNameLabel')}</span>
-        <input
-          className="input"
+      {state.error ? (
+        <AuthBanner>
+          <span>{state.error}</span>
+          {state.loginHint ? (
+            <span className="auth-alert__actions">
+              <Link href="/login" className="auth-alert__link">
+                {t('goToLogin')}
+              </Link>
+            </span>
+          ) : null}
+        </AuthBanner>
+      ) : null}
+
+      <input
+        type="text"
+        name="username"
+        autoComplete="username"
+        value={email}
+        readOnly
+        tabIndex={-1}
+        aria-hidden="true"
+        className="auth-sr-only"
+      />
+
+      <div className="field">
+        <FloatingInput
+          id="accept-displayName"
+          label={t('yourNameLabel')}
+          icon={<UserRound size={18} strokeWidth={2} />}
           type="text"
           name="displayName"
           autoComplete="name"
-          value={displayName}
-          onChange={(event) => setDisplayName(event.target.value)}
+          autoFocus
           required
           disabled={isPending}
-          aria-invalid={state.error ? true : undefined}
+          value={displayName}
+          onChange={(event) => {
+            setDisplayName(event.target.value)
+            clearError('displayName')
+          }}
+          aria-invalid={errors.displayName ? true : undefined}
+          aria-describedby={errors.displayName ? 'accept-displayName-error' : undefined}
         />
-      </label>
+        {errors.displayName ? (
+          <FieldError id="accept-displayName-error">{errors.displayName}</FieldError>
+        ) : null}
+      </div>
 
       {requiresBusinessName ? (
-        <label className="field">
-          <span className="field__label">{t('businessNameLabel')}</span>
-          <input
-            className="input"
+        <div className="field">
+          <FloatingInput
+            id="accept-businessName"
+            label={t('businessNameLabel')}
+            icon={<Building2 size={18} strokeWidth={2} />}
             type="text"
             name="businessName"
+            autoComplete="organization"
+            required
+            disabled={isPending}
             value={businessName}
-            onChange={(event) => setBusinessName(event.target.value)}
-            required
-            disabled={isPending}
-            aria-invalid={state.error ? true : undefined}
+            onChange={(event) => {
+              setBusinessName(event.target.value)
+              clearError('businessName')
+            }}
+            aria-invalid={errors.businessName ? true : undefined}
+            aria-describedby={errors.businessName ? 'accept-businessName-error' : undefined}
           />
-        </label>
-      ) : null}
-
-      <label className="field">
-        <span className="field__label">
-          {requiresExistingPassword ? t('existingPasswordLabel') : t('passwordLabel')}
-        </span>
-        <input
-          className="input"
-          type="password"
-          name="password"
-          placeholder="••••••••"
-          autoComplete={requiresExistingPassword ? 'current-password' : 'new-password'}
-          required
-          disabled={isPending}
-          aria-invalid={state.error ? true : undefined}
-          onChange={(event) => setPassword(event.target.value)}
-          aria-describedby={requiresExistingPassword ? undefined : 'accept-password-hint'}
-        />
-        {requiresExistingPassword ? null : (
-          <>
-            <p id="accept-password-hint" className="field__hint">
-              {tPassword('hint', { min: PASSWORD_MIN })}
-            </p>
-            <PasswordStrengthMeter password={password} />
-          </>
-        )}
-      </label>
-
-      {requiresExistingPassword ? null : (
-        <label className="field">
-          <span className="field__label">{t('confirmPasswordLabel')}</span>
-          <input
-            className="input"
-            type="password"
-            name="confirmPassword"
-            placeholder="••••••••"
-            autoComplete="new-password"
-            required
-            disabled={isPending}
-            aria-invalid={state.error ? true : undefined}
-          />
-        </label>
-      )}
-
-      <LegalConsent versions={versions} disabled={isPending} />
-
-      {state.error ? (
-        <p className="auth-alert" role="alert">
-          {state.error}
-          {state.loginHint ? (
-            <>
-              {' '}
-              <Link href="/login">{t('goToLogin')}</Link>
-            </>
+          {errors.businessName ? (
+            <FieldError id="accept-businessName-error">{errors.businessName}</FieldError>
           ) : null}
-        </p>
+        </div>
       ) : null}
 
-      <button type="submit" className="btn btn--primary btn--block" disabled={isPending}>
-        {isPending ? t('submitting') : t('submit')}
+      <PasswordField
+        id="accept-password"
+        name="password"
+        label={requiresExistingPassword ? t('existingPasswordLabel') : t('passwordLabel')}
+        autoComplete={requiresExistingPassword ? 'current-password' : 'new-password'}
+        disabled={isPending}
+        value={password}
+        onChange={(value) => {
+          setPassword(value)
+          clearError('password')
+        }}
+        error={errors.password ?? null}
+        hint={requiresExistingPassword ? undefined : tPassword('hint', { min: PASSWORD_MIN })}
+        showStrength={!requiresExistingPassword}
+      />
+
+      <LegalConsent
+        versions={versions}
+        disabled={isPending}
+        invalid={Boolean(errors.legal)}
+        onCheckedChange={(checked) => {
+          if (checked) clearError('legal')
+        }}
+        describedBy={errors.legal ? 'accept-legal-error' : undefined}
+      />
+      {errors.legal ? <FieldError id="accept-legal-error">{errors.legal}</FieldError> : null}
+
+      <button
+        type="submit"
+        className={`btn btn--primary btn--block auth-submit${succeeded ? ' auth-submit--done' : ''}`}
+        disabled={isPending || succeeded}
+        aria-busy={isPending && !succeeded}
+      >
+        {succeeded ? (
+          <Check size={20} strokeWidth={2.6} aria-hidden="true" />
+        ) : isPending ? (
+          <Spinner size={16} />
+        ) : null}
+        {succeeded ? t('success') : isPending ? t('submitting') : t('submit')}
+        {isPending || succeeded ? null : (
+          <ArrowRight size={16} strokeWidth={2.25} aria-hidden="true" />
+        )}
       </button>
     </form>
   )

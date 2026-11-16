@@ -15,14 +15,19 @@ export async function fetchLegalVersions(): Promise<LegalVersions | null> {
   }
 }
 
+const STATUS_TIMEOUT_MS = 4000
+
 /**
  * Null on any failure. The gate fails open on purpose: a transient API error must not lock
  * every signed-in operator out of the dashboard, and acceptance is still enforced where the
- * account is created.
+ * account is created. The timeout keeps a stalled API from freezing every page render, since
+ * this runs in the dashboard layout and on the accept-terms page.
  */
 export async function fetchLegalStatus(): Promise<LegalStatus | null> {
   try {
-    return await apiFetch<LegalStatus>('/legal/status')
+    return await apiFetch<LegalStatus>('/legal/status', {
+      signal: AbortSignal.timeout(STATUS_TIMEOUT_MS),
+    })
   } catch {
     return null
   }

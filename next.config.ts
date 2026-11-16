@@ -11,6 +11,11 @@ const isProd = process.env.NODE_ENV === 'production'
 // 'unsafe-inline'/'unsafe-eval' (dev only) cover Next's hydration bootstrap;
 // 'wasm-unsafe-eval' lets the Maps vector renderer compile its WASM in prod.
 // frame-ancestors 'none' blocks clickjacking.
+// frame-src admits only the brand site that serves the Terms and Privacy pages, so the
+// in-app legal viewer can embed them; everything else stays blocked by default-src.
+const legalOrigin = new URL(process.env['NEXT_PUBLIC_LEGAL_BASE_URL'] ?? 'https://sparkparking.gr')
+  .origin
+
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' https://maps.googleapis.com ${isProd ? "'wasm-unsafe-eval'" : "'unsafe-eval'"}`,
@@ -18,6 +23,7 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' https://fonts.gstatic.com",
   "connect-src 'self' https://maps.googleapis.com https://maps.gstatic.com https://places.googleapis.com",
+  `frame-src ${legalOrigin}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

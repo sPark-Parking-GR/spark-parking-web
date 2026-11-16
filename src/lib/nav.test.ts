@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { hasPlatformPermission } from '@spark/types'
-import { navForAdmin, navForOperator, navForPlatformAdmin } from './nav'
+import { groupNavItems, navForAdmin, navForOperator, navForPlatformAdmin, tabItemsFor } from './nav'
 
 const MOBILE_HREF = '/admin/mobile-users'
 
@@ -67,5 +67,57 @@ describe('ingestion navigation', () => {
       expect(navForOperator(role, true).some((item) => item.href === HREF)).toBe(false)
       expect(navForAdmin(role).some((item) => item.href === HREF)).toBe(false)
     }
+  })
+})
+
+describe('sidebar grouping', () => {
+  it('lists every platform admin route under the specified groups, in order', () => {
+    const groups = groupNavItems(navForPlatformAdmin('super_admin'))
+    expect(groups.map((group) => [group.id, group.items.map((item) => item.icon)])).toEqual([
+      ['operations', ['overview', 'analytics', 'bookings', 'scan']],
+      ['network', ['operatorDirectory', 'facilities', 'tariffs', 'operatorPlans', 'driverPlans']],
+      ['review', ['onboarding', 'approvals', 'ingestion']],
+      ['accounts', ['users', 'mobileUsers', 'admins']],
+      ['system', ['audit', 'trash', 'settings']],
+    ])
+  })
+
+  it('never adds or drops a route when grouping', () => {
+    for (const items of [
+      navForPlatformAdmin('platform_admin'),
+      navForOperator('operator_admin', true),
+      navForOperator('operator_staff', false),
+    ]) {
+      const grouped = groupNavItems(items).flatMap((group) => group.items.map((i) => i.href))
+      expect([...grouped].sort()).toEqual(items.map((item) => item.href).sort())
+    }
+  })
+
+  it('groups an operator admin under Operations, Manage, Accounts and System', () => {
+    const groups = groupNavItems(navForOperator('operator_admin', true))
+    expect(groups.map((group) => group.id)).toEqual(['operations', 'manage', 'accounts', 'system'])
+  })
+
+  it('omits groups the viewer has no routes in', () => {
+    const groups = groupNavItems(navForOperator('operator_staff', false))
+    expect(groups.map((group) => group.id)).toEqual(['operations'])
+  })
+})
+
+describe('phone tab bar items', () => {
+  it('offers Home, Bookings, Scan and Analytics to the platform tier, in that order', () => {
+    const hrefs = tabItemsFor(navForPlatformAdmin('platform_admin')).map((item) => item.href)
+    expect(hrefs).toEqual(['/dashboard', '/admin/bookings', '/dashboard/scan', '/admin/analytics'])
+  })
+
+  it('only offers what an operator can reach', () => {
+    expect(tabItemsFor(navForOperator('operator_admin', true)).map((i) => i.icon)).toEqual([
+      'overview',
+      'bookings',
+      'scan',
+    ])
+    expect(tabItemsFor(navForOperator('operator_admin', false)).map((i) => i.icon)).toEqual([
+      'overview',
+    ])
   })
 })
