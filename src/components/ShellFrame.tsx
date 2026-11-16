@@ -119,7 +119,15 @@ export function ShellFrame({ children }: { children: ReactNode }) {
     const sidebar = frame?.querySelector<HTMLElement>(`#${SIDEBAR_ID}`)
     const opener = openerRef.current
 
-    main?.setAttribute('inert', '')
+    // On a phone the menu hangs from the header, whose button is the toggle, so only the page
+    // below it goes inert; elsewhere the whole column does.
+    const inertTargets =
+      mode === 'narrow'
+        ? Array.from(main?.querySelectorAll('.dashboard-scroll, .ds-tabbar') ?? [])
+        : main
+          ? [main]
+          : []
+    for (const el of inertTargets) el.setAttribute('inert', '')
     const target =
       sidebar?.querySelector<HTMLElement>('[aria-current="page"]') ??
       sidebar?.querySelector<HTMLElement>('a[href]') ??
@@ -135,12 +143,12 @@ export function ShellFrame({ children }: { children: ReactNode }) {
     for (const query of queries) query.addEventListener('change', onBreakpoint)
 
     return () => {
-      main?.removeAttribute('inert')
+      for (const el of inertTargets) el.removeAttribute('inert')
       document.removeEventListener('keydown', onKeyDown)
       for (const query of queries) query.removeEventListener('change', onBreakpoint)
       opener?.focus({ preventScroll: true })
     }
-  }, [open])
+  }, [open, mode])
 
   const rail = (mode === 'wide' && collapsed) || (mode === 'mid' && !open)
   const value = useMemo(
@@ -149,11 +157,13 @@ export function ShellFrame({ children }: { children: ReactNode }) {
   )
 
   const onTouchStart = (event: TouchEvent) => {
-    swipeStartX.current = open ? (event.touches[0]?.clientX ?? null) : null
+    const touch = event.touches[0]
+    swipeStartX.current = open && touch ? (mode === 'narrow' ? touch.clientY : touch.clientX) : null
   }
   const onTouchEnd = (event: TouchEvent) => {
     const start = swipeStartX.current
-    const end = event.changedTouches[0]?.clientX
+    const touch = event.changedTouches[0]
+    const end = touch ? (mode === 'narrow' ? touch.clientY : touch.clientX) : undefined
     swipeStartX.current = null
     if (start !== null && end !== undefined && start - end > SWIPE_CLOSE_PX) close()
   }

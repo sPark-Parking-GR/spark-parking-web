@@ -79,27 +79,60 @@
     background 300ms;
 }
 
+/* Phone: not a slide-in drawer but a floating dropdown that drops from the header, over the
+   content. --ds-header-h is the phone header height; the tab bar's clearance is kept below. */
 @media (max-width: 699px) {
+  .dashboard-shell {
+    --ds-header-h: 58px;
+  }
+
   .ds-sidebar {
-    transform: translateX(-102%);
+    top: calc(var(--ds-header-h) + 6px);
+    bottom: auto;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-height: calc(100% - var(--ds-header-h) - 6px - 96px - env(safe-area-inset-bottom));
+    border: 1px solid var(--d-line-hi);
+    border-radius: 18px;
+    transform: translateY(-10px) scale(0.98);
+    transform-origin: top center;
+    opacity: 0;
     visibility: hidden;
     transition:
-      transform 340ms var(--ds-ease),
-      visibility 0s linear 340ms,
-      box-shadow 340ms,
+      transform 260ms var(--ds-ease),
+      opacity 200ms,
+      visibility 0s linear 260ms,
+      box-shadow 260ms,
       background 300ms;
   }
 
   .dashboard-shell[data-open='true'] .ds-sidebar {
     transform: none;
+    opacity: 1;
     visibility: visible;
     transition-delay: 0s;
   }
+
+  .ds-sidebar .ds-sidebar__head {
+    display: none;
+  }
 }
 
-@media (max-width: 1099px) {
+@media (min-width: 700px) and (max-width: 1099px) {
   .dashboard-shell[data-open='true'] .ds-sidebar {
     box-shadow: 30px 0 60px -20px rgba(0, 0, 0, 0.6);
+  }
+}
+
+@media (max-width: 699px) {
+  .dashboard-shell[data-open='true'] .ds-sidebar {
+    box-shadow: 0 28px 60px -16px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Starts under the header so the menu button stays reachable as the toggle. */
+  .dashboard-shell .dashboard-scrim {
+    top: var(--ds-header-h);
   }
 }
 
@@ -178,12 +211,6 @@
   margin-left: auto;
   width: 36px;
   height: 36px;
-}
-
-@media (max-width: 699px) {
-  .ds-ibtn.ds-sidebar__close {
-    display: grid;
-  }
 }
 
 @media (min-width: 700px) and (max-width: 1099px) {
