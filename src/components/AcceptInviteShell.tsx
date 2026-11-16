@@ -76,7 +76,10 @@ export function AcceptInviteShell({
       ) : result.data.expired ? (
         // Signing in is the right move for anyone who already accepted an earlier link, so a
         // lapsed one offers it as well.
-        <AuthStatusPanel icon={<Clock size={28} strokeWidth={1.75} />} message={t('expiredMessage')}>
+        <AuthStatusPanel
+          icon={<Clock size={28} strokeWidth={1.75} />}
+          message={t('expiredMessage')}
+        >
           {toLogin}
         </AuthStatusPanel>
       ) : (

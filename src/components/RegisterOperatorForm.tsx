@@ -125,12 +125,7 @@ export function RegisterOperatorForm({
     async (_prev: RegisterState, formData: FormData): Promise<RegisterState> => {
       const legal = readLegalFields(formData)
       const found: FieldErrors = {}
-      for (const field of [
-        'displayName',
-        'email',
-        'businessName',
-        'password',
-      ] as const) {
+      for (const field of ['displayName', 'email', 'businessName', 'password'] as const) {
         const message = validate(field, values)
         if (message) found[field] = message
       }
@@ -180,9 +175,7 @@ export function RegisterOperatorForm({
   })
 
   const fieldError = (field: Field) =>
-    errors[field] ? (
-      <FieldError id={`register-${field}-error`}>{errors[field]}</FieldError>
-    ) : null
+    errors[field] ? <FieldError id={`register-${field}-error`}>{errors[field]}</FieldError> : null
 
   return (
     <form ref={formRef} action={formAction} className="auth-form" noValidate>

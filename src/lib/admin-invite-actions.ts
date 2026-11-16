@@ -59,9 +59,9 @@ const sendAdminInviteSchema = z.object({
 })
 
 const setPasswordSchema = z.object({
-    password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
-    legal: legalAcceptanceFields,
-  })
+  password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
+  legal: legalAcceptanceFields,
+})
 
 export async function sendAdminInviteAction(
   _prev: SendAdminInviteResult,

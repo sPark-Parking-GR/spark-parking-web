@@ -20,14 +20,13 @@ export type RegisterOperatorResult =
       loginHint?: boolean
     }
 
-const registerOperatorSchema = z
-  .object({
-    email: emailField('emailInvalid'),
-    password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
-    businessName: z.string().trim().min(2, 'businessNameRequired').max(200, 'businessNameTooLong'),
-    displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
-    legal: legalAcceptanceFields,
-  })
+const registerOperatorSchema = z.object({
+  email: emailField('emailInvalid'),
+  password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
+  businessName: z.string().trim().min(2, 'businessNameRequired').max(200, 'businessNameTooLong'),
+  displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
+  legal: legalAcceptanceFields,
+})
 
 // Lets the sign-up page know whether to render at all, so a closed platform shows an
 // explanation rather than a form that always fails on submit.

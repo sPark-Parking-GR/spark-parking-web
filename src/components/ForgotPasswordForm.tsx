@@ -99,9 +99,7 @@ export function ForgotPasswordForm({ onSent }: { onSent: (email: string) => void
           aria-invalid={emailError ? true : undefined}
           aria-describedby={emailError ? 'forgot-email-error' : undefined}
         />
-        {emailError ? (
-          <FieldError id="forgot-email-error">{emailError}</FieldError>
-        ) : null}
+        {emailError ? <FieldError id="forgot-email-error">{emailError}</FieldError> : null}
       </div>
 
       {state.error ? <AuthBanner tone="warn">{state.error}</AuthBanner> : null}

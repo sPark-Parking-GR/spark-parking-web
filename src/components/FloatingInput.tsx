@@ -27,10 +27,7 @@ export function FloatingInput({
   const trailing =
     trailingProp ??
     (valid === undefined ? null : (
-      <span
-        className={`float-field__ok${valid ? ' float-field__ok--on' : ''}`}
-        aria-hidden="true"
-      >
+      <span className={`float-field__ok${valid ? ' float-field__ok--on' : ''}`} aria-hidden="true">
         <Check size={18} strokeWidth={2.4} />
       </span>
     ))
