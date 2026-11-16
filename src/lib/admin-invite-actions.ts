@@ -42,12 +42,9 @@ export type RevokeAdminInviteResult =
 export type ValidateAdminInviteResult =
   { ok: true; data: AdminInviteTokenValidation } | { ok: false; status: number }
 
-export type AcceptAdminInviteResult = {
-  ok: false
-  errorKey: string
-  detail?: string
-  loginHint?: boolean
-}
+export type AcceptAdminInviteResult =
+  | { ok: true; redirectTo: string }
+  | { ok: false; errorKey: string; detail?: string; loginHint?: boolean }
 
 const sendAdminInviteSchema = z.object({
   email: emailField('validation.emailInvalid'),
@@ -61,15 +58,9 @@ const sendAdminInviteSchema = z.object({
     .transform((value) => (value ? value : undefined)),
 })
 
-const setPasswordSchema = z
-  .object({
+const setPasswordSchema = z.object({
     password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
-    confirmPassword: z.string(),
     legal: legalAcceptanceFields,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'passwordsMismatch',
-    path: ['confirmPassword'],
   })
 
 export async function sendAdminInviteAction(
@@ -190,7 +181,7 @@ export async function validateAdminInviteAction(token: string): Promise<Validate
 
 export async function acceptAdminInviteAction(
   token: string,
-  input: { password: string; confirmPassword: string; legal: Record<string, unknown> },
+  input: { password: string; legal: Record<string, unknown> },
 ): Promise<AcceptAdminInviteResult> {
   const parsed = setPasswordSchema.safeParse(input)
   if (!parsed.success) {
@@ -246,15 +237,18 @@ export async function acceptAdminInviteAction(
     // admin-invite.service.ts#accept): a token issued in the same instant as the role's
     // revocation-watermark bump risks landing in the same whole second and being dead on
     // arrival. The person just proved they know this password; they sign in with it.
-    redirect('/login?linked=success')
+    return { ok: true, redirectTo: '/login?linked=success' }
   }
 
-  await establishSessions({
-    accessToken: result.session.accessToken,
-    refreshToken: result.session.refreshToken,
-    expiresAt: result.session.expiresAt,
-    user: result.session.user,
-  })
+  await establishSessions(
+    {
+      accessToken: result.session.accessToken,
+      refreshToken: result.session.refreshToken,
+      expiresAt: result.session.expiresAt,
+      user: result.session.user,
+    },
+    { remember: false },
+  )
 
-  redirect('/dashboard')
+  return { ok: true, redirectTo: '/dashboard' }
 }

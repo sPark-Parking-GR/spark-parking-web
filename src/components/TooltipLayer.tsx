@@ -83,6 +83,10 @@ export function TooltipLayer() {
     if (tip.pos === 'right' && r.right + GAP + tw <= vw - MARGIN) {
       x = r.right + GAP
       y = r.top + r.height / 2 - th / 2
+    } else if (tip.pos === 'bottom') {
+      x = r.left + r.width / 2 - tw / 2
+      y = r.bottom + GAP
+      if (y + th > vh - MARGIN) y = r.top - th - GAP
     } else {
       x = r.left + r.width / 2 - tw / 2
       y = r.top - th - GAP

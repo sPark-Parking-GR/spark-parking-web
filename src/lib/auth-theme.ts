@@ -1,0 +1,81 @@
+// Colours for the auth screens (login, register, invite, forgot password). They sit outside the
+// shared @spark/ui palette because the login surface has its own darker ink and a glow, but they
+// follow the same light/dark switch: layout.tsx emits one set per theme next to the @spark/ui vars.
+const DARK = {
+  bg: '#03080e',
+  text: '#edf2f7',
+  muted: '#8a9bb0',
+  subtle: '#5e7085',
+  accent: '#5fbce7',
+  'card-bg': 'rgba(18, 26, 40, 0.7)',
+  'card-line': 'rgba(255, 255, 255, 0.08)',
+  'panel-line': 'rgba(255, 255, 255, 0.06)',
+  'field-bg': '#0c131e',
+  'field-line': 'rgba(255, 255, 255, 0.09)',
+  'field-line-hover': 'rgba(255, 255, 255, 0.28)',
+  'field-bg-hover': 'rgba(255, 255, 255, 0.08)',
+  'field-bg-focus': 'rgba(255, 255, 255, 0.12)',
+  'field-highlight': 'rgba(255, 255, 255, 0.12)',
+  'autofill-bg': 'rgba(16, 26, 36, 0.72)',
+  'glow-strong': 'rgba(50, 165, 220, 0.55)',
+  'glow-soft': 'rgba(50, 165, 220, 0.22)',
+  'glow-blend': 'screen',
+  'focus-outline': '#ffffff',
+  'logo-filter': 'none',
+  'error-bg': 'rgba(239, 68, 68, 0.14)',
+  'error-line': 'rgba(239, 68, 68, 0.32)',
+  'error-text': '#fecaca',
+  'error-field': '#fca5a5',
+  'error-focus': '#f87171',
+  'warn-bg': 'rgba(245, 158, 11, 0.14)',
+  'warn-line': 'rgba(245, 158, 11, 0.34)',
+  'warn-text': '#fde68a',
+  'ok-bg': 'rgba(34, 197, 94, 0.14)',
+  'ok-line': 'rgba(34, 197, 94, 0.32)',
+  'ok-text': '#bbf7d0',
+  'occ-free-bg': 'rgba(255, 255, 255, 0.04)',
+  'occ-free-line': 'rgba(255, 255, 255, 0.09)',
+} as const
+
+const LIGHT: Record<keyof typeof DARK, string> = {
+  bg: '#eef4f9',
+  text: '#0b1a26',
+  muted: '#556577',
+  subtle: '#6b7b8c',
+  accent: '#0a6a99',
+  'card-bg': 'rgba(255, 255, 255, 0.85)',
+  'card-line': 'rgba(2, 12, 20, 0.1)',
+  'panel-line': 'rgba(2, 12, 20, 0.08)',
+  'field-bg': '#ffffff',
+  'field-line': 'rgba(2, 12, 20, 0.16)',
+  'field-line-hover': 'rgba(2, 12, 20, 0.36)',
+  'field-bg-hover': '#f6fafd',
+  'field-bg-focus': '#ffffff',
+  'field-highlight': 'rgba(255, 255, 255, 0)',
+  'autofill-bg': '#ffffff',
+  'glow-strong': 'rgba(50, 165, 220, 0.3)',
+  'glow-soft': 'rgba(50, 165, 220, 0.12)',
+  'glow-blend': 'normal',
+  'focus-outline': '#0b1a26',
+  'logo-filter': 'brightness(0.18)',
+  'error-bg': 'rgba(239, 68, 68, 0.1)',
+  'error-line': 'rgba(239, 68, 68, 0.35)',
+  'error-text': '#991b1b',
+  'error-field': '#b91c1c',
+  'error-focus': '#dc2626',
+  'warn-bg': 'rgba(245, 158, 11, 0.14)',
+  'warn-line': 'rgba(245, 158, 11, 0.45)',
+  'warn-text': '#92400e',
+  'ok-bg': 'rgba(34, 197, 94, 0.12)',
+  'ok-line': 'rgba(34, 197, 94, 0.4)',
+  'ok-text': '#166534',
+  'occ-free-bg': 'rgba(2, 12, 20, 0.04)',
+  'occ-free-line': 'rgba(2, 12, 20, 0.1)',
+}
+
+export function authThemeVars(mode: 'dark' | 'light'): string {
+  const palette: Record<string, string> = mode === 'dark' ? DARK : LIGHT
+  return Object.entries(palette)
+    .map(([name, value]) => `--auth-${name}:${value};`)
+    .join('')
+}

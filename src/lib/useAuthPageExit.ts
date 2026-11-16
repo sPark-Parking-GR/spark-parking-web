@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePageTransitionOverlay } from '@/components/PageTransitionOverlay'
 
@@ -17,12 +17,22 @@ export function useAuthPageExit() {
   const router = useRouter()
   const { cover } = usePageTransitionOverlay()
   const [isExiting, setIsExiting] = useState(false)
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // If the person navigates away themselves while the exit is queued, the queued push must not
+  // override where they chose to go.
+  useEffect(
+    () => () => {
+      if (exitTimer.current !== null) clearTimeout(exitTimer.current)
+    },
+    [],
+  )
 
   const triggerExit = useCallback(
     (redirectTo: string) => {
       setIsExiting(true)
       cover()
-      setTimeout(() => {
+      exitTimer.current = setTimeout(() => {
         router.push(redirectTo)
       }, AUTH_EXIT_DURATION_MS)
     },

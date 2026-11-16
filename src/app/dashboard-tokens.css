@@ -1,0 +1,113 @@
+/* Dashboard-redesign tokens, scoped to the shell so auth and legacy pages keep theirs.
+   Values copied from the mockup's .app / .app[data-theme="light"] blocks. The theme still
+   comes from <html data-theme>; dark is the default. */
+.dashboard-shell {
+  --d-bg: #03080e;
+  --d-side: #050b13;
+  --d-card: #0a131e;
+  --d-card-2: #0e1926;
+  --d-line: #172333;
+  --d-line-hi: #24364b;
+  --d-hover: rgba(255, 255, 255, 0.04);
+  --d-fg: #edf2f7;
+  --d-muted: #8a9bb0;
+  --d-dim: #5e7085;
+  --d-pri: #1094d4;
+  --d-pri2: #32a5dc;
+  --d-pri-deep: #0d7fb6;
+  --d-pri-text: #5fbce7;
+  --d-pri-soft: rgba(50, 165, 220, 0.13);
+  --d-ring: 0 0 0 3px rgba(50, 165, 220, 0.28);
+  --d-glow: 0 10px 30px -10px rgba(50, 165, 220, 0.55);
+  --d-skel: #101b29;
+  --d-skel-hi: #18273a;
+  --d-good: #34c77b;
+  --d-good-bg: rgba(52, 199, 123, 0.12);
+  --d-warn: #f2b441;
+  --d-warn-bg: rgba(242, 180, 65, 0.12);
+  --d-bad: #f87171;
+  --d-bad-bg: rgba(239, 68, 68, 0.13);
+  --d-t-blue: #5fbce7;
+  --d-t-blue-bg: rgba(50, 165, 220, 0.14);
+  --d-t-violet: #a49bf5;
+  --d-t-violet-bg: rgba(139, 127, 240, 0.15);
+  --d-t-green: #4fd18d;
+  --d-t-green-bg: rgba(52, 199, 123, 0.13);
+  --d-t-amber: #f2b441;
+  --d-t-amber-bg: rgba(242, 180, 65, 0.13);
+  --d-t-cyan: #4fd1d9;
+  --d-t-cyan-bg: rgba(45, 200, 210, 0.12);
+  --d-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 20px 40px -28px rgba(0, 0, 0, 0.9);
+  --d-glow-op: 0.5;
+  --d-input: #0c131e;
+  --d-input-line: rgba(255, 255, 255, 0.09);
+  --d-input-hover: rgba(255, 255, 255, 0.24);
+  --d-r-lg: 18px;
+  --d-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --d-out: cubic-bezier(0.4, 0, 0.2, 1);
+  color-scheme: dark;
+}
+
+html[data-theme='light'] .dashboard-shell {
+  --d-bg: #f3f6fa;
+  --d-side: #ffffff;
+  --d-card: #ffffff;
+  --d-card-2: #f6f9fc;
+  --d-line: #e2e8f0;
+  --d-line-hi: #c9d5e3;
+  --d-hover: rgba(13, 30, 50, 0.045);
+  --d-fg: #0c1722;
+  --d-muted: #526377;
+  --d-dim: #7d8ea2;
+  --d-pri-text: #0b75a8;
+  --d-pri-soft: rgba(16, 148, 212, 0.1);
+  --d-ring: 0 0 0 3px rgba(16, 148, 212, 0.22);
+  --d-skel: #e7edf4;
+  --d-skel-hi: #f3f6fa;
+  --d-good: #16955a;
+  --d-good-bg: rgba(22, 149, 90, 0.1);
+  --d-warn: #b7791f;
+  --d-warn-bg: rgba(183, 121, 31, 0.11);
+  --d-bad: #d33b3b;
+  --d-bad-bg: rgba(211, 59, 59, 0.09);
+  --d-t-blue: #0b75a8;
+  --d-t-blue-bg: rgba(16, 148, 212, 0.1);
+  --d-t-violet: #6457d6;
+  --d-t-violet-bg: rgba(100, 87, 214, 0.1);
+  --d-t-green: #16955a;
+  --d-t-green-bg: rgba(22, 149, 90, 0.1);
+  --d-t-amber: #b7791f;
+  --d-t-amber-bg: rgba(183, 121, 31, 0.11);
+  --d-t-cyan: #0e8f97;
+  --d-t-cyan-bg: rgba(14, 143, 151, 0.1);
+  --d-shadow: 0 1px 2px rgba(16, 30, 50, 0.05), 0 12px 28px -20px rgba(16, 30, 50, 0.25);
+  --d-glow-op: 0.16;
+  --d-input: #ffffff;
+  --d-input-line: #d3dce7;
+  --d-input-hover: #a9b8c9;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) .dashboard-shell {
+    --d-bg: #f3f6fa;
+    --d-side: #ffffff;
+    --d-card: #ffffff;
+    --d-card-2: #f6f9fc;
+    --d-line: #e2e8f0;
+    --d-line-hi: #c9d5e3;
+    --d-hover: rgba(13, 30, 50, 0.045);
+    --d-fg: #0c1722;
+    --d-muted: #526377;
+    --d-dim: #7d8ea2;
+    --d-pri-text: #0b75a8;
+    --d-pri-soft: rgba(16, 148, 212, 0.1);
+    --d-skel: #e7edf4;
+    --d-skel-hi: #f3f6fa;
+    --d-shadow: 0 1px 2px rgba(16, 30, 50, 0.05), 0 12px 28px -20px rgba(16, 30, 50, 0.25);
+    --d-glow-op: 0.16;
+    --d-input: #ffffff;
+    --d-input-line: #d3dce7;
+    --d-input-hover: #a9b8c9;
+  }
+}

@@ -1,32 +1,26 @@
 'use client'
 
 import type { ReactElement } from 'react'
+import { Moon, Sun } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useTheme } from '@spark/ui'
 
 export function ThemeToggle(): ReactElement {
   const { mode, toggle } = useTheme()
   const t = useTranslations('shell')
+  const label = mode === 'dark' ? t('switchToLightMode') : t('switchToDarkMode')
+  const Icon = mode === 'dark' ? Sun : Moon
 
   return (
     <button
       type="button"
+      className="ds-ibtn"
       onClick={toggle}
-      aria-label={mode === 'dark' ? t('switchToLightMode') : t('switchToDarkMode')}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 34,
-        height: 34,
-        borderRadius: '999px',
-        border: '1px solid var(--line)',
-        background: 'var(--card2)',
-        color: 'var(--muted)',
-        cursor: 'pointer',
-      }}
+      aria-label={label}
+      data-tooltip={label}
+      data-tooltip-pos="bottom"
     >
-      {mode === 'dark' ? '☀' : '☾'}
+      <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
     </button>
   )
 }

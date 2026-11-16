@@ -1,16 +1,18 @@
 'use client'
 
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useActionState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
+import { ArrowRight, ChevronRight, FileText } from 'lucide-react'
 import type { LegalDocument, LegalVersions } from '@spark/types'
 import { acceptLegalAction } from '@/lib/legal-actions'
 import { signOutAction } from '@/lib/auth-actions'
-import { legalUrl } from '@/lib/legal-links'
 import { readLegalFields } from '@/lib/legal-schema'
+import { AuthShell } from './AuthShell'
+import { FieldError } from './FieldError'
 import { LegalConsent } from './LegalConsent'
-import { SparkMark } from './SparkMark'
+import { LegalDocLink } from './LegalDocLink'
+import { Spinner } from './Spinner'
 
 type State = { error: string | null }
 
@@ -27,7 +29,6 @@ export function AcceptTermsCard({
   required: LegalDocument[]
 }) {
   const t = useTranslations('legal')
-  const locale = useLocale()
   const router = useRouter()
 
   const [state, formAction, isPending] = useActionState(
@@ -57,56 +58,52 @@ export function AcceptTermsCard({
   )
 
   return (
-    <div className="auth-stack">
-      <div className="auth-brand">
-        <span className="auth-brand__lockup">
-          <SparkMark size={34} className="brand-lockup__mark" gradientId="spark-terms-grad" />
-          <Image
-            src="/sPark_title.png"
-            alt="sPark"
-            width={302}
-            height={72}
-            priority
-            className="auth-brand__title"
-          />
-        </span>
-      </div>
+    <AuthShell
+      titleId="accept-terms-title"
+      title={t('updatedTitle')}
+      subtitle={t('updatedMessage')}
+      tagline={t('tagline')}
+      heroTitle={t('heroTitle')}
+      heroSubtitle={t('heroSubtitle')}
+    >
+      <ul className="auth-tips auth-tips--links">
+        {required.map((document) => (
+          <li key={document}>
+            <LegalDocLink document={document} className="auth-doc-link">
+              <FileText size={16} aria-hidden="true" />
+              <span>{document === 'terms' ? t('termsName') : t('privacyName')}</span>
+              <ChevronRight size={16} aria-hidden="true" />
+            </LegalDocLink>
+          </li>
+        ))}
+      </ul>
 
-      <section className="auth-card" aria-labelledby="accept-terms-title">
-        <h1 id="accept-terms-title" className="h-heading auth-card__title">
-          {t('updatedTitle')}
-        </h1>
-        <p className="auth-card__context">{t('updatedMessage')}</p>
-        <ul className="legal-changes">
-          {required.map((document) => (
-            <li key={document}>
-              <a href={legalUrl(locale, document)} target="_blank" rel="noopener noreferrer">
-                {document === 'terms' ? t('termsName') : t('privacyName')}
-              </a>
-            </li>
-          ))}
-        </ul>
+      <form action={formAction} className="auth-form" noValidate>
+        <LegalConsent
+          versions={versions}
+          disabled={isPending}
+          invalid={Boolean(state.error)}
+          describedBy={state.error ? 'accept-terms-error' : undefined}
+        />
+        {state.error ? <FieldError id="accept-terms-error">{state.error}</FieldError> : null}
 
-        <form action={formAction} className="auth-form" noValidate>
-          <LegalConsent versions={versions} disabled={isPending} invalid={Boolean(state.error)} />
+        <button
+          type="submit"
+          className="btn btn--primary btn--block auth-submit"
+          disabled={isPending}
+          aria-busy={isPending}
+        >
+          {isPending ? <Spinner size={16} /> : null}
+          {isPending ? t('accepting') : t('acceptAndContinue')}
+          {isPending ? null : <ArrowRight size={16} strokeWidth={2.25} aria-hidden="true" />}
+        </button>
+      </form>
 
-          {state.error ? (
-            <p className="auth-alert" role="alert">
-              {state.error}
-            </p>
-          ) : null}
-
-          <button type="submit" className="btn btn--primary btn--block" disabled={isPending}>
-            {isPending ? t('accepting') : t('acceptAndContinue')}
-          </button>
-        </form>
-
-        <form action={signOutAction}>
-          <button type="submit" className="btn btn--ghost btn--block">
-            {t('signOutInstead')}
-          </button>
-        </form>
-      </section>
-    </div>
+      <form action={signOutAction}>
+        <button type="submit" className="auth-link-button auth-signout">
+          {t('signOutInstead')}
+        </button>
+      </form>
+    </AuthShell>
   )
 }

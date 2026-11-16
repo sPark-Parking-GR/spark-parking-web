@@ -1,9 +1,9 @@
 'use client'
 
-import { useId, useState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useEffect, useId, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import type { LegalVersions } from '@spark/types'
-import { legalUrl } from '@/lib/legal-links'
+import { LegalDocLink } from './LegalDocLink'
 
 /**
  * The consent checkbox for the Terms of Use and Privacy Policy. Never pre-ticked. The
@@ -14,44 +14,53 @@ export function LegalConsent({
   versions,
   disabled,
   invalid,
+  describedBy,
+  onCheckedChange,
 }: {
   versions: LegalVersions
   disabled?: boolean
   invalid?: boolean
+  describedBy?: string
+  onCheckedChange?: (checked: boolean) => void
 }) {
   const t = useTranslations('legal')
-  const locale = useLocale()
   const id = useId()
   // Controlled: React 19 resets uncontrolled fields when a form action resolves, which would
   // silently untick the box after any failed submit.
   const [checked, setChecked] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Controlled is not enough on its own: the form reset also clears the DOM checkbox (it has
+  // no `checked` attribute to fall back to), so the property is re-applied after each render.
+  useEffect(() => {
+    if (inputRef.current && inputRef.current.checked !== checked) {
+      inputRef.current.checked = checked
+    }
+  })
 
   return (
     <div className="field field--consent">
       <label className="consent" htmlFor={id}>
         <input
+          ref={inputRef}
           id={id}
           type="checkbox"
           name="legalAccepted"
           value="yes"
           checked={checked}
-          onChange={(event) => setChecked(event.target.checked)}
+          onChange={(event) => {
+            setChecked(event.target.checked)
+            onCheckedChange?.(event.target.checked)
+          }}
           required
           disabled={disabled}
           aria-invalid={invalid ? true : undefined}
+          aria-describedby={describedBy}
         />
         <span>
           {t.rich('consent', {
-            terms: (chunks) => (
-              <a href={legalUrl(locale, 'terms')} target="_blank" rel="noopener noreferrer">
-                {chunks}
-              </a>
-            ),
-            privacy: (chunks) => (
-              <a href={legalUrl(locale, 'privacy')} target="_blank" rel="noopener noreferrer">
-                {chunks}
-              </a>
-            ),
+            terms: (chunks) => <LegalDocLink document="terms">{chunks}</LegalDocLink>,
+            privacy: (chunks) => <LegalDocLink document="privacy">{chunks}</LegalDocLink>,
           })}
         </span>
       </label>
@@ -63,17 +72,12 @@ export function LegalConsent({
 
 export function LegalFooterLinks() {
   const t = useTranslations('legal')
-  const locale = useLocale()
 
   return (
     <nav className="legal-links" aria-label={t('linksLabel')}>
-      <a href={legalUrl(locale, 'terms')} target="_blank" rel="noopener noreferrer">
-        {t('termsName')}
-      </a>
+      <LegalDocLink document="terms">{t('termsName')}</LegalDocLink>
       <span aria-hidden="true">·</span>
-      <a href={legalUrl(locale, 'privacy')} target="_blank" rel="noopener noreferrer">
-        {t('privacyName')}
-      </a>
+      <LegalDocLink document="privacy">{t('privacyName')}</LegalDocLink>
     </nav>
   )
 }

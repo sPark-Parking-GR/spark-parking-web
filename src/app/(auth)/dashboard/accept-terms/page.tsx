@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { AcceptTermsCard } from '@/components/AcceptTermsCard'
+import { PageTransitionReveal } from '@/components/PageTransitionReveal'
 import { fetchLegalStatus } from '@/lib/legal-api'
 import { getActiveSession, isAuthenticated } from '@/lib/session'
 
@@ -10,5 +11,10 @@ export default async function AcceptTermsPage() {
   const status = await fetchLegalStatus()
   if (!status || status.required.length === 0) redirect('/dashboard')
 
-  return <AcceptTermsCard versions={status.current} required={status.required} />
+  return (
+    <>
+      <PageTransitionReveal />
+      <AcceptTermsCard versions={status.current} required={status.required} />
+    </>
+  )
 }
