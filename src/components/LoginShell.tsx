@@ -1,85 +1,64 @@
 'use client'
 
-import Image from 'next/image'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 
-import { LegalFooterLinks } from './LegalConsent'
+import { AuthNote, AuthShell } from './AuthShell'
 import { LoginForm } from './LoginForm'
-import { SparkMark } from './SparkMark'
 import { useAuthPageExit } from '@/lib/useAuthPageExit'
+
+type LoginError = 'forbidden' | 'restricted' | 'expired'
 
 interface LoginShellProps {
   from?: string
-  error?: 'forbidden' | 'restricted'
+  error?: LoginError
   reset?: 'success'
   linked?: 'success'
 }
 
-/**
- * Full login-page shell as a client component so that both the auth-brand and
- * the auth-card can respond to the same `isExiting` state.
- *
- * Entrance – brand slides down from above, card fades/scales in 120ms behind it.
- * Exit     – both push forward (zoom + blur) together, since this only fires on a
- *            successful sign-in — not a reverse of the entrance, which would read
- *            as retreating instead of moving through to the dashboard.
- */
+type Notice = { tone: 'ok' | 'warn'; messageKey: string }
+type NoticePhase = 'shown' | 'leaving' | 'gone'
+
+function noticeFor({ error, reset, linked }: Omit<LoginShellProps, 'from'>): Notice | null {
+  if (error === 'forbidden') return { tone: 'warn', messageKey: 'forbiddenMessage' }
+  if (error === 'restricted') return { tone: 'warn', messageKey: 'restrictedMessage' }
+  if (error === 'expired') return { tone: 'warn', messageKey: 'sessionExpired' }
+  if (reset === 'success') return { tone: 'ok', messageKey: 'resetSuccess' }
+  if (linked === 'success') return { tone: 'ok', messageKey: 'accountLinked' }
+  return null
+}
+
 export function LoginShell({ from, error, reset, linked }: LoginShellProps) {
   const t = useTranslations('login')
   const { isExiting, triggerExit } = useAuthPageExit()
+  const notice = noticeFor({ error, reset, linked })
+  const [noticePhase, setNoticePhase] = useState<NoticePhase>('shown')
 
   return (
-    <div className="auth-stack">
-      {/* Brand – entrance: slideDown, exit: fadeOutForward */}
-      <div className={isExiting ? 'auth-brand auth-brand--exiting' : 'auth-brand'}>
-        <span className="auth-brand__lockup">
-          <SparkMark size={34} className="brand-lockup__mark" gradientId="spark-login-grad" />
-          <Image
-            src="/sPark_title.png"
-            alt="sPark"
-            width={302}
-            height={72}
-            priority
-            className="auth-brand__title"
+    <AuthShell
+      titleId="login-title"
+      title={t('title')}
+      tagline={t('tagline')}
+      heroTitle={t('heroTitle')}
+      heroSubtitle={t('heroSubtitle')}
+      isExiting={isExiting}
+      notice={
+        notice && noticePhase !== 'gone' ? (
+          <AuthNote
+            tone={notice.tone}
+            title={t(notice.messageKey)}
+            hint={t(`${notice.messageKey}Hint`)}
+            leaving={noticePhase === 'leaving'}
+            onGone={() => setNoticePhase('gone')}
           />
-        </span>
-        <p className="auth-brand__tagline">{t('tagline')}</p>
-      </div>
-
-      {/* Card – entrance: fadeInScale, exit: fadeOutForward */}
-      <section
-        className={isExiting ? 'auth-card auth-card--exiting' : 'auth-card'}
-        aria-labelledby="login-title"
-      >
-        <h1 id="login-title" className="h-heading auth-card__title">
-          {t('title')}
-        </h1>
-
-        {error === 'forbidden' ? (
-          <p className="auth-alert" role="alert">
-            {t('forbiddenMessage')}
-          </p>
-        ) : null}
-        {error === 'restricted' ? (
-          <p className="auth-alert" role="alert">
-            {t('restrictedMessage')}
-          </p>
-        ) : null}
-        {reset === 'success' ? (
-          <p className="auth-card__context" role="status">
-            {t('resetSuccess')}
-          </p>
-        ) : null}
-        {linked === 'success' ? (
-          <p className="auth-card__context" role="status">
-            {t('accountLinked')}
-          </p>
-        ) : null}
-
-        <LoginForm from={from} onLoginSuccess={triggerExit} />
-      </section>
-
-      <LegalFooterLinks />
-    </div>
+        ) : null
+      }
+    >
+      <LoginForm
+        from={from}
+        onLoginSuccess={triggerExit}
+        onEmailActivity={() => setNoticePhase((phase) => (phase === 'shown' ? 'leaving' : phase))}
+      />
+    </AuthShell>
   )
 }

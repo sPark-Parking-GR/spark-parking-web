@@ -3,7 +3,7 @@ import { LoginShell } from '@/components/LoginShell'
 interface LoginPageProps {
   searchParams: Promise<{
     from?: string
-    error?: 'forbidden' | 'restricted'
+    error?: 'forbidden' | 'restricted' | 'expired'
     reset?: 'success'
     linked?: 'success'
   }>

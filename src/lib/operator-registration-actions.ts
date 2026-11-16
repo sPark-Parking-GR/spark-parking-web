@@ -24,14 +24,9 @@ const registerOperatorSchema = z
   .object({
     email: emailField('emailInvalid'),
     password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
-    confirmPassword: z.string(),
     businessName: z.string().trim().min(2, 'businessNameRequired').max(200, 'businessNameTooLong'),
     displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
     legal: legalAcceptanceFields,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'passwordsMismatch',
-    path: ['confirmPassword'],
   })
 
 // Lets the sign-up page know whether to render at all, so a closed platform shows an
@@ -51,7 +46,6 @@ export async function checkRegisterAvailabilityAction(): Promise<RegisterAvailab
 export async function registerOperatorAction(input: {
   email: string
   password: string
-  confirmPassword: string
   businessName: string
   displayName: string
   legal: Record<string, unknown>
@@ -109,12 +103,15 @@ export async function registerOperatorAction(input: {
     return { ok: true, redirectTo: '/login?linked=success' }
   }
 
-  await establishSessions({
-    accessToken: result.session.accessToken,
-    refreshToken: result.session.refreshToken,
-    expiresAt: result.session.expiresAt,
-    user: result.session.user,
-  })
+  await establishSessions(
+    {
+      accessToken: result.session.accessToken,
+      refreshToken: result.session.refreshToken,
+      expiresAt: result.session.expiresAt,
+      user: result.session.user,
+    },
+    { remember: false },
+  )
 
   return { ok: true, redirectTo: '/dashboard' }
 }
