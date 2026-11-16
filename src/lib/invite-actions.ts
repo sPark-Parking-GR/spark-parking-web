@@ -97,16 +97,16 @@ const sendInviteSchema = z.object({
 })
 
 const setPasswordSchema = z.object({
-    password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
-    businessName: z
-      .string()
-      .trim()
-      .min(1, 'businessNameRequired')
-      .max(200, 'businessNameTooLong')
-      .optional(),
-    displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
-    legal: legalAcceptanceFields,
-  })
+  password: z.string().min(PASSWORD_MIN, 'passwordTooShort').max(PASSWORD_MAX, 'passwordTooLong'),
+  businessName: z
+    .string()
+    .trim()
+    .min(1, 'businessNameRequired')
+    .max(200, 'businessNameTooLong')
+    .optional(),
+  displayName: z.string().trim().min(1, 'yourNameRequired').max(120, 'yourNameTooLong'),
+  legal: legalAcceptanceFields,
+})
 
 export async function sendInviteAction(
   _prev: SendInviteResult,

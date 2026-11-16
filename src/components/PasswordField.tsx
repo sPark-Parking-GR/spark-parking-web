@@ -100,9 +100,7 @@ export function PasswordField({
           </button>
         }
       />
-      {error ? (
-        <FieldError id={errorId}>{error}</FieldError>
-      ) : null}
+      {error ? <FieldError id={errorId}>{error}</FieldError> : null}
       {showStrength ? <PasswordLengthMeter password={value} /> : null}
       {hint ? (
         <p id={hintId} className="field__hint">

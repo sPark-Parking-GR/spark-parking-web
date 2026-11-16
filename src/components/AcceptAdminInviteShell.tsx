@@ -59,7 +59,10 @@ export function AcceptAdminInviteShell({
           {toLogin}
         </AuthStatusPanel>
       ) : result.data.expired ? (
-        <AuthStatusPanel icon={<Clock size={28} strokeWidth={1.75} />} message={t('expiredMessage')}>
+        <AuthStatusPanel
+          icon={<Clock size={28} strokeWidth={1.75} />}
+          message={t('expiredMessage')}
+        >
           {toLogin}
         </AuthStatusPanel>
       ) : (

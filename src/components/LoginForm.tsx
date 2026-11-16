@@ -324,9 +324,7 @@ export function LoginForm({
               aria-invalid={emailError ? true : undefined}
               aria-describedby={emailError ? emailErrorId : undefined}
             />
-            {emailError ? (
-              <FieldError id={emailErrorId}>{emailError}</FieldError>
-            ) : null}
+            {emailError ? <FieldError id={emailErrorId}>{emailError}</FieldError> : null}
           </div>
 
           <button
