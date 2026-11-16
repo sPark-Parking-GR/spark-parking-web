@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { DashboardShell } from '@/components/DashboardShell'
+import { PageTransitionReveal } from '@/components/PageTransitionReveal'
 import { isPlatformRole } from '@spark/types'
 import { getSession, isAuthenticated } from '@/lib/session'
 import { requireLegalAcceptance } from '@/lib/legal-gate'
@@ -21,7 +22,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const items = navForPlatformAdmin(session.user.role)
 
   return (
-    <DashboardShell items={items} user={session.user}>
+    <DashboardShell items={items} user={session.user} extras={<PageTransitionReveal />}>
       {children}
     </DashboardShell>
   )

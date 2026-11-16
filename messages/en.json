@@ -2635,7 +2635,9 @@
     "updatedMessage": "Please review and accept the updated documents to keep using sPark:",
     "acceptAndContinue": "Accept and continue",
     "accepting": "Saving…",
-    "signOutInstead": "Sign out"
+    "signOutInstead": "Sign out",
+    "openInNewTab": "Open in new tab",
+    "close": "Close"
   },
   "authShell": {
     "logoAlt": "sPark"

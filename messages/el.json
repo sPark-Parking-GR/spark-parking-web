@@ -2635,7 +2635,9 @@
     "updatedMessage": "Διάβασε και αποδέξου τα ενημερωμένα κείμενα για να συνεχίσεις να χρησιμοποιείς το sPark:",
     "acceptAndContinue": "Αποδοχή και συνέχεια",
     "accepting": "Αποθήκευση…",
-    "signOutInstead": "Αποσύνδεση"
+    "signOutInstead": "Αποσύνδεση",
+    "openInNewTab": "Άνοιγμα σε νέα καρτέλα",
+    "close": "Κλείσιμο"
   },
   "authShell": {
     "logoAlt": "sPark"

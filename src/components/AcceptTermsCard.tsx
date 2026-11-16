@@ -2,16 +2,16 @@
 
 import { useRouter } from 'next/navigation'
 import { useActionState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
-import { ArrowRight } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { ArrowRight, ChevronRight, FileText } from 'lucide-react'
 import type { LegalDocument, LegalVersions } from '@spark/types'
 import { acceptLegalAction } from '@/lib/legal-actions'
 import { signOutAction } from '@/lib/auth-actions'
-import { legalUrl } from '@/lib/legal-links'
 import { readLegalFields } from '@/lib/legal-schema'
 import { AuthShell } from './AuthShell'
 import { FieldError } from './FieldError'
 import { LegalConsent } from './LegalConsent'
+import { LegalDocLink } from './LegalDocLink'
 import { Spinner } from './Spinner'
 
 type State = { error: string | null }
@@ -29,7 +29,6 @@ export function AcceptTermsCard({
   required: LegalDocument[]
 }) {
   const t = useTranslations('legal')
-  const locale = useLocale()
   const router = useRouter()
 
   const [state, formAction, isPending] = useActionState(
@@ -70,9 +69,11 @@ export function AcceptTermsCard({
       <ul className="auth-tips auth-tips--links">
         {required.map((document) => (
           <li key={document}>
-            <a href={legalUrl(locale, document)} target="_blank" rel="noopener noreferrer">
-              {document === 'terms' ? t('termsName') : t('privacyName')}
-            </a>
+            <LegalDocLink document={document} className="auth-doc-link">
+              <FileText size={16} aria-hidden="true" />
+              <span>{document === 'terms' ? t('termsName') : t('privacyName')}</span>
+              <ChevronRight size={16} aria-hidden="true" />
+            </LegalDocLink>
           </li>
         ))}
       </ul>

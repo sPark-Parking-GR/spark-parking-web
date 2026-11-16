@@ -6416,16 +6416,46 @@ td.table-amount {
 
 .auth-tips--links {
   list-style: none;
-  padding-left: 14px;
+  padding: 6px;
+  gap: 2px;
+  margin-bottom: var(--space-md);
 }
 
-.auth-tips--links a {
+.auth-doc-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+  border-radius: calc(var(--radius-sm) - 2px);
   color: var(--auth-accent);
+  font-size: 14.5px;
+  text-decoration: none;
+  transition: background var(--dur) var(--ease);
+}
+
+.auth-doc-link span {
+  flex: 1;
+}
+
+.auth-doc-link svg:last-child {
+  color: var(--auth-subtle);
+}
+
+.auth-doc-link:hover,
+.auth-doc-link:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.auth-form .field--consent {
+  margin-bottom: var(--space-md);
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
 }
 
 .auth-link-button.auth-signout {
   display: block;
-  margin: 12px auto 0;
+  margin: var(--space-md) auto 0;
   padding: 6px 8px;
   text-decoration: none;
 }
@@ -6497,4 +6527,79 @@ a.btn.auth-submit {
   align-items: center;
   justify-content: center;
   text-decoration: none;
+}
+
+.legal-viewer {
+  width: min(920px, 94vw);
+  height: min(82vh, 780px);
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  background: #0b1219;
+  color: var(--auth-text, #edf2f7);
+  overflow: hidden;
+}
+
+.legal-viewer[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.legal-viewer::backdrop {
+  background: rgba(2, 8, 14, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.legal-viewer__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 12px 14px 12px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.legal-viewer__title {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.legal-viewer__external {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--auth-accent);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.legal-viewer__external:hover {
+  text-decoration: underline;
+}
+
+.legal-viewer__close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.legal-viewer__close:hover,
+.legal-viewer__close:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.legal-viewer__frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: #fff;
 }

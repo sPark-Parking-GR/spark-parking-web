@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import type { LegalVersions } from '@spark/types'
-import { legalUrl } from '@/lib/legal-links'
+import { LegalDocLink } from './LegalDocLink'
 
 /**
  * The consent checkbox for the Terms of Use and Privacy Policy. Never pre-ticked. The
@@ -24,7 +24,6 @@ export function LegalConsent({
   onCheckedChange?: (checked: boolean) => void
 }) {
   const t = useTranslations('legal')
-  const locale = useLocale()
   const id = useId()
   // Controlled: React 19 resets uncontrolled fields when a form action resolves, which would
   // silently untick the box after any failed submit.
@@ -60,16 +59,8 @@ export function LegalConsent({
         />
         <span>
           {t.rich('consent', {
-            terms: (chunks) => (
-              <a href={legalUrl(locale, 'terms')} target="_blank" rel="noopener noreferrer">
-                {chunks}
-              </a>
-            ),
-            privacy: (chunks) => (
-              <a href={legalUrl(locale, 'privacy')} target="_blank" rel="noopener noreferrer">
-                {chunks}
-              </a>
-            ),
+            terms: (chunks) => <LegalDocLink document="terms">{chunks}</LegalDocLink>,
+            privacy: (chunks) => <LegalDocLink document="privacy">{chunks}</LegalDocLink>,
           })}
         </span>
       </label>
@@ -81,17 +72,12 @@ export function LegalConsent({
 
 export function LegalFooterLinks() {
   const t = useTranslations('legal')
-  const locale = useLocale()
 
   return (
     <nav className="legal-links" aria-label={t('linksLabel')}>
-      <a href={legalUrl(locale, 'terms')} target="_blank" rel="noopener noreferrer">
-        {t('termsName')}
-      </a>
+      <LegalDocLink document="terms">{t('termsName')}</LegalDocLink>
       <span aria-hidden="true">·</span>
-      <a href={legalUrl(locale, 'privacy')} target="_blank" rel="noopener noreferrer">
-        {t('privacyName')}
-      </a>
+      <LegalDocLink document="privacy">{t('privacyName')}</LegalDocLink>
     </nav>
   )
 }
