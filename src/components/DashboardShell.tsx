@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { getTranslations } from 'next-intl/server'
 import { BottomTabBar } from '@/components/BottomTabBar'
 import { DashboardLoadingProvider } from '@/components/DashboardLoading'
 import { NumberWheelGuard } from '@/components/NumberWheelGuard'
@@ -9,6 +8,7 @@ import { TooltipLayer } from '@/components/TooltipLayer'
 import { TopBar } from '@/components/TopBar'
 import { tabItemsFor, type NavItem } from '@/lib/nav'
 import { initialsOf } from '@/lib/shell-account'
+import { roleLabelFor } from '@/lib/shell-account-server'
 import { isPlatformRole } from '@spark/types'
 import type { AuthUser } from '@spark/types'
 
@@ -20,20 +20,11 @@ interface DashboardShellProps {
 }
 
 export async function DashboardShell({ items, user, extras, children }: DashboardShellProps) {
-  const t = await getTranslations('shell')
   const name = user.displayName ?? user.email
-  const roleLabels: Record<AuthUser['role'], string> = {
-    guest: t('roleGuest'),
-    user: t('roleUser'),
-    operator_staff: t('roleOperatorStaff'),
-    operator_admin: t('roleOperatorAdmin'),
-    platform_admin: t('rolePlatformAdmin'),
-    super_admin: t('roleSuperAdmin'),
-  }
   const account = {
     name,
     email: user.email,
-    roleLabel: roleLabels[user.role],
+    roleLabel: await roleLabelFor(user.role),
     initials: initialsOf(name),
   }
   const isPlatform = isPlatformRole(user.role)

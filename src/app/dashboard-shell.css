@@ -668,6 +668,13 @@
   background: var(--d-hover);
 }
 
+/* On the profile page the block says where you are: the avatar gets a 2px brand ring. */
+.ds-who[aria-current='page'] .ds-avatar {
+  box-shadow:
+    0 0 0 2px var(--d-bg),
+    0 0 0 4px var(--d-pri2);
+}
+
 .ds-who__text {
   text-align: right;
 }
