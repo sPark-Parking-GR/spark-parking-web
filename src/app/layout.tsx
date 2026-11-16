@@ -9,6 +9,9 @@ import { PageTransitionOverlayProvider } from '../components/PageTransitionOverl
 import { resolveLocale } from '../i18n/locales'
 import { authThemeVars } from '../lib/auth-theme'
 import './globals.css'
+import './dashboard-tokens.css'
+import './dashboard-shell.css'
+import './dashboard-overview.css'
 
 const inter = Inter({
   subsets: ['latin', 'greek'],

@@ -17,6 +17,14 @@
     "approvals": "Approvals",
     "users": "Users",
     "admins": "Admins",
+    "groups": {
+      "operations": "Operations",
+      "network": "Network",
+      "manage": "Manage",
+      "review": "Review",
+      "accounts": "Accounts",
+      "system": "System"
+    },
     "descriptions": {
       "overview": "Snapshot of your parking operations",
       "facilities": "Manage your parking facilities and locations",
@@ -53,6 +61,16 @@
       "12m": "12 months"
     }
   },
+  "dashboardStates": {
+    "errorTitle": "Couldn’t load this data",
+    "errorMessage": "Check your connection and try again. Other parts of the dashboard still work.",
+    "retry": "Try again",
+    "updating": "Updating…",
+    "updated": "Updated just now",
+    "refresh": "Refresh",
+    "loadingAnnounce": "Loading dashboard",
+    "loadedAnnounce": "Dashboard updated"
+  },
   "shell": {
     "brandTag": "Admin",
     "primaryNav": "Primary",
@@ -79,7 +97,15 @@
     "accountMenu": "Account menu",
     "profile": "Profile",
     "language": "Language",
-    "theme": "Theme"
+    "theme": "Theme",
+    "signOut": "Sign out",
+    "collapseSidebar": "Collapse",
+    "expandSidebar": "Expand sidebar",
+    "searchLabel": "Search",
+    "soon": "Soon",
+    "tabHome": "Home",
+    "tabMenu": "Menu",
+    "quickNav": "Quick navigation"
   },
   "documentTitle": {
     "login": "Sign in",
@@ -510,6 +536,8 @@
     }
   },
   "overview": {
+    "kpiRegion": "Key figures",
+    "kpiError": "Couldn’t load",
     "title": "Overview",
     "description": "A snapshot of your parking operations.",
     "stats": {
@@ -539,22 +567,50 @@
       "title": "Revenue",
       "subtitle": "Confirmed revenue trend for the selected period",
       "chartLabel": "Revenue by period",
-      "emptyTitle": "No revenue data yet",
-      "emptyMessage": "Revenue charts arrive once booking data is available."
+      "weekOf": "Week of {date}",
+      "viewAs": "View as",
+      "asChart": "Chart",
+      "asTable": "Table",
+      "date": "Date",
+      "emptyTitle": "No confirmed revenue yet",
+      "emptyMessage": "Revenue for this period will show here once bookings are paid."
     },
     "occupancyPanel": {
       "title": "Occupancy",
       "subtitle": "How much of your bookable capacity was used",
       "emptyTitle": "No occupancy data yet",
       "emptyMessage": "Occupancy appears once facilities have online capacity and bookings.",
-      "detail": "{booked} of {capacity} booked"
+      "detail": "{booked}h of {capacity}h booked",
+      "ofCapacity": "of capacity",
+      "legendBooked": "Booked",
+      "legendAvailable": "Available"
     },
     "recentBookings": {
       "title": "Recent bookings",
       "subtitle": "Latest reservations across all facilities",
-      "viewAll": "View all →",
+      "viewAll": "View all",
       "emptyTitle": "No recent bookings",
-      "emptyMessage": "Recent activity will appear here once bookings start coming in."
+      "emptyMessage": "Recent activity will appear here once bookings start coming in.",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "columns": {
+        "booking": "Booking",
+        "facility": "Facility",
+        "vehicle": "Vehicle",
+        "when": "When",
+        "amount": "Amount",
+        "status": "Status"
+      }
+    },
+    "status": {
+      "active": "Active",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "pending": "Pending payment",
+      "refundPending": "Refund pending",
+      "refunded": "Refunded"
     },
     "errors": {
       "mixedCurrency": "This period mixes multiple currencies and can't be combined. Narrow the date range.",

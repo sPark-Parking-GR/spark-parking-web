@@ -11,13 +11,14 @@ function SubmitButton() {
   return (
     <button
       type="submit"
-      className="btn btn--secondary signout-btn"
+      className="ds-ibtn ds-signout"
       disabled={pending}
-      data-tooltip={t('signOutTooltip')}
-      aria-label={t('exit')}
+      aria-busy={pending}
+      aria-label={t('signOut')}
+      data-tooltip={t('signOut')}
+      data-tooltip-pos="bottom"
     >
-      <LogOut size={16} strokeWidth={2} aria-hidden="true" />
-      <span className="signout-btn__label">{pending ? t('exiting') : t('exit')}</span>
+      <LogOut size={20} strokeWidth={1.8} aria-hidden="true" />
     </button>
   )
 }

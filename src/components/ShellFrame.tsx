@@ -1,72 +1,152 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 import type { ReactNode, TouchEvent } from 'react'
 import { usePathname } from 'next/navigation'
-import type { NavMode } from '@/lib/nav'
+import { useDashboardLoading } from '@/components/DashboardLoading'
 
-const DESKTOP_QUERY = '(min-width: 901px)'
+export type ShellMode = 'wide' | 'mid' | 'narrow'
+
+export const SIDEBAR_ID = 'app-sidebar'
+export const SIDEBAR_STORAGE_KEY = 'spark-sb'
+
+const WIDE_QUERY = '(min-width: 1100px)'
+const NARROW_QUERY = '(max-width: 699px)'
 const SWIPE_CLOSE_PX = 60
 
-interface MobileNavContextValue {
+interface ShellNavContextValue {
+  mode: ShellMode
   open: boolean
-  toggle: () => void
+  collapsed: boolean
+  rail: boolean
+  openMenu: (opener: HTMLElement | null) => void
   close: () => void
+  toggleCollapsed: () => void
 }
 
-const MobileNavContext = createContext<MobileNavContextValue | null>(null)
+const ShellNavContext = createContext<ShellNavContextValue | null>(null)
 
-export function useMobileNav(): MobileNavContextValue {
-  const ctx = useContext(MobileNavContext)
-  if (!ctx) throw new Error('useMobileNav must be used inside ShellFrame')
+export function useShellNav(): ShellNavContextValue {
+  const ctx = useContext(ShellNavContext)
+  if (!ctx) throw new Error('useShellNav must be used inside ShellFrame')
   return ctx
 }
 
-export function ShellFrame({ navMode, children }: { navMode: NavMode; children: ReactNode }) {
+function subscribeMode(onChange: () => void): () => void {
+  const queries = [window.matchMedia(WIDE_QUERY), window.matchMedia(NARROW_QUERY)]
+  for (const query of queries) query.addEventListener('change', onChange)
+  return () => {
+    for (const query of queries) query.removeEventListener('change', onChange)
+  }
+}
+
+function readMode(): ShellMode {
+  if (window.matchMedia(WIDE_QUERY).matches) return 'wide'
+  return window.matchMedia(NARROW_QUERY).matches ? 'narrow' : 'mid'
+}
+
+// Layout itself is pure CSS; the mode only decides behaviour that CSS cannot (what is inert,
+// which button the footer toggle acts as). Server render assumes the desktop layout.
+function useShellMode(): ShellMode {
+  return useSyncExternalStore(subscribeMode, readMode, () => 'wide')
+}
+
+function readCollapsed(): boolean {
+  try {
+    return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'rail'
+  } catch {
+    return false
+  }
+}
+
+function writeCollapsed(collapsed: boolean): void {
+  try {
+    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed ? 'rail' : 'full')
+  } catch {
+    // nothing to remember it with
+  }
+}
+
+export function ShellFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  // Keyed to the path it was opened on, so navigating closes the drawer without an effect.
+  const mode = useShellMode()
+  const { loading } = useDashboardLoading()
+  // Keyed to the path it was opened on, so navigating closes the overlay without an effect.
   const [openPath, setOpenPath] = useState<string | null>(null)
-  const open = openPath === pathname
+  const [collapsed, setCollapsed] = useState(false)
+  const open = openPath === pathname && mode !== 'wide'
   const frameRef = useRef<HTMLDivElement>(null)
+  const openerRef = useRef<HTMLElement | null>(null)
   const swipeStartX = useRef<number | null>(null)
 
+  useEffect(() => {
+    setCollapsed(readCollapsed())
+  }, [])
+
   const close = useCallback(() => setOpenPath(null), [])
-  const toggle = useCallback(
-    () => setOpenPath((current) => (current === pathname ? null : pathname)),
+  const openMenu = useCallback(
+    (opener: HTMLElement | null) => {
+      openerRef.current = opener
+      setOpenPath(pathname)
+    },
     [pathname],
   )
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed(!collapsed)
+    writeCollapsed(!collapsed)
+  }, [collapsed])
+
+  useEffect(() => {
+    const sidebar = frameRef.current?.querySelector(`#${SIDEBAR_ID}`)
+    if (!sidebar) return
+    if (mode === 'narrow' && !open) sidebar.setAttribute('inert', '')
+    else sidebar.removeAttribute('inert')
+  }, [mode, open])
 
   useEffect(() => {
     if (!open) return
     const frame = frameRef.current
-    const main = frame?.querySelector('.dashboard-main')
-    const returnTo = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    const previousOverflow = document.documentElement.style.overflow
+    const main = frame?.querySelector('[data-shell-main]')
+    const sidebar = frame?.querySelector<HTMLElement>(`#${SIDEBAR_ID}`)
+    const opener = openerRef.current
 
     main?.setAttribute('inert', '')
-    document.documentElement.style.overflow = 'hidden'
-    frame?.querySelector<HTMLElement>('[data-drawer-close]')?.focus()
+    const target =
+      sidebar?.querySelector<HTMLElement>('[aria-current="page"]') ??
+      sidebar?.querySelector<HTMLElement>('a[href]') ??
+      sidebar?.querySelector<HTMLElement>('[data-drawer-close]')
+    target?.focus({ preventScroll: true })
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpenPath(null)
     }
-    const desktop = window.matchMedia(DESKTOP_QUERY)
-    const onBreakpoint = (event: MediaQueryListEvent) => {
-      if (event.matches) setOpenPath(null)
-    }
+    const onBreakpoint = () => setOpenPath(null)
+    const queries = [window.matchMedia(WIDE_QUERY), window.matchMedia(NARROW_QUERY)]
     document.addEventListener('keydown', onKeyDown)
-    desktop.addEventListener('change', onBreakpoint)
+    for (const query of queries) query.addEventListener('change', onBreakpoint)
 
     return () => {
       main?.removeAttribute('inert')
-      document.documentElement.style.overflow = previousOverflow
       document.removeEventListener('keydown', onKeyDown)
-      desktop.removeEventListener('change', onBreakpoint)
-      returnTo?.focus()
+      for (const query of queries) query.removeEventListener('change', onBreakpoint)
+      opener?.focus({ preventScroll: true })
     }
   }, [open])
 
-  const value = useMemo(() => ({ open, toggle, close }), [open, toggle, close])
+  const rail = (mode === 'wide' && collapsed) || (mode === 'mid' && !open)
+  const value = useMemo(
+    () => ({ mode, open, collapsed, rail, openMenu, close, toggleCollapsed }),
+    [mode, open, collapsed, rail, openMenu, close, toggleCollapsed],
+  )
 
   const onTouchStart = (event: TouchEvent) => {
     swipeStartX.current = open ? (event.touches[0]?.clientX ?? null) : null
@@ -79,24 +159,24 @@ export function ShellFrame({ navMode, children }: { navMode: NavMode; children: 
   }
 
   return (
-    <MobileNavContext.Provider value={value}>
+    <ShellNavContext.Provider value={value}>
       <div
         ref={frameRef}
-        className="dashboard-shell"
-        data-nav-mode={navMode}
-        data-nav-open={open ? 'true' : undefined}
+        className={`dashboard-shell${loading ? ' is-loading' : ''}`}
+        data-collapsed={collapsed ? 'true' : undefined}
+        data-open={open ? 'true' : undefined}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         {children}
         <button
           type="button"
-          className="shell-backdrop"
+          className="dashboard-scrim"
           tabIndex={-1}
           aria-hidden="true"
           onClick={close}
         />
       </div>
-    </MobileNavContext.Provider>
+    </ShellNavContext.Provider>
   )
 }
